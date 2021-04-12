@@ -1,12 +1,12 @@
 # Baritone discord Bot
 The bot for the Baritone discord, made in python cause thats all I know.
 
-Please submit prs cause this is probably really poorly made.
+Please submit prs cause this is probably really poorly made. (see [help.py](cogs/help.py) for all commands)
 
 Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Baritone repo](https://github.com/cabaletta/baritone)
 
 ## Things to-do:
-• Add functionality to response/blacklist/cringe because right now it just sends embeds
+• Add functionality to response/cringe because right now it just sends embeds
 
 • dm users when they have been un/muted/kicked/optout/un/ban (some code for this is in the optout file)
 
@@ -18,7 +18,7 @@ Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Bari
 
 • add durations to mute command
 
-• add more options to the embed command (field, footer, author, image, etc) will probably require a new function in const.py
+• add more options to the embed command (field, footer, author, image, etc) will probably require a new function in [const.py](cogs/const.py)
 
 • be able to update rules, or add/remove (maybe list) them kinda like responses
 

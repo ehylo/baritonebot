@@ -2,7 +2,7 @@ import discord
 import logging
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import helper_group, mod_group, error_embed, channel_embed, help_embed
+from cogs.const import helper_group, mod_group, error_embed, channel_embed, help_embed, admin_group
 
 class Blacklist(commands.Cog):
     def __init__(self, bot):
@@ -16,23 +16,36 @@ class Blacklist(commands.Cog):
     @blacklist.command()
     @commands.check(helper_group)
     async def list(self, ctx):
-        #list the current blacklist
+        blist = open("./data/blacklist.txt", "r")
+        desc = (f'```\n{blist.read()}```')
+        blist.close()
         title = ('Blacklisted Words')
-        desc = ('(list of blacklisted words)')
         await channel_embed(ctx, title, desc)
     
     @blacklist.command()
     @commands.check(mod_group)
     async def add(self, ctx, word=None):
+        f = open("./data/blacklist.txt", "r")
+        lines = f.readlines()
+        res = [sub.replace('\n', '') for sub in lines]
         if word == None:
             desc = ('You need to give a word to add')
             await error_embed(ctx, desc)
+        elif " " in word:
+            desc = ('Do not add a space')
+            await error_embed(ctx, desc)
         else:
-            #save 'word' to blacklist
-            title = 'Added'
-            desc = (f'The word `{word}` has been added to the blacklist')
-            await channel_embed(ctx, title, desc)
-            logging.info(f'{ctx.author.id} added a word to the blacklist')
+            if word not in res:
+                f = open("./data/blacklist.txt", "a")
+                f.write(f'\n{word}')
+                f.close()
+                title = 'Added'
+                desc = (f'The word `{word}` has been added to the blacklist')
+                await channel_embed(ctx, title, desc)
+                logging.info(f'{ctx.author.id} added a word to the blacklist')
+            else:
+                desc = 'That word already exists on the blacklist'
+                await error_embed(ctx, desc)
 
     @blacklist.command()
     @commands.check(mod_group)
@@ -41,15 +54,68 @@ class Blacklist(commands.Cog):
             desc = ('You need to give a word to remove')
             await error_embed(ctx, desc)
         else:
-            try:
-                #try to remove 'word'
-                title = 'Removed'
-                desc = (f'The word `{word}` has been removed from the blacklist')
+            with open("./data/blacklist.txt", "r") as f:
+                lines = f.readlines()
+            with open("./data/blacklist.txt", "w") as f:
+                for line in lines:
+                    if line.strip("\n") != word:
+                        f.write(line)
+            title = 'Removed'
+            desc = (f'The word `{word}` has been removed from the blacklist *if it was ever there*')
+            await channel_embed(ctx, title, desc)
+            logging.info(f'{ctx.author.id} removed a word from the blacklist')
+
+    @commands.command()
+    @commands.check(admin_group)
+    async def exempt(self, ctx, elp=None):
+        if elp == 'help':
+            await Help.exempt(self, ctx)
+        elif elp == 'list':
+            slist = open("./data/exemptchannels.txt", "r")
+            #desc = (f'```\n{mlist.read()}```')
+            #slist.close()
+            mlist = []
+            for line in slist:
+                mchId = self.bot.get_channel(int(line))
+                mlist.append(mchId.mention)
+            jmlist = (', '.join(mlist))[1:-1]
+            desc = f'<{jmlist}>'
+            title = ('Exempted Channels')
+            await channel_embed(ctx, title, desc)
+        else:
+            word = str(ctx.channel.id)
+            f = open("./data/exemptchannels.txt", "r")
+            lines = f.readlines()
+            res = [sub.replace('\n', '') for sub in lines]
+            if word not in res:
+                f = open("./data/exemptchannels.txt", "a")
+                f.write(f'\n{word}')
+                f.close()
+                title = 'Exempted'
+                desc = f'The channel {ctx.channel.mention} is now exempted from the blacklist and regex responses'
                 await channel_embed(ctx, title, desc)
-                logging.info(f'{ctx.author.id} removed a word from the blacklist')
-            except:
-                desc = (f'`{word} isn\'t on the blacklist')
+                logging.info(f'{ctx.author.id} added a channel ({word}) to the exemptchannels')
+            else:
+                desc = 'This channel is already on the exempt list'
                 await error_embed(ctx, desc)
+
+    @commands.command()
+    @commands.check(admin_group)
+    async def unexempt(self, ctx, elp=None):
+        if elp == 'help':
+            await Help.exempt(self, ctx)
+        else:
+            word = ctx.channel.id
+            with open("./data/exemptchannels.txt", "r") as f:
+                lines = f.readlines()
+            with open("./data/exemptchannels.txt", "w") as f:
+                for line in lines:
+                    if line.strip("\n") != str(word):
+                        f.write(line)
+            title = 'Un-exempted'
+            desc = (f'The channel {ctx.channel.mention} is no longer exempted from the blacklist and regex responses *if it ever was exempted*')
+            await channel_embed(ctx, title, desc)
+            logging.info(f'{ctx.author.id} removed a channel ({word}) from the exemptchannels')
 
     @list.error
     @blacklist.error
@@ -72,6 +138,17 @@ class Blacklist(commands.Cog):
             desc = None
             await error_embed(ctx, desc, error)
             logging.info(f'{ctx.author.id} tried to add/remove word from blacklist but it gave the error: {error}')
+    
+    @exempt.error
+    @unexempt.error
+    async def exempt_error(self, ctx, error):
+        if isinstance(error, commands.errors.CheckFailure):
+            desc = (f'You need to be an Admin to use the command `{ctx.command}`')
+            await error_embed(ctx, desc)
+        else:
+            desc = None
+            await error_embed(ctx, desc, error)
+            logging.info(f'{ctx.author.id} tried to add/remove channel to the exemptchannels but it gave the error: {error}')
 
 def setup(bot):
     bot.add_cog(Blacklist(bot))

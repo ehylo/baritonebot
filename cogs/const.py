@@ -19,6 +19,10 @@ with open(os.path.join(sys.path[0], 'data/values.json')) as jsonValues:
     preCmd = str((valuesStr)[0]['prefix'])
     setNick = str((valuesStr)[0]['nick'])
 
+eC = open("./data/exemptchannels.txt", "r")
+exmChl = eC.read()
+eC.close()
+
 logging.basicConfig(filename='console.log', level=logging.INFO, format='[%(asctime)s %(levelname)s] %(message)s', datefmt='%m-%d-%Y %H:%M:%S')
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 

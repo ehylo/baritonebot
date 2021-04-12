@@ -31,16 +31,6 @@ class Logs(commands.Cog):
             logging.info(f'{message_after.author.id} edited a message, Before:\"{message_before}\" After:\"{message_after}\"')
 
     @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.guild is None and message.author != self.bot.user:
-            channel = await self.bot.fetch_channel(logChannel)
-            title = (f'I have recieved a DM')
-            desc = message.content
-            ctx = message
-            await log_embed(ctx, title, desc, channel)
-            logging.info(f'{message.author.id} dmed me \"{message.content}\"')
-
-    @commands.Cog.listener()
     async def on_member_remove(self, member):
         title=('User Left')
         desc = None

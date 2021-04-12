@@ -21,7 +21,7 @@ class Help(commands.Cog):
     @help.command()
     async def admin(self, ctx):
         title = 'Admin'
-        desc = '`help <command>` to get command info or give no arguments'
+        desc = '`help <command>` to get command info or give no arguments if it does not have `<help>`'
         fieldName = 'Commands:'
         fieldValue = '\
             \u2022 `reload <extension>` \
@@ -30,6 +30,7 @@ class Help(commands.Cog):
             \n\u2022 `unban <user>` \
             \n\u2022 `embedcolor <default|hex color>` \
             \n\u2022 `prefix <default|prefix>` \
+            \n\u2022 `<un>exempt <help|list>>` \
             \n*+ all lower commands*'
         await help_embed(ctx, title, desc, fieldValue, fieldName)
 
@@ -56,7 +57,7 @@ class Help(commands.Cog):
     @help.command()
     async def helper(self, ctx):
         title = 'Helper'
-        desc = '`help <command>` to get command info or give no arguments'
+        desc = '`help <command>` to get command info or give no arguments if it does not have `<help>`'
         fieldValue = '\
             \u2022 `mute <user> <reason>` \
             \n\u2022 `response <details|list> <number>` \
@@ -258,6 +259,13 @@ class Help(commands.Cog):
         title = ('Reload')
         desc = ('Reloads the specified extension')
         fieldValue = '`reload <extension>`'
+        await help_embed(ctx, title, desc, fieldValue)
+
+    @help.command()
+    async def exempt(self, ctx):
+        title = 'Exempt'
+        desc = 'Allows you to make the current channel exempted from the blacklist and regex responses, or list the current channels exempted'
+        fieldValue = '`<un>exempt <list>`'
         await help_embed(ctx, title, desc, fieldValue)
     
     @help.error
