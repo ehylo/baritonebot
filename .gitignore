@@ -141,3 +141,6 @@ cython_debug/
 data/rules.json
 data/values.json
 data/responses.json
+data/cringe.txt
+data/blacklist.txt
+data/exemptchannels.txt
