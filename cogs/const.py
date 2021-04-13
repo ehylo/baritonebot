@@ -8,6 +8,7 @@ from discord.ext import commands
 
 fault_footer = u'\U0001f916' 'Baritoe Bot' u'\U0001f916'
 timeDate = datetime.datetime.utcnow()
+bbi = (823620099054239744)
 
 with open('./data/values.json') as jsonValues:
     valuesStr = json.load(jsonValues)
@@ -36,17 +37,41 @@ leaveChannel    =   (826950652516106242)
 logChannel      =   (826950652516106245)
 baritoneDiscord =   (826950651690745876)
 
-def admin_group(ctx):
-    adminRoleList = [int(r.id) for r in ctx.author.roles]
-    return adminRoleList.count(adminRole) == 1 or adminRoleList.count(devRole) == 1 or adminRoleList.count(bypsRole) == 1
+async def admin_group(ctx):
+    try:
+        adminRoleList = [int(r.id) for r in ctx.author.roles]
+        if adminRoleList.count(adminRole) == 1 or adminRoleList.count(devRole) == 1 or adminRoleList.count(bypsRole) == 1:
+            return
+        else:
+            desc = (f'You need to be an Admin to use the command `{ctx.command}`')
+            await error_embed(ctx, desc)
+    except AttributeError:
+        desc = (f'You cannot use the command `{ctx.command}` in dms!')
+        await error_embed(ctx, desc)
 
-def mod_group(ctx):
-    modRoleList = [int(r.id) for r in ctx.author.roles]
-    return modRoleList.count(moderatorRole) == 1 or modRoleList.count(bypsRole) == 1
+async def mod_group(ctx):
+    try:
+        modRoleList = [int(r.id) for r in ctx.author.roles]
+        if modRoleList.count(moderatorRole) == 1 or modRoleList.count(bypsRole) == 1:
+            return
+        else:
+            desc = (f'You need to be an Moderator to use the command `{ctx.command}`')
+            await error_embed(ctx, desc)
+    except AttributeError:
+        desc = (f'You cannot use the command `{ctx.command}` in dms!')
+        await error_embed(ctx, desc)
 
-def helper_group(ctx):
-    helperRoleList = [int(r.id) for r in ctx.author.roles]
-    return helperRoleList.count(helperRole) == 1 or helperRoleList.count(bypsRole) == 1
+async def helper_group(ctx):
+    try:
+        helperRoleList = [int(r.id) for r in ctx.author.roles]
+        if helperRoleList.count(helperRole) == 1 or helperRoleList.count(bypsRole) == 1:
+            return
+        else:
+            desc = (f'You need to be an Helper to use the command `{ctx.command}`')
+            await error_embed(ctx, desc)
+    except AttributeError:
+        desc = (f'You cannot use the command `{ctx.command}` in dms!')
+        await error_embed(ctx, desc)
 
 async def error_embed(ctx, desc=None, error=None):
     dflt = (f'An unhandled error occured (probably bad): \n```{error}```')

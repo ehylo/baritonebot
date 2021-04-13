@@ -30,7 +30,7 @@ class Help(commands.Cog):
             \n\u2022 `unban <user>` \
             \n\u2022 `embedcolor <default|hex color>` \
             \n\u2022 `prefix <default|prefix>` \
-            \n\u2022 `<un>exempt <help|list>>` \
+            \n\u2022 `<un>exempt <help|list>` \
             \n*+ all lower commands*'
         await help_embed(ctx, title, desc, fieldValue, fieldName)
 
@@ -272,7 +272,7 @@ class Help(commands.Cog):
     async def help_error(self, ctx, error):
         desc = None
         await error_embed(ctx, desc, error)
-        logging.info(f'{ctx.author.id} tried get help but it gave the error: {error}')
+        logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 def setup(bot):
     bot.add_cog(Help(bot))

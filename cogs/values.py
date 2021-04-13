@@ -42,12 +42,11 @@ class Prefix(commands.Cog):
     @default.error
     async def status_error(self, ctx, error):
         if isinstance(error, commands.errors.CheckFailure):
-            desc = (f'You need to be an Admin to use the command `{ctx.command}`')
-            await error_embed(ctx, desc)
+            pass
         else:
             desc = None
             await error_embed(ctx, desc, error)
-            logging.info(f'{ctx.author.id} tried to set the prefix but it gave the error: {error}')
+            logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 class EmbedColor(commands.Cog):
     def __init__(self, bot):
@@ -84,12 +83,11 @@ class EmbedColor(commands.Cog):
     @default.error
     async def status_error(self, ctx, error):
         if isinstance(error, commands.errors.CheckFailure):
-            desc = (f'You need to be an Admin to use the command `{ctx.command}`')
-            await error_embed(ctx, desc)
+            pass
         else:
             desc = None
             await error_embed(ctx, desc, error)
-            logging.info(f'{ctx.author.id} tried to set the embedcolor but it gave the error: {error}')
+            logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 class Nick(commands.Cog):
     def __init__(self, bot):
@@ -130,12 +128,11 @@ class Nick(commands.Cog):
     @remove.error
     async def nick_error(self, ctx, error):
         if isinstance(error, commands.errors.CheckFailure):
-            desc = (f'You need to be a Moderator to use the command `{ctx.command}`')
-            await error_embed(ctx, desc)
+            pass
         else:
             desc = None
             await error_embed(ctx, desc, error)
-            logging.info(f'{ctx.author.id} tried to remove/set the nick but it gave the error: {error}')
+            logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 class Status(commands.Cog):
     def __init__(self, bot):
@@ -174,12 +171,11 @@ class Status(commands.Cog):
     @default.error
     async def status_error(self, ctx, error):
         if isinstance(error, commands.errors.CheckFailure):
-            desc = (f'You need to be a Moderator to use the command `{ctx.command}`')
-            await error_embed(ctx, desc)
+            pass
         else:
             desc = None
             await error_embed(ctx, desc, error)
-            logging.info(f'{ctx.author.id} tried to set the status but it gave the error: {error}')
+            logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 def setup(bot):
     bot.add_cog(Prefix(bot))

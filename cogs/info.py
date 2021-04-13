@@ -17,22 +17,21 @@ async def info_embed(ctx, member, title, field1, field2, field3, value):
     embedVar.set_thumbnail(url=member.avatar_url)
     await ctx.send(embed=embedVar)
 
-async def varistuff(ctx, member, info, ismember):
-    if info == True:
-        if ismember == True:
-            title = 'Member Information:'
-            field1 = member.status
-            field2 = member.joined_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " ")
-            field3 = f'Roles ({len(member.roles)-1}):'
-            value = (' '.join([str(r.mention) for r in member.roles][1:])+'\u200b')
-            await info_embed(ctx, member, title, field1, field2, field3, value)
-        elif ismember == False:
-            title = 'User Information:'
-            field1 = 'API doesn\'t support this yet'
-            field2 = 'User has not joined this server yet'
-            field3 = 'Default avatar color:'
-            value = member.default_avatar
-            await info_embed(ctx, member, title, field1, field2, field3, value)
+async def varistuff(ctx, member, ismember):
+    if ismember == True:
+        title = 'Member Information:'
+        field1 = member.status
+        field2 = member.joined_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " ")
+        field3 = f'Roles ({len(member.roles)-1}):'
+        value = (' '.join([str(r.mention) for r in member.roles][1:])+'\u200b')
+        await info_embed(ctx, member, title, field1, field2, field3, value)
+    elif ismember == False:
+        title = 'User Information:'
+        field1 = 'API doesn\'t support this yet'
+        field2 = 'User has not joined the baritone server yet'
+        field3 = 'Default avatar color:'
+        value = member.default_avatar
+        await info_embed(ctx, member, title, field1, field2, field3, value)
 
 class Info(commands.Cog):
     def __init__(self, bot):
@@ -50,10 +49,10 @@ class Info(commands.Cog):
                     usrint = int(userID)
                     if memberCheck.get_member(usrint) != None:
                         member = memberCheck.get_member(usrint)
-                        await varistuff(ctx, member, info=True, ismember=True)
+                        await varistuff(ctx, member, ismember=True)
                     elif await self.bot.fetch_user(usrint) != None: 
                         member = await self.bot.fetch_user(usrint)
-                        await varistuff(ctx, member, info=True, ismember=False)
+                        await varistuff(ctx, member, ismember=False)
                     else:
                         desc = 'That is not a valid user ID'
                         await error_embed(ctx, desc)
@@ -63,27 +62,34 @@ class Info(commands.Cog):
             else:
                 usrint = int(usrStr)
                 member = memberCheck.get_member(usrint)
-                await varistuff(ctx, member, info=True, ismember=True)
+                await varistuff(ctx, member, ismember=True)
 
     @userinfo.command()
     async def me(self, ctx):
-        member = ctx.author
-        await varistuff(ctx, member, info=True, ismember=True)
+        dcCheck = self.bot.get_guild(baritoneDiscord)
+        mmCheck = dcCheck.get_member(ctx.author.id)
+        if mmCheck != None:
+            member = mmCheck
+            await varistuff(ctx, member, ismember=True)
+        else:
+            member = ctx.author
+            await varistuff(ctx, member, ismember=False)
 
     @commands.group(invoke_without_command=True)
     async def serverinfo(self, ctx):
-            embedVar = discord.Embed(color = coolEmbedColor, timestamp=datetime.datetime.utcnow(), title=f'Server Information: {ctx.guild.name}')
-            embedVar.add_field(name='Owner:', value=f'{ctx.guild.owner} (ID: {ctx.guild.owner_id})', inline=False)
-            embedVar.add_field(name='Description:', value=ctx.guild.description, inline=False)
-            embedVar.add_field(name='Created:', value=ctx.guild.created_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " "), inline=False)
-            embedVar.add_field(name='Region:', value=ctx.guild.region, inline=False)
-            embedVar.add_field(name=f'Roles ({len(ctx.guild.roles)}):', value=(' '.join([str(r.mention) for r in ctx.guild.roles][1:])+'\u200b'), inline=False)
-            embedVar.add_field(name='Text Channels:', value=len(ctx.guild.text_channels), inline=True)
-            embedVar.add_field(name='Voice Channels:', value=len(ctx.guild.voice_channels), inline=True)
-            embedVar.add_field(name='Members:', value=ctx.guild.member_count, inline=True)
-            embedVar.set_footer(text=(f'ID: {ctx.guild.id}'))
-            embedVar.set_thumbnail(url=ctx.guild.icon_url)
-            await ctx.send(embed=embedVar)
+        dcCheck = self.bot.get_guild(baritoneDiscord)
+        embedVar = discord.Embed(color = coolEmbedColor, timestamp=datetime.datetime.utcnow(), title=f'Server Information: {dcCheck.name}')
+        embedVar.add_field(name='Owner:', value=f'{dcCheck.owner} (ID: {dcCheck.owner_id})', inline=False)
+        embedVar.add_field(name='Description:', value=dcCheck.description, inline=False)
+        embedVar.add_field(name='Created:', value=dcCheck.created_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " "), inline=False)
+        embedVar.add_field(name='Region:', value=dcCheck.region, inline=False)
+        embedVar.add_field(name=f'Roles ({len(dcCheck.roles)}):', value=(' '.join([str(r.mention) for r in dcCheck.roles][1:])+'\u200b'), inline=False)
+        embedVar.add_field(name='Text Channels:', value=len(dcCheck.text_channels), inline=True)
+        embedVar.add_field(name='Voice Channels:', value=len(dcCheck.voice_channels), inline=True)
+        embedVar.add_field(name='Members:', value=dcCheck.member_count, inline=True)
+        embedVar.set_footer(text=(f'ID: {dcCheck.id}'))
+        embedVar.set_thumbnail(url=dcCheck.icon_url)
+        await ctx.send(embed=embedVar)
 
     @serverinfo.command()
     async def help(self, ctx):
@@ -95,7 +101,7 @@ class Info(commands.Cog):
     async def serveruser_error(self, ctx, error):
         desc = None
         await error_embed(ctx, desc, error)
-        logging.info(f'{ctx.author.id} tried to get server/user info but it gave the error: {error}')
+        logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 def setup(bot):
     bot.add_cog(Info(bot))

@@ -1,7 +1,7 @@
 import discord
 import logging
 import requests
-from cogs.const import preCmd, logChannel, log_embed, exmChl, channel_embed, pasteToken
+from cogs.const import preCmd, logChannel, log_embed, exmChl, channel_embed, pasteToken, bbi
 from datetime import datetime, timedelta
 from discord.ext import commands
 
@@ -18,7 +18,7 @@ class Messageon(commands.Cog):
             ctx = message
             await log_embed(ctx, title, desc, channel)
             logging.info(f'{message.author.id} dmed me \"{message.content}\"')
-        elif message.author.id != (823620099054239744) and str(message.channel.id) not in exmChl: # deleting blacklisted words
+        elif message.author.id != bbi and str(message.channel.id) not in exmChl: # deleting blacklisted words
             if message.content.startswith(f'{preCmd}blacklist add '):
                 pass
             else:

@@ -23,7 +23,7 @@ class Ping(commands.Cog):
     async def ping_error(self, ctx, error):
         desc = f'What the fuck how in the fuck did you get ping to cause an error? damn bro you get the broke ping role now *here is the error:* ```{error}```'
         await error_embed(ctx, desc, error)
-        logging.info(f'{ctx.author.id} tried to ping but it gave the error: {error}')
+        logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 def setup(bot):
     bot.add_cog(Ping(bot))

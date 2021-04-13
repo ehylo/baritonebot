@@ -131,42 +131,20 @@ class Bkm(commands.Cog):
                 await member.kick(reason=reason)
 
     @unban.error
-    async def unban_error(self, ctx, error):
-        if isinstance(error, commands.errors.CheckFailure):
-            desc = (f'You need to be an Admin to use the command `{ctx.command}`')
-            await error_embed(ctx, desc)
-        else:
-            desc = None
-            await error_embed(ctx, desc, error)
-            logging.info(f'{ctx.author.id} tried to unban but it gave the error: {error}')
-
     @mute.error
-    async def mute_error(self, ctx, error):
-        if isinstance(error, commands.errors.CheckFailure):
-            desc = (f'You need to be a Helper to use the command `{ctx.command}`')
-            await error_embed(ctx, desc)
-        elif isinstance(error, commands.errors.MemberNotFound):
-            desc = f'That member is invalid'
-            await error_embed(ctx, desc)
-        else:
-            desc = None
-            await error_embed(ctx, desc, error)
-            logging.info(f'{ctx.author.id} tried to mute but it gave the error: {error}')
-
     @ban.error
     @unmute.error
     @kick.error
-    async def mod_error(self, ctx, error):
+    async def bkm_error(self, ctx, error):
         if isinstance(error, commands.errors.CheckFailure):
-            desc = (f'You need to be a Moderator to use the command `{ctx.command}`')
-            await error_embed(ctx, desc)
+            pass
         elif isinstance(error, commands.errors.MemberNotFound):
             desc = f'That member is invalid'
             await error_embed(ctx, desc)
         else:
             desc = None
             await error_embed(ctx, desc, error)
-            logging.info(f'{ctx.author.id} tried to ban/kick/unmute but it gave the error: {error}')
+            logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 def setup(bot):
     bot.add_cog(Bkm(bot))

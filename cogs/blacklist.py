@@ -78,25 +78,15 @@ class Blacklist(commands.Cog):
 
     @list.error
     @blacklist.error
-    async def listhelp_error(self, ctx, error):
-        if isinstance(error, commands.errors.CheckFailure):
-            desc = (f'You need to be a Helper to use the command `{ctx.command}`')
-            await error_embed(ctx, desc)
-        else:
-            desc = None
-            await error_embed(ctx, desc, error)
-            logging.info(f'{ctx.author.id} tried to list the blacklisted words but it gave the error: {error}')
-
     @add.error
     @remove.error
-    async def addremove_error(self, ctx, error):
+    async def blacklist_error(self, ctx, error):
         if isinstance(error, commands.errors.CheckFailure):
-            desc = (f'You need to be a Moderator to use the command `{ctx.command}`')
-            await error_embed(ctx, desc)
+            pass
         else:
             desc = None
             await error_embed(ctx, desc, error)
-            logging.info(f'{ctx.author.id} tried to add/remove word from blacklist but it gave the error: {error}')
+            logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 def setup(bot):
     bot.add_cog(Blacklist(bot))

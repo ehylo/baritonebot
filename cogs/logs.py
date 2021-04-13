@@ -1,7 +1,7 @@
 import discord
 import logging
 from discord.ext import commands
-from cogs.const import coolEmbedColor, logChannel, leaveChannel, timeDate, log_embed, fault_footer
+from cogs.const import coolEmbedColor, logChannel, leaveChannel, timeDate, log_embed, fault_footer, bbi
 
 class Logs(commands.Cog):
     def __init__(self, bot):
@@ -9,7 +9,7 @@ class Logs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if message.author.id != (823620099054239744):
+        if message.author.id != bbi:
             title = None
             desc = (f'**Message deleted in <#{message.channel.id}>** \n{message.content}')
             ctx = message
@@ -19,7 +19,7 @@ class Logs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
-        if message_before.author.id != (823620099054239744):
+        if message_before.author.id != bbi:
             embedVar = discord.Embed(color = coolEmbedColor, timestamp=timeDate)
             embedVar.description =(f'**Message edited in <#{message_after.channel.id}>** [(jump)](https://discord.com/channels/{message_after.guild.id}/{message_after.channel.id}/{message_after.id})')
             embedVar.add_field(name='Befored Edit:', value=message_before.content, inline=True)

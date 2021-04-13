@@ -19,7 +19,6 @@ open('./data/cringe.txt', 'a').close()
 open('./data/exemptchannels.txt', 'a').close()
 open('./data/blacklist.txt', 'a').close()
 
-
 with open('./data/values.json') as jsonValues:
     valuesStr = json.load(jsonValues)
     token = str((valuesStr)[0]['token'])

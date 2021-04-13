@@ -29,12 +29,11 @@ class Clear(commands.Cog):
     @clear.error
     async def clear_error(self, ctx, error):
         if isinstance(error, commands.errors.CheckFailure):
-            desc = (f'You need to be a Moderator to use the command `{ctx.command}`')
-            await error_embed(ctx, desc)
+            pass
         else:
             desc = None
             await error_embed(ctx, desc, error)
-            logging.info(f'{ctx.author.id} tried to clear some messages in {ctx.channel} but it gave the error: {error}')
+            logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 def setup(bot):
     bot.add_cog(Clear(bot))
