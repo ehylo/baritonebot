@@ -1,8 +1,9 @@
 import discord
 import logging
+import random
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import mod_group, channel_embed, error_embed, help_embed, helper_group
+from cogs.const import mod_group, channel_embed, error_embed, help_embed, helper_group, fault_footer, coolEmbedColor, timeDate
 
 class Cringe(commands.Cog):
     def __init__(self, bot):
@@ -10,10 +11,15 @@ class Cringe(commands.Cog):
 
     @commands.group(invoke_without_command=True)
     async def cringe(self, ctx):
-        #grab a random cringe and send it
-        title = (':camera_with_flash:')
-        desc = None
-        await channel_embed(ctx, title, desc)
+        num_lines = sum(1 for line in open("./data/cringe.txt"))
+        cnum = (random.randint(1, num_lines)) - 1
+        f = open("./data/cringe.txt", "r")
+        urlImg = (f.readlines())[cnum]
+        embedVar = discord.Embed(color = coolEmbedColor, timestamp=timeDate)
+        embedVar.title = (':camera_with_flash:')
+        embedVar.set_image(url=urlImg)
+        embedVar.set_footer(text=(fault_footer))
+        await ctx.send(embed=embedVar)
 
     @cringe.command()
     async def help(self, ctx):
@@ -26,42 +32,52 @@ class Cringe(commands.Cog):
             desc = ('You need to give a url to remove')
             await error_embed(ctx, desc)
         else:
-            try:
-                #search to see if url exist in cringe json, if it does remove
+            f = open("./data/cringe.txt", "r")
+            lines = f.readlines()
+            res = [sub.replace('\n', '') for sub in lines]
+            if url in res:
+                with open("./data/cringe.txt", "r") as f:
+                    lines = f.readlines()
+                with open("./data/cringe.txt", "w") as f:
+                    for line in lines:
+                        if line.strip("\n") != url:
+                            f.write(line)
                 title = 'Removed'
                 desc = ('I guess that wasn\'nt cringe enough')
                 await channel_embed(ctx, title, desc)
                 logging.info(f'{ctx.author.id} removed a cringe')
-            except:
+            else:
                 desc = ('That url does not exist in the cringe db')
                 await error_embed(ctx, desc)
 
     @cringe.command()
     @commands.check(helper_group)
     async def add(self, ctx, url=None):
-        if len(ctx.message.attachments) > 0:
-            if ctx.message.attachments[0].url.lower().endswith(('.png', '.jpeg', '.jpg', '.gif')):
-                imgUrl = ctx.message.attachments[0].url
-                #add url to cringe
-                title = 'Added'
-                desc = ('Very cringe')
-                await channel_embed(ctx, title, desc)
-                logging.info(f'{ctx.author.id} added a cringe')
-            else:
-                desc = 'Invalid attachment, must be `.png` `.gif` `.jpeg` or `.jpg` or an image url'
-                await error_embed(ctx, desc)
-        elif url == None:
+        if len(ctx.message.attachments) == 0 and url == None:
             desc = ('You need to give a url or attachment to add cringe')
             await error_embed(ctx, desc)
         else:
-            try:
-                #check if url is an image, if it is add
-                title = 'Added'
-                desc = 'Very cringe'
-                await channel_embed(ctx, title, desc)
-                logging.info(f'{ctx.author.id} added a cringe')
-            except:
-                desc = 'That url is not an image'
+            if ctx.message.attachments[0].url.lower().endswith(('.png', '.jpeg', '.jpg', '.gif')) or (url.startswith('https://') and url.endswith(('.png', '.jpeg', '.jpg', '.gif'))):
+                f = open("./data/cringe.txt", "r")
+                lines = f.readlines()
+                res = [sub.replace('\n', '') for sub in lines]
+                if len(ctx.message.attachments) > 0 or url not in res:
+                    imgUrl = ctx.message.attachments[0].url
+                    f = open("./data/cringe.txt", "a")
+                    if len(ctx.message.attachments) > 0:
+                        f.write(f'\n{imgUrl}')
+                    else:
+                        f.write(f'\n{url}')
+                    f.close()
+                    title = 'Added'
+                    desc = 'Very cringe'
+                    await channel_embed(ctx, title, desc)
+                    logging.info(f'{ctx.author.id} added a cringe')
+                else:
+                    desc = 'That cringe already exists'
+                    await error_embed(ctx, desc)
+            else:
+                desc = 'Invalid attachment, must be `.png`, `.gif`, `.jpeg`, or `.jpg` or an image url'
                 await error_embed(ctx, desc)
     
     @remove.error
@@ -87,9 +103,13 @@ class Cringe(commands.Cog):
     @cringe.error
     @help.error
     async def help_error(self, ctx, error):
-        desc = None
-        await error_embed(ctx, desc, error)
-        logging.info(f'{ctx.author.id} tried to get help with the cringe command/use it but it gave the error: {error}')
+        if isinstance(error, commands.errors.CommandInvokeError):
+            desc = (f'There is no cringe, please add one to use this command')
+            await error_embed(ctx, desc)
+        else:
+            desc = None
+            await error_embed(ctx, desc, error)
+            logging.info(f'{ctx.author.id} tried to get help with the cringe command/use it but it gave the error: {error}')
 
 def setup(bot):
     bot.add_cog(Cringe(bot))

@@ -6,11 +6,7 @@ Please submit prs cause this is probably really poorly made. (see [help.py](cogs
 Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Baritone repo](https://github.com/cabaletta/baritone)
 
 ## Things to-do:
-• Add functionality to response/cringe because right now it just sends embeds
-
-• dm users when they have been un/muted/kicked/optout/un/ban (some code for this is in the optout file)
-
-• make the time in server/user info look nice (rounding)
+• Add functionality to response because right now it just sends embeds
 
 • add gif support/improve the emote command
 
@@ -22,7 +18,7 @@ Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Bari
 
 • be able to update rules, or add/remove (maybe list) them kinda like responses
 
-• add a faq command exactly like rules command but it lists faq things
+• add a faq command exactly like rules command but it lists faq things (instead of numbers use words maybe? 'links' or 'vidos' but this could just be put regex responses)
 
 • find a way to make the "Watching" in the status changeable with commands
 

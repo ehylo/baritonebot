@@ -46,7 +46,7 @@ class Logs(commands.Cog):
         ctx = None
         channel = await self.bot.fetch_channel(leaveChannel)
         await log_embed(ctx, title, desc, channel, member)
-        logging.info(f'{member.id} join the server')
+        logging.info(f'{member.id} joined the server')
 
 def setup(bot):
     bot.add_cog(Logs(bot))

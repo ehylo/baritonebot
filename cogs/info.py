@@ -9,7 +9,7 @@ async def info_embed(self, ctx, member, title, field1, field2, field3, value):
     embedVar = discord.Embed(color = coolEmbedColor, timestamp=datetime.datetime.utcnow(), title=title)
     embedVar.add_field(name='Mention:', value=member.mention, inline=True)
     embedVar.add_field(name='Status:', value=field1, inline=True)
-    embedVar.add_field(name='Created:', value=member.created_at, inline=False)
+    embedVar.add_field(name='Created:', value=member.created_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " "), inline=False)
     embedVar.add_field(name='Joined:', value=field2, inline=False)
     embedVar.add_field(name=field3, value=value, inline=False)
     embedVar.set_author(name=f'{member.name}#{member.discriminator}', icon_url=member.avatar_url)
@@ -62,7 +62,7 @@ class Info(commands.Cog):
                 if ismember == True:
                     title = 'Member Information:'
                     field1 = member.status
-                    field2 = member.joined_at
+                    field2 = member.joined_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " ")
                     field3 = f'Roles ({len(member.roles)-1}):'
                     value = (' '.join([str(r.mention) for r in member.roles][1:])+'\u200b')
                     await info_embed(self, ctx, member, title, field1, field2, field3, value)
@@ -82,7 +82,7 @@ class Info(commands.Cog):
             embedVar = discord.Embed(color = coolEmbedColor, timestamp=datetime.datetime.utcnow(), title=f'Server Information: {ctx.guild.name}')
             embedVar.add_field(name='Owner:', value=f'{ctx.guild.owner} (ID: {ctx.guild.owner_id})', inline=False)
             embedVar.add_field(name='Description:', value=ctx.guild.description, inline=False)
-            embedVar.add_field(name='Created:', value=ctx.guild.created_at, inline=False)
+            embedVar.add_field(name='Created:', value=ctx.guild.created_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " "), inline=False)
             embedVar.add_field(name='Region:', value=ctx.guild.region, inline=False)
             embedVar.add_field(name=f'Roles ({len(ctx.guild.roles)}):', value=(' '.join([str(r.mention) for r in ctx.guild.roles][1:])+'\u200b'), inline=False)
             embedVar.add_field(name='Text Channels:', value=len(ctx.guild.text_channels), inline=True)

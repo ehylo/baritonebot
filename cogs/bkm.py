@@ -2,7 +2,7 @@ import discord
 import logging
 from cogs.help import Help
 from discord.ext import commands
-from cogs.const import helper_group, mod_group, admin_group, muteRole, channel_embed, log_embed, error_embed, help_embed, logChannel
+from cogs.const import helper_group, mod_group, admin_group, muteRole, channel_embed, log_embed, error_embed, help_embed, logChannel, dm_embed
 
 class Bkm(commands.Cog):
     def __init__(self, bot):
@@ -17,13 +17,13 @@ class Bkm(commands.Cog):
             try:
                 user = await self.bot.fetch_user(userId)
                 try:
-                    await ctx.guild.unban(user)
                     title = 'User Unbanned'
                     desc = (f'{user.name}#{user.discriminator} has been unbanned!')
-                    await channel_embed(ctx, title, desc)
                     channel = await self.bot.fetch_channel(logChannel)
-                    await log_embed(ctx, title, desc, channel)
                     logging.info(f'{ctx.author.id} unbanned {user.id}')
+                    await channel_embed(ctx, title, desc)
+                    await log_embed(ctx, title, desc, channel)
+                    await ctx.guild.unban(user)
                 except:
                     desc = 'That user is not banned'
                     await error_embed(ctx, desc)
@@ -41,12 +41,16 @@ class Bkm(commands.Cog):
             desc = (f'You don\'t outrank {member.mention}')
             await error_embed(ctx, desc)
         else:
-            channel = await self.bot.fetch_channel(logChannel)
             desc = f'{member.mention} has been unmuted'
+            ddesc = 'You have been unmuted in the baritone discord'
             title = 'User Unmuted'
+            dtitle = 'Unmuted'
+            channel = await self.bot.fetch_channel(logChannel)
+            dchannel = await member.create_dm()
+            logging.info(f'{ctx.author.id} unmuted {member.id}')
             await channel_embed(ctx, title, desc)
             await log_embed(ctx, title, desc, channel)
-            logging.info(f'{ctx.author.id} unmuted {member.id}')
+            await dm_embed(ctx, dtitle, ddesc, dchannel)
             await member.remove_roles(roleVar)
 
     @commands.command()
@@ -62,13 +66,17 @@ class Bkm(commands.Cog):
                 desc = ('You need to give a reason')
                 await error_embed(ctx, desc)
             else:
-                await member.ban(reason=reason)
-                desc = f'{member.mention} has been banned for reason: \n```{reason}```'
                 title = 'User Banned'
+                dtitle = 'Banned'
+                desc = f'{member.mention} has been banned for reason: \n```{reason}```'
+                ddesc = f'You have been banned from the baritone discord for reason: \n```{reason}```'
                 channel = await self.bot.fetch_channel(logChannel)
+                dchannel = await member.create_dm()
+                logging.info(f'{ctx.author.id} banned {member.id} for reason: {reason}')
                 await channel_embed(ctx, title, desc)
                 await log_embed(ctx, title, desc, channel)
-                logging.info(f'{ctx.author.id} banned {member.id} for reason: {reason}')
+                await dm_embed(ctx, dtitle, ddesc, dchannel)
+                await member.ban(reason=reason)
 
 
     @commands.command()
@@ -85,12 +93,16 @@ class Bkm(commands.Cog):
                 desc = ('You need to give a reason')
                 await error_embed(ctx, desc)
             else:
-                desc = f'{member.mention} has been muted for reason: \n```{reason}```'
                 title = 'User Muted'
-                await channel_embed(ctx, title, desc)
+                dtitle = 'Muted'
+                desc = f'{member.mention} has been muted for reason: \n```{reason}```'
+                ddesc = f'You have been muted in the baritone discord for reason: \n```{reason}```'
                 channel = await self.bot.fetch_channel(logChannel)
-                await log_embed(ctx, title, desc, channel)
+                dchannel = await member.create_dm()
                 logging.info(f'{ctx.author.id} muted {member.id} for reason: {reason}')
+                await channel_embed(ctx, title, desc)
+                await log_embed(ctx, title, desc, channel)
+                await dm_embed(ctx, dtitle, ddesc, dchannel)
                 await member.add_roles(roleVar)
 
     @commands.command()
@@ -106,12 +118,16 @@ class Bkm(commands.Cog):
                 desc = 'You need to give a reason'
                 await error_embed(ctx, desc)
             else:
-                desc = f'{member.mention} has been kicked for reason: \n```{reason}```'
                 title = 'User Kicked'
-                await channel_embed(ctx, title, desc)
+                dtitle = 'Kicked'
+                desc = f'{member.mention} has been kicked for reason: \n```{reason}```'
+                ddesc = f'You have been kicked from the baritone discord for reason: \n```{reason}```'
                 channel = await self.bot.fetch_channel(logChannel)
-                await log_embed(ctx, title, desc, channel)
+                dchannel = await member.create_dm()
                 logging.info(f'{ctx.author.id} kicked {member.id} for reason: {reason}')
+                await channel_embed(ctx, title, desc)
+                await log_embed(ctx, title, desc, channel)
+                await dm_embed(ctx, dtitle, ddesc, dchannel)
                 await member.kick(reason=reason)
 
     @unban.error

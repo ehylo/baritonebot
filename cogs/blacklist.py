@@ -50,20 +50,27 @@ class Blacklist(commands.Cog):
     @blacklist.command()
     @commands.check(mod_group)
     async def remove(self, ctx, word=None):
+        f = open("./data/blacklist.txt", "r")
+        lines = f.readlines()
+        res = [sub.replace('\n', '') for sub in lines]
         if word == None:
             desc = ('You need to give a word to remove')
             await error_embed(ctx, desc)
         else:
-            with open("./data/blacklist.txt", "r") as f:
-                lines = f.readlines()
-            with open("./data/blacklist.txt", "w") as f:
-                for line in lines:
-                    if line.strip("\n") != word:
-                        f.write(line)
-            title = 'Removed'
-            desc = (f'The word `{word}` has been removed from the blacklist *if it was ever there*')
-            await channel_embed(ctx, title, desc)
-            logging.info(f'{ctx.author.id} removed a word from the blacklist')
+            if word in res:
+                with open("./data/blacklist.txt", "r") as f:
+                    lines = f.readlines()
+                with open("./data/blacklist.txt", "w") as f:
+                    for line in lines:
+                        if line.strip("\n") != word:
+                            f.write(line)
+                title = 'Removed'
+                desc = (f'The word `{word}` has been removed from the blacklist')
+                await channel_embed(ctx, title, desc)
+                logging.info(f'{ctx.author.id} removed a word from the blacklist')
+            else:
+                desc = 'That word is not in the blacklist'
+                error_embed(ctx, desc)
 
     @commands.command()
     @commands.check(admin_group)
@@ -102,20 +109,27 @@ class Blacklist(commands.Cog):
     @commands.command()
     @commands.check(admin_group)
     async def unexempt(self, ctx, elp=None):
+        f = open("./data/exemptchannels.txt", "r")
+        lines = f.readlines()
+        res = [sub.replace('\n', '') for sub in lines]
         if elp == 'help':
             await Help.exempt(self, ctx)
         else:
             word = ctx.channel.id
-            with open("./data/exemptchannels.txt", "r") as f:
-                lines = f.readlines()
-            with open("./data/exemptchannels.txt", "w") as f:
-                for line in lines:
-                    if line.strip("\n") != str(word):
-                        f.write(line)
-            title = 'Un-exempted'
-            desc = (f'The channel {ctx.channel.mention} is no longer exempted from the blacklist and regex responses *if it ever was exempted*')
-            await channel_embed(ctx, title, desc)
-            logging.info(f'{ctx.author.id} removed a channel ({word}) from the exemptchannels')
+            if word in res:
+                with open("./data/exemptchannels.txt", "r") as f:
+                    lines = f.readlines()
+                with open("./data/exemptchannels.txt", "w") as f:
+                    for line in lines:
+                        if line.strip("\n") != str(word):
+                            f.write(line)
+                title = 'Un-exempted'
+                desc = (f'The channel {ctx.channel.mention} is no longer exempted from the blacklist and regex responses')
+                await channel_embed(ctx, title, desc)
+                logging.info(f'{ctx.author.id} removed a channel ({word}) from the exemptchannels')
+            else:
+                desc = 'That channel is not exempted'
+                error_embed(ctx, desc)
 
     @list.error
     @blacklist.error

@@ -52,7 +52,7 @@ def helper_group(ctx):
     return helperRoleList.count(helperRole) == 1 or helperRoleList.count(bypsRole) == 1
 
 async def error_embed(ctx, desc=None, error=None):
-    dflt = (f'An unknow error occured (probably bad): \n```{error}```')
+    dflt = (f'An unhandled error occured (probably bad): \n```{error}```')
     embedVar = discord.Embed(color = coolEmbedColor, timestamp=timeDate, title='Error')
     if desc == None:
         desc = dflt
@@ -92,3 +92,8 @@ async def help_embed(ctx, title, desc, fieldValue, fieldName=None):
     embedVar.add_field(name=fieldName, value=fieldValue, inline=False)
     embedVar.set_footer(text=(fault_footer))
     await ctx.send(embed=embedVar)
+
+async def dm_embed(ctx, dtitle, ddesc, dchannel):
+    embedVar = discord.Embed(color = coolEmbedColor, timestamp=timeDate, title=dtitle, description=ddesc)
+    embedVar.set_footer(text=(fault_footer))
+    await dchannel.send(embed=embedVar)
