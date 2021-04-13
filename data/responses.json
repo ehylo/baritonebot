@@ -1,8 +1,0 @@
-[
-	{
-		"regex": "(example).*(regex).|(basically a command right here)",
-		"title": "example title",
-		"desc": "example desc",
-		"excluded": {}
-	}
-]

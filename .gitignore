@@ -136,3 +136,8 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# data
+data/rules.json
+data/values.json
+data/responses.json
