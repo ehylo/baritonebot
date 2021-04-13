@@ -2,7 +2,7 @@ import discord
 import logging
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import help_embed, channel_embed, log_embed, logChannel, error_embed, dm_embed
+from cogs.const import channel_embed, log_embed, logChannel, error_embed, dm_embed
 
 class Optout(commands.Cog):
     def __init__(self, bot):

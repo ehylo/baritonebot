@@ -8,15 +8,18 @@ class Ping(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def ping(self, ctx, elp=None):
-        if elp == 'help':
-            await Help.ping(self, ctx)
+    @commands.group(invoke_without_command=True)
+    async def ping(self, ctx):
         title = (f'Pong! 🏓 ({round(self.bot.latency * 1000)}ms)')
         desc = None
         await channel_embed(ctx, title, desc)
+
+    @ping.command()
+    async def help(self, ctx):
+        await Help.ping(self, ctx)
     
     @ping.error
+    @help.error
     async def ping_error(self, ctx, error):
         desc = f'What the fuck how in the fuck did you get ping to cause an error? damn bro you get the broke ping role now *here is the error:* ```{error}```'
         await error_embed(ctx, desc, error)

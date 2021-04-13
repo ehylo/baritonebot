@@ -4,78 +4,120 @@ from discord.ext import commands
 from cogs.help import Help
 from cogs.const import ignoreRole, releasesRole, channel_embed, error_embed
 
-class Roles(commands.Cog):
+class Ignore(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def ignore(self, ctx, elp=None):
+    @commands.group(invoke_without_command=True)
+    async def ignore(self, ctx):
         roleVar = discord.utils.get(ctx.guild.roles, id=ignoreRole)
-        if elp == 'help':
-            await Help.ignore(self, ctx)
-        elif roleVar in ctx.author.roles:
+        if roleVar in ctx.author.roles:
             desc = ('You already have the Ignored role!')
             await error_embed(ctx, desc)
         else:
             await ctx.author.add_roles(roleVar)
-            title = (f'Gave Ignored role to {ctx.message.author}.')
+            title = (f'Ignored role obtained')
             desc = ('Your messages will not trigger most of the response regexes now.')
             await channel_embed(ctx, title, desc)
             logging.info(f'{ctx.author.id} gave themselfs ignore role')
 
-    @commands.command()
-    async def unignore(self, ctx, elp=None):
+    @ignore.command()
+    async def help(self, ctx):
+        await Help.ignore(self, ctx)
+
+    @ignore.error
+    @help.error
+    async def role_error(self, ctx, error):
+        desc = None
+        await error_embed(ctx, desc, error)
+        logging.info(f'{ctx.author.id} tried to remove ignore role but it gave the error: {error}')
+
+class Unignore(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.group(invoke_without_command=True)
+    async def unignore(self, ctx):
         roleVar = discord.utils.get(ctx.guild.roles, id=ignoreRole)
-        if elp == 'help':
-            await Help.ignore(self, ctx)
-        elif roleVar not in ctx.author.roles:
+        if roleVar not in ctx.author.roles:
             desc = ("You don't have the Ignored role!")
             await error_embed(ctx, desc)
         else:
             await ctx.author.remove_roles(roleVar)
-            title = (f'Removed Ignored role from {ctx.message.author}.')
+            title = (f'Ignored role lost')
             desc = ('Your messages will now trigger most of the response regexes.')
             await channel_embed(ctx, title, desc)
             logging.info(f'{ctx.author.id} removed ignore role')
+        
+    @unignore.command()
+    async def help(self, ctx):
+        await Help.ignore(self, ctx)
 
-    @commands.command()
-    async def releases(self, ctx, elp=None):
+    @unignore.error
+    @help.error
+    async def role_error(self, ctx, error):
+        desc = None
+        await error_embed(ctx, desc, error)
+        logging.info(f'{ctx.author.id} tried to remove ignore role but it gave the error: {error}')
+
+class Releases(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.group(invoke_without_command=True)
+    async def releases(self, ctx):
         roleVar = discord.utils.get(ctx.guild.roles, id=releasesRole)
-        if elp == 'help':
-            await Help.releases(self, ctx)
-        elif roleVar in ctx.author.roles:
+        if roleVar in ctx.author.roles:
             desc = ('You already have the Releases role!')
             await error_embed(ctx, desc)
         else:
             await ctx.author.add_roles(roleVar)
-            title = (f'Gave Releases role to {ctx.message.author}.')
+            title = (f'Releases role obtained')
             desc = ('You will now be pinged when a new release is made!')
             await channel_embed(ctx, title, desc)
             logging.info(f'{ctx.author.id} gave themselfs releases role')
 
-    @commands.command()
-    async def unreleases(self, ctx, elp=None):
+    @releases.command()
+    async def help(self, ctx):
+        await Help.releases(self, ctx)
+
+    @releases.error
+    @help.error
+    async def role_error(self, ctx, error):
+        desc = None
+        await error_embed(ctx, desc, error)
+        logging.info(f'{ctx.author.id} tried to add releases role but it gave the error: {error}')
+
+class Unreleases(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.group(invoke_without_command=True)
+    async def unreleases(self, ctx):
         roleVar = discord.utils.get(ctx.guild.roles, id=releasesRole)
-        if elp == 'help':
-            await Help.releases(self, ctx)
-        elif roleVar not in ctx.author.roles:
+        if roleVar not in ctx.author.roles:
             desc = ("You don't have the Releases role!")
             await error_embed(ctx, desc)
         else:
             await ctx.author.remove_roles(roleVar)
-            title = (f'Removed Releases role from {ctx.message.author}.')
+            title = (f'Releases role lost')
             desc = ('You now will not be pinged when a new release is made .')
             await channel_embed(ctx, title, desc)
             logging.info(f'{ctx.author.id} removed releases role')
-    
-    @ignore.error
-    @unignore.error
-    @releases.error
+
+    @unreleases.command()
+    async def help(self, ctx):
+        await Help.releases(self, ctx)
+
     @unreleases.error
+    @help.error
     async def role_error(self, ctx, error):
         desc = None
         await error_embed(ctx, desc, error)
-        logging.info(f'{ctx.author.id} tried to add/remove releases/ignore but it gave the error: {error}')
+        logging.info(f'{ctx.author.id} tried to remove releases role but it gave the error: {error}')
 
 def setup(bot):
-    bot.add_cog(Roles(bot))
+    bot.add_cog(Ignore(bot))
+    bot.add_cog(Unignore(bot))
+    bot.add_cog(Releases(bot))
+    bot.add_cog(Unreleases(bot))

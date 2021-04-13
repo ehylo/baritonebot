@@ -3,7 +3,7 @@ import logging
 import random
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import mod_group, channel_embed, error_embed, help_embed, helper_group, fault_footer, coolEmbedColor, timeDate
+from cogs.const import mod_group, channel_embed, error_embed, helper_group, fault_footer, coolEmbedColor, timeDate
 
 class Cringe(commands.Cog):
     def __init__(self, bot):

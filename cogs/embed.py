@@ -2,7 +2,7 @@ import discord
 import logging
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import mod_group, channel_embed, error_embed, help_embed
+from cogs.const import mod_group, channel_embed, error_embed
 
 class Embed(commands.Cog):
     def __init__(self, bot):

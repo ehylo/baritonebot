@@ -3,9 +3,9 @@ import datetime
 import logging
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import baritoneDiscord, coolEmbedColor, help_embed, error_embed
+from cogs.const import baritoneDiscord, coolEmbedColor, error_embed
 
-async def info_embed(self, ctx, member, title, field1, field2, field3, value):
+async def info_embed(ctx, member, title, field1, field2, field3, value):
     embedVar = discord.Embed(color = coolEmbedColor, timestamp=datetime.datetime.utcnow(), title=title)
     embedVar.add_field(name='Mention:', value=member.mention, inline=True)
     embedVar.add_field(name='Status:', value=field1, inline=True)
@@ -16,6 +16,23 @@ async def info_embed(self, ctx, member, title, field1, field2, field3, value):
     embedVar.set_footer(text=(f'ID: {member.id}'))
     embedVar.set_thumbnail(url=member.avatar_url)
     await ctx.send(embed=embedVar)
+
+async def varistuff(ctx, member, info, ismember):
+    if info == True:
+        if ismember == True:
+            title = 'Member Information:'
+            field1 = member.status
+            field2 = member.joined_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " ")
+            field3 = f'Roles ({len(member.roles)-1}):'
+            value = (' '.join([str(r.mention) for r in member.roles][1:])+'\u200b')
+            await info_embed(ctx, member, title, field1, field2, field3, value)
+        elif ismember == False:
+            title = 'User Information:'
+            field1 = 'API doesn\'t support this yet'
+            field2 = 'User has not joined this server yet'
+            field3 = 'Default avatar color:'
+            value = member.default_avatar
+            await info_embed(ctx, member, title, field1, field2, field3, value)
 
 class Info(commands.Cog):
     def __init__(self, bot):
@@ -28,57 +45,33 @@ class Info(commands.Cog):
         if userID == None:
             await Help.userinfo(self, ctx)
         else:
-            if userID == 'me':
-                member = ctx.author
-                ismember = True
-                info = True
-            else:
-                if usrStr == '':
-                    try:
-                        usrint = int(userID)
-                        if memberCheck.get_member(usrint) != None:
-                            member = memberCheck.get_member(usrint)
-                            ismember = True
-                            info = True
-                        elif await self.bot.fetch_user(usrint) != None: 
-                            member = await self.bot.fetch_user(usrint)
-                            ismember = False
-                            info = True
-                        else:
-                            print(self.bot.get_user(usrint))
-                            info = False
-                            desc = 'That is not a valid user ID'
-                            await error_embed(ctx, desc)
-                    except:
-                        info = False
-                        desc = 'That isn\'t a user (needs to be a **number**)'
+            if usrStr == '':
+                try:
+                    usrint = int(userID)
+                    if memberCheck.get_member(usrint) != None:
+                        member = memberCheck.get_member(usrint)
+                        await varistuff(ctx, member, info=True, ismember=True)
+                    elif await self.bot.fetch_user(usrint) != None: 
+                        member = await self.bot.fetch_user(usrint)
+                        await varistuff(ctx, member, info=True, ismember=False)
+                    else:
+                        desc = 'That is not a valid user ID'
                         await error_embed(ctx, desc)
-                else:
-                    usrint = int(usrStr)
-                    member = memberCheck.get_member(usrint)
-                    ismember = True
-                    info = True
-            if info == True:
-                if ismember == True:
-                    title = 'Member Information:'
-                    field1 = member.status
-                    field2 = member.joined_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " ")
-                    field3 = f'Roles ({len(member.roles)-1}):'
-                    value = (' '.join([str(r.mention) for r in member.roles][1:])+'\u200b')
-                    await info_embed(self, ctx, member, title, field1, field2, field3, value)
-                elif ismember == False:
-                    title = 'User Information:'
-                    field1 = 'API doesn\'t support this yet'
-                    field2 = 'User has not joined this server yet'
-                    field3 = 'Default avatar color:'
-                    value = member.default_avatar
-                    await info_embed(self, ctx, member, title, field1, field2, field3, value)
+                except:
+                    desc = 'That isn\'t a user (needs to be a **number**)'
+                    await error_embed(ctx, desc)
+            else:
+                usrint = int(usrStr)
+                member = memberCheck.get_member(usrint)
+                await varistuff(ctx, member, info=True, ismember=True)
+
+    @userinfo.command()
+    async def me(self, ctx):
+        member = ctx.author
+        await varistuff(ctx, member, info=True, ismember=True)
 
     @commands.group(invoke_without_command=True)
-    async def serverinfo(self, ctx, elp=None):
-        if elp == 'help':
-            await Help.serverinfo(self, ctx)
-        else:
+    async def serverinfo(self, ctx):
             embedVar = discord.Embed(color = coolEmbedColor, timestamp=datetime.datetime.utcnow(), title=f'Server Information: {ctx.guild.name}')
             embedVar.add_field(name='Owner:', value=f'{ctx.guild.owner} (ID: {ctx.guild.owner_id})', inline=False)
             embedVar.add_field(name='Description:', value=ctx.guild.description, inline=False)
@@ -92,8 +85,13 @@ class Info(commands.Cog):
             embedVar.set_thumbnail(url=ctx.guild.icon_url)
             await ctx.send(embed=embedVar)
 
+    @serverinfo.command()
+    async def help(self, ctx):
+        await Help.serverinfo(self, ctx)
+
     @serverinfo.error
     @userinfo.error
+    @help.error
     async def serveruser_error(self, ctx, error):
         desc = None
         await error_embed(ctx, desc, error)

@@ -4,20 +4,17 @@ import json
 import logging
 import sys
 import datetime
-from dotenv import load_dotenv
 from discord.ext import commands
 
-load_dotenv()
-pasteToken = os.getenv('paste')
 fault_footer = u'\U0001f916' 'Baritoe Bot' u'\U0001f916'
 timeDate = datetime.datetime.utcnow()
 
-with open(os.path.join(sys.path[0], 'data/values.json')) as jsonValues:
+with open('./data/values.json') as jsonValues:
     valuesStr = json.load(jsonValues)
     coolEmbedColor = int(((valuesStr)[0]['color']), 16)
     setPresence = str((valuesStr)[0]['presence'])
     preCmd = str((valuesStr)[0]['prefix'])
-    setNick = str((valuesStr)[0]['nick'])
+    pasteToken = str((valuesStr)[0]['pasteToken'])
 
 eC = open("./data/exemptchannels.txt", "r")
 exmChl = eC.read()

@@ -5,7 +5,7 @@ import json
 import logging
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import valuesStr, preCmd, setNick, setPresence, error_embed, help_embed, channel_embed, admin_group, mod_group
+from cogs.const import valuesStr, setPresence, error_embed, channel_embed, admin_group, mod_group
 
 class Prefix(commands.Cog):
     def __init__(self, bot):
@@ -19,7 +19,7 @@ class Prefix(commands.Cog):
         else:
             for item in valuesStr:
                 item['prefix'] = fixpre
-            with open((os.path.join(sys.path[0], './data/values.json')), 'w') as file:
+            with open(('./data/values.json'), 'w') as file:
                 json.dump(valuesStr, file, indent=2)
                 title = 'Prefix set'
                 desc = (f'Set the prefix to {fixpre}, please restart the bot for the changes to take affect')
@@ -31,7 +31,7 @@ class Prefix(commands.Cog):
     async def default(self, ctx):
         for item in valuesStr:
             item['prefix'] = "b?"
-        with open((os.path.join(sys.path[0], './data/values.json')), 'w') as file:
+        with open(('./data/values.json'), 'w') as file:
             json.dump(valuesStr, file, indent=2)
             title = 'Prefix set'
             desc = (f'Set the prefix to the default (b?), please restart the bot for the changes to take affect')
@@ -61,7 +61,7 @@ class EmbedColor(commands.Cog):
         else:
             for item in valuesStr:
                 item['color'] = color
-            with open((os.path.join(sys.path[0], './data/values.json')), 'w') as file:
+            with open(('./data/values.json'), 'w') as file:
                 json.dump(valuesStr, file, indent=2)
                 title = 'Embedcolor set'
                 desc = (f'Set the embed color to {color}, please restart the bot for the changes to take affect')
@@ -73,7 +73,7 @@ class EmbedColor(commands.Cog):
     async def default(self, ctx):
         for item in valuesStr:
             item['color'] = "81C3FF"
-        with open((os.path.join(sys.path[0], './data/values.json')), 'w') as file:
+        with open(('./data/values.json'), 'w') as file:
             json.dump(valuesStr, file, indent=2)
             title = 'Embedcolor set'
             desc = (f'Set the embed color to the default (81C3FF), please restart the bot for the changes to take affect')
@@ -110,9 +110,9 @@ class Nick(commands.Cog):
     @nick.command()
     @commands.check(mod_group)
     async def default(self, ctx):
-        await ctx.guild.me.edit(nick=setNick)
+        await ctx.guild.me.edit(nick='Franky')
         title = 'Nick set'
-        desc = (f'Set the bot\'s nickname in this server to the default ({setNick})')
+        desc = (f'Set the bot\'s nickname in this server to the default (Franky)')
         await channel_embed(ctx, title, desc)
         logging.info(f'{ctx.author.id} set the nick to default')
 
@@ -149,7 +149,7 @@ class Status(commands.Cog):
         else:
             for item in valuesStr:
                 item['presence'] = presence
-            with open((os.path.join(sys.path[0], './data/values.json')), 'w') as file:
+            with open(('./data/values.json'), 'w') as file:
                 json.dump(valuesStr, file, indent=2)
             title = 'Presence set'
             desc = (f'Set the presence to `Watching {presence}`.')
@@ -162,7 +162,7 @@ class Status(commands.Cog):
     async def default(self, ctx):
         for item in valuesStr:
             item['presence'] = 'humans interact'
-        with open((os.path.join(sys.path[0], './data/values.json')), 'w') as file:
+        with open(('./data/values.json'), 'w') as file:
             json.dump(valuesStr, file, indent=2)
         desc = (f'Set the presence to the default (`Watching humans interact`).')
         title = 'Presence set'

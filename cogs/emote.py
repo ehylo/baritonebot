@@ -5,7 +5,7 @@ from PIL import Image
 from io import BytesIO
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import mod_group, error_embed, channel_embed, help_embed
+from cogs.const import mod_group, error_embed, channel_embed
 
 class Emote(commands.Cog):
     def __init__(self, bot):
