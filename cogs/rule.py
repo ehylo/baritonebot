@@ -1,71 +1,91 @@
 import discord
 import json
-import os
-import sys
 import logging
 from cogs.help import Help
 from discord.ext import commands
-from cogs.const import channel_embed, error_embed, fault_footer, coolEmbedColor, timeDate, admin_group
+from cogs.const import console, channel_embed, error_embed, fault_footer, coolEmbedColor, timeDate, admin_group, help_embed
+
 
 class Rule(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.group(invoke_without_command=True)
-    async def rule(self, ctx, rulenum: int=None):
-        if rulenum == None:
-            await Help.rule(self, ctx)
+    async def rule(self, ctx, rulenum: int = None):
+        if rulenum is None:
+            await Help.rule(ctx)
+        elif rulenum <= 0:
+            await error_embed(ctx, 'You need to give a **positive non zero** rule number')
         else:
             with open('./data/rules.json') as jsonRules:
-                rulesStr = json.load(jsonRules)
+                rules_list = json.load(jsonRules)
                 try:
-                    sendRule = (rulesStr)[0][f'{rulenum}']
-                    desc = ((sendRule)['desc'])
-                    title = ((sendRule)['title'])
-                    await channel_embed(ctx, title, desc)
-                except:
-                    desc = ('That rule does not exist yet')
-                    await error_embed(ctx, desc)
+                    await channel_embed(ctx, (rules_list[rulenum - 1]['title']), (rules_list[rulenum - 1]['description']))
+                except IndexError:
+                    await error_embed(ctx, 'That rule does not exist yet')
+
+    @rule.command()
+    @commands.check(admin_group)
+    async def remove(self, ctx, num: int = None):
+        if num is None:
+            await error_embed(ctx, 'You need to give a rule number to remove')
+        elif num <= 0:
+            await error_embed(ctx, 'You need to give a **positive non zero** rule number')
+        else:
+            with open('./data/rules.json') as jsonRules:
+                rules_list = json.load(jsonRules)
+            if num <= len(rules_list):
+                frul = []
+                for x in range(1, (len(rules_list)+1)):
+                    if x != num:
+                        frul.append(rules_list[x - 1])
+                with open('./data/rules.json', 'w') as file:
+                    json.dump(frul, file, indent=2)
+                await channel_embed(ctx, f'Removed rule #{num}:', (rules_list[num - 1]["title"]))
+                logging.info(f'{ctx.author.id} removed rule #{num}, \"{(rules_list[num - 1]["title"])}\"')
+            else:
+                await error_embed(ctx, 'There is no rule with that number')
+
+    @rule.command()
+    @commands.check(admin_group)
+    async def add(self, ctx, dtitle=None, *, ddesc=None):
+        if dtitle is None:
+            await error_embed(ctx, 'You need to give a title')
+        elif ddesc is None:
+            await error_embed(ctx, 'You need to give a description')
+        else:
+            with open('./data/rules.json') as jsonValues:
+                rules_list = json.load(jsonValues)
+            rules_list.append({'title': dtitle, 'description': ddesc})
+            with open('./data/rules.json', 'w') as file:
+                json.dump(rules_list, file, indent=2)
+            await help_embed(ctx, 'New rule:', '', ddesc, dtitle)
+            logging.info(f'{ctx.author.id} added rule with title: {dtitle}')
 
     @commands.command()
     async def rules(self, ctx):
-        r_list = int() + 1 # find a way to get the amount of rules in the json
         with open('./data/rules.json') as jsonRules:
-                rulesStr = json.load(jsonRules)
-        embedVar = discord.Embed(color = coolEmbedColor, timestamp=timeDate)
-        embedVar.title = 'Rules'
-        embedVar.set_footer(text=(fault_footer))
-        embedVar.set_thumbnail(url='https://bigrat.monster/media/noanime.gif')
-        for x in range (1, r_list):
-            fieldName = (((rulesStr)[0][f'{x}'])['title'])
-            fieldValue = (((rulesStr)[0][f'{x}'])['desc'])
-            embedVar.add_field(name=fieldName, value=fieldValue, inline=False)
-        await ctx.send(embed=embedVar)
-
-    @rule.command()
-    @commands.check(admin_group)
-    async def remove(self, ctx):
-        print("remove")
-
-    @rule.command()
-    @commands.check(admin_group)
-    async def add(self, ctx):
-        print("add")
+            rules_list = json.load(jsonRules)
+        r_list = (len(rules_list) + 1)
+        em = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title='Rules')
+        em.set_footer(text=fault_footer)
+        em.set_thumbnail(url='https://bigrat.monster/media/noanime.gif')
+        for x in range(1, r_list):
+            field_title = (rules_list[x - 1]['title'])
+            field_value = (rules_list[x - 1]['description'])
+            em.add_field(name=field_title, value=field_value, inline=False)
+        await ctx.send(embed=em)
 
     @rule.error
     @rules.error
     @remove.error
     @add.error
     async def rule_error(self, ctx, error):
-        if isinstance(error, commands.errors.CheckFailure):
-            pass
-        elif isinstance(error, commands.errors.BadArgument):
-            desc = ('You need to give a rule **number**')
-            await error_embed(ctx, desc)
-        else:
-            desc = None
-            await error_embed(ctx, desc, error)
-            logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
+        if isinstance(error, commands.errors.BadArgument):
+            await error_embed(ctx, 'You need to give a rule **number**')
+        elif not isinstance(error, commands.errors.CheckFailure):
+            await error_embed(ctx, None, error), await console(ctx, error)
+
 
 def setup(bot):
     bot.add_cog(Rule(bot))

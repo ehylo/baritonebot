@@ -137,6 +137,9 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+#idea
+.idea/
+
 # data
 data/rules.json
 data/values.json
