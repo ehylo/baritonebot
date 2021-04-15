@@ -9,7 +9,7 @@ class Voice(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_voice_state_update(self, member):
+    async def on_voice_state_update(self, member, before, after):
         if member.voice is not None:
             b_role = discord.utils.get(member.guild.roles, id=voiceRole)
             await member.add_roles(b_role)

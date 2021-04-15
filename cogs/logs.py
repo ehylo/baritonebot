@@ -3,6 +3,10 @@ import logging
 from discord.ext import commands
 from cogs.const import coolEmbedColor, logChannel, leaveChannel, timeDate, log_embed, fault_footer, bbi, error_embed
 
+e_c = open("./data/exemptchannels.txt", "r")
+exempt_channels = e_c.read()
+e_c.close()
+
 
 class Logs(commands.Cog):
     def __init__(self, bot):
@@ -10,17 +14,14 @@ class Logs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if message.author.id != bbi:
+        if message.author.id != bbi and str(message.channel.id) not in exempt_channels:
             channel = await self.bot.fetch_channel(logChannel)
             await log_embed(message, None, f'**Message deleted in <#{message.channel.id}>** \n{message.content}', channel)
             logging.info(f'{message.author.id} message was deleted: \"{message.content}\"')
 
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
-        e_c = open("./data/exemptchannels.txt", "r")
-        exempt_channels = e_c.read()
-        e_c.close()
-        if message_before.author.id != bbi and message_before.channel.id not in exempt_channels:
+        if message_before.author.id != bbi and str(message_before.channel.id) not in exempt_channels:
             embed = discord.Embed(color=coolEmbedColor, timestamp=timeDate, description=f'**Message edited in <#{message_after.channel.id}>** [(jump)](https://discord.com/channels/{message_after.guild.id}/{message_after.channel.id}/{message_after.id})')
             embed.add_field(name='Befored Edit:', value=message_before.content, inline=True)
             embed.add_field(name='After Edit:', value=message_after.content, inline=True)

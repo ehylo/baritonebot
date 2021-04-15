@@ -79,7 +79,7 @@ async def helper_group(ctx):
 
 
 async def error_embed(ctx, desc=None, error=None):
-    em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title='Error')
+    em_v = discord.Embed(color=16711680, timestamp=timeDate, title='Error')
     if desc is None:
         desc = f'An unhandled error occured (probably bad): \n```{error}```'
     em_v.description = desc
@@ -88,6 +88,8 @@ async def error_embed(ctx, desc=None, error=None):
 
 
 async def log_embed(ctx=None, title=None, desc=None, channel=None, member=None):
+    if title is None:
+        title = ''
     em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title=title)
     em_v.description = desc
     if member is None:
