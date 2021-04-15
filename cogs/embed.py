@@ -1,8 +1,10 @@
-import discord
 import logging
+
+import discord
 from discord.ext import commands
-from cogs.help import Help
 from cogs.const import mod_group, channel_embed, error_embed
+from cogs.help import Help
+
 
 class Embed(commands.Cog):
     def __init__(self, bot):
@@ -10,62 +12,47 @@ class Embed(commands.Cog):
 
     @commands.group(invoke_without_command=True)
     @commands.check(mod_group)
-    async def embed(self, ctx, sendChannel=None, etitle=None, *, edesc=None):
-        channelStr = str(ctx.message.raw_channel_mentions)[1:-1]
-        channel = ctx.channel
-        if sendChannel == None:
+    async def embed(self, ctx, send_channel=None, etitle=None, *, edesc=None):
+        channel_str = str(ctx.message.raw_channel_mentions)[1:-1]
+        if send_channel is None:
             await Help.embed(self, ctx)
-        elif etitle == None:
-            desc = ('You need to give a title')
-            await error_embed(ctx, desc)
-        elif edesc == None:
-            desc = ('You need to give a description')
-            await error_embed(ctx, desc,)
+        elif etitle is None:
+            await error_embed(ctx, 'You need to give a title')
+        elif edesc is None:
+            await error_embed(ctx, 'You need to give a description')
         else:
-            if channelStr == '':
+            if channel_str == '':
                 try:
-                    channelInt = int(sendChannel)
-                    try:
-                        channel = await self.bot.fetch_channel(channelInt)
-                        desc = edesc
-                        title = etitle
-                        await channel_embed(ctx, title, desc, channel)
-                        logging.info(f'{ctx.author.id} sent a custom embed to a channel')
-                    except:
-                        desc = ('That is not a valid channel ID')
-                        await error_embed(ctx, desc)
-                except:
-                    desc = ('That is not a valid channel ID (use **numbers**)')
-                    await error_embed(ctx, desc)
-            else:
-                channelId = int(channelStr)
-                try:
-                    channel = await self.bot.fetch_channel(channelId)
-                    desc = edesc
-                    title = etitle
-                    await channel_embed(ctx, title, desc, channel)
+                    int(send_channel)
+                    channel = await self.bot.fetch_channel(send_channel)
+                    await channel_embed(ctx, etitle, edesc, channel)
                     logging.info(f'{ctx.author.id} sent a custom embed to a channel')
-                except:
-                    desc = ('Cannot send to that channel')
-                    await error_embed(ctx, desc)
-    
+                except ValueError:
+                    await error_embed(ctx, 'That is not a valid ID (use **numbers**)')
+                except discord.NotFound:
+                    await error_embed(ctx, 'Invalid channel ID')
+                except discord.Forbidden:
+                    await error_embed(ctx, 'I do not have access to that channel')
+            else:
+                try:
+                    channel_id = int(channel_str)
+                    channel = await self.bot.fetch_channel(channel_id)
+                    await channel_embed(ctx, etitle, edesc, channel)
+                    logging.info(f'{ctx.author.id} sent a custom embed to a channel')
+                except discord.Forbidden:
+                    await error_embed(ctx, 'I do not have access to that channel')
+
     @embed.command()
     @commands.check(mod_group)
     async def here(self, ctx, etitle=None, *, edesc=None):
-        desc = edesc
-        title = etitle
-        await channel_embed(ctx, title, desc)
-        logging.info(f'{ctx.author.id} sent a custom embed to a channel')
-
-    @embed.error
-    @here.error
-    async def embed_error(self, ctx, error):
-        if isinstance(error, commands.errors.CheckFailure):
-            pass
+        if etitle is None:
+            await error_embed(ctx, 'You need to give a title')
+        elif edesc is None:
+            await error_embed(ctx, 'You need to give a description')
         else:
-            desc = None
-            await error_embed(ctx, desc, error)
-            logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
+            await channel_embed(ctx, etitle, edesc)
+            logging.info(f'{ctx.author.id} sent a custom embed to a channel')
+
 
 def setup(bot):
     bot.add_cog(Embed(bot))

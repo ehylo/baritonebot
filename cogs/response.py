@@ -2,7 +2,7 @@ import logging
 import json
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import error_embed, channel_embed, helper_group, mod_group, help_embed, console
+from cogs.const import error_embed, channel_embed, helper_group, mod_group, help_embed
 
 
 class Response(commands.Cog):
@@ -12,7 +12,7 @@ class Response(commands.Cog):
     @commands.group(invoke_without_command=True)
     @commands.check(helper_group)
     async def response(self, ctx):
-        await Help.response(ctx)
+        await Help.response(self, ctx)
 
     @response.command()
     @commands.check(helper_group)
@@ -70,7 +70,7 @@ class Response(commands.Cog):
             await error_embed(ctx, 'You need to give a title')
         elif edesc is None:
             await error_embed(ctx, 'You need to give a description')
-        else:  # maybe add a try and see if the regex valid (dont know if i can verify)
+        else:  # maybe add a try and except to see if the regex is valid (dont know if i can verify that)
             with open('./data/responses.json') as jsonValues:
                 response_list = json.load(jsonValues)
             response_list.append({'regex': eregex, 'title': etitle, 'description': edesc})
@@ -78,17 +78,6 @@ class Response(commands.Cog):
                 json.dump(response_list, file, indent=2)
             await help_embed(ctx, 'New response:', eregex, edesc, etitle)
             logging.info(f'{ctx.author.id} added response with title: {etitle}')
-
-    @response.error
-    @list.error
-    @details.error
-    @add.error
-    @remove.error
-    async def response_error(self, ctx, error):
-        if isinstance(error, commands.errors.BadArgument):
-            await error_embed(ctx, 'You need to give the response **number** to remove/get the details of it')
-        elif not isinstance(error, commands.errors.CheckFailure):
-            await error_embed(ctx, None, error), await console(ctx, error)
 
 
 def setup(bot):

@@ -1,6 +1,5 @@
-import logging
 from discord.ext import commands
-from cogs.const import channel_embed, help_embed, error_embed
+from cogs.const import channel_embed, help_embed
 
 
 class Help(commands.Cog):
@@ -18,26 +17,24 @@ class Help(commands.Cog):
         
     @help.command()
     async def admin(self, ctx):
-        desc = '`help <command>` to get command info or give no arguments if it does not have `<help>`'
-        fieldValue = '\
+        field_value = '\
             \u2022 `reload <extension>` \
             \n\u2022 `unload <extension>` \
             \n\u2022 `load <extension>` \
-            \n\u2022 `unban <user>` \
+            \n\u2022 `unban <user ID>` \
             \n\u2022 `embedcolor <default|hex color>` \
             \n\u2022 `prefix <default|prefix>` \
             \n\u2022 `<un>exempt <help|list>` \
             \n\u2022 `rule <add|remove> <title|number> <description>` \
             \n*+ all lower commands*'
-        await help_embed(ctx, 'Admin', desc, fieldValue, 'Commands:')
+        await help_embed(ctx, 'Admin', '`help <command>` to get command info or give no arguments if it does not have `<help>`', field_value, 'Commands:')
 
     @help.command()
     async def mod(self, ctx):
-        desc = '`help <command>` to get command info or give no arguments'
-        fieldValue = '\
+        field_value = '\
             \u2022 `ban <user> <reason>` \
-            \n\u2022 `response <add|remove> <title|number> <regex> <description` \
-            \n\u2022 `blacklist <add|remove>` \
+            \n\u2022 `response <add|remove> <regex|number> <title> <description>` \
+            \n\u2022 `blacklist <add|remove> <word>` \
             \n\u2022 `cringe <remove>` \
             \n\u2022 `kick <user> <reason>` \
             \n\u2022 `clear <number>` \
@@ -47,23 +44,21 @@ class Help(commands.Cog):
             \n\u2022 `emote <name> <image attachment|image url>` \
             \n\u2022 `embed <channel|here> <title> <description>` \
             \n*+ all lower commands*'
-        await help_embed(ctx, 'Moderator', desc, fieldValue, 'Commands:')
+        await help_embed(ctx, 'Moderator', '`help <command>` to get command info or give no arguments', field_value, 'Commands:')
 
     @help.command()
     async def helper(self, ctx):
-        desc = '`help <command>` to get command info or give no arguments if it does not have `<help>`'
-        fieldValue = '\
+        field_value = '\
             \u2022 `mute <user> <reason>` \
             \n\u2022 `response <details|list> <number>` \
             \n\u2022 `blacklist <list>` \
-            \n\u2022 `cringe <add|help>` \
+            \n\u2022 `cringe <add> <image url|image attachment>` \
             \n*+ all lower commands*'
-        await help_embed(ctx, 'Helper', desc, fieldValue, 'Commands:')
+        await help_embed(ctx, 'Helper', '`help <command>` to get command info or give no arguments if it does not have `<help>`', field_value, 'Commands:')
 
     @help.command()
     async def everyone(self, ctx):
-        desc = '`help <command>` to get command info or if it has `<help>` do `<command> help` and if it doesn\'t, giving no arguments will also give you info'
-        fieldValue = '\
+        field_value = '\
             \u2022 `rule<s> <number>` \
             \n\u2022 `ping <help>` \
             \n\u2022 `cringe <help>` \
@@ -73,11 +68,11 @@ class Help(commands.Cog):
             \n\u2022 `<un>ignore <help>` \
             \n\u2022 `optout <I am sure>` \
             \n\u2022 `help <admin|mod|helper|everyone>`'
-        await help_embed(ctx, 'Available to everyone:', desc, fieldValue, 'Commands:')
+        await help_embed(ctx, 'Available to everyone:', '`help <command>` to get command info or give no arguments if it does not have `<help>`', field_value, 'Commands:')
 
     @help.command()
     async def unban(self, ctx):
-        await help_embed(ctx, 'Unban', 'Unbans the specified user ID', '`unban <id>`')
+        await help_embed(ctx, 'Unban', 'Unbans the specified user ID', '`unban <user ID>`')
 
     @help.command()
     async def unmute(self, ctx):
@@ -116,11 +111,11 @@ class Help(commands.Cog):
         await help_embed(ctx, 'Opt-Out', 'You will be banned from the server', '`optout <I am sure>`')
 
     @help.command()
-    async def response(ctx):
+    async def response(self, ctx):
         await help_embed(ctx, 'Response', 'Command to control responses, can add/remove them or list/get details of them \n*use [this](https://regexr.com/) website to make the regex*', '`response <add|remove|details|list> <regex|number> <title> <description>`')
 
     @help.command()
-    async def rule(ctx):
+    async def rule(self, ctx):
         await help_embed(ctx, 'Rules', 'Sends the specified rule, or all of them, or add/remove a rule', '`<rule><s> <number|add|remove> <number|title> <description>`')
 
     @help.command()
@@ -141,7 +136,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def cringe(self, ctx):
-        await help_embed(ctx, 'Cringe', 'Either recieve a random cringe or add/remove a cringe', '`cringe <add|remove|help> <image url>` - you can attach an image instead of having a url')
+        await help_embed(ctx, 'Cringe', 'Either recieve a random cringe or add/remove a cringe', '`cringe <add|remove|help> <image url|image attachment>` - you can attach an image instead of having a url')
 
     @help.command()
     async def ignore(self, ctx):
@@ -178,11 +173,6 @@ class Help(commands.Cog):
     @help.command()
     async def exempt(self, ctx):
         await help_embed(ctx, 'Exempt', 'Allows you to make the current channel exempted from the blacklist and regex responses, or list the current channels exempted', '`<un>exempt <list>`')
-    
-    @help.error
-    async def help_error(self, ctx, error):
-        await error_embed(ctx, None, error)
-        logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 
 def setup(bot):

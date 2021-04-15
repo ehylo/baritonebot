@@ -21,7 +21,7 @@ Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Bari
 ### can probably do
 * Add trash emote delete to regex responses
 
-* add a coin flip and/or dice roll commands
+* add a coin flip command/rock paper scissors
 
 * add aliases to as many commands as possible, then add those aliases to each command's help
 
@@ -39,6 +39,6 @@ Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Bari
 
 ## How to run
 
-You need Python 3.8, discord.py 1.7.1, PyNaCl 1.4.0, Pillow 8.2.0, and js-regex 1.0.1
+You need [python 3.9.4](https://www.python.org/downloads/), [discord.py 1.7.1](https://pypi.org/project/discord.py/), [PyNaCl 1.4.0](https://pypi.org/project/PyNaCl/), [Pillow 8.2.0](https://pypi.org/project/Pillow/), and [js-regex 1.0.1](https://pypi.org/project/js-regex/)
 
 run `python bot.py` in cmd or whatever you use

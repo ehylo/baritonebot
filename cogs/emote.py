@@ -1,11 +1,26 @@
-import discord
 import requests
 import logging
+import discord
 from PIL import Image
 from io import BytesIO
 from discord.ext import commands
 from cogs.help import Help
 from cogs.const import mod_group, error_embed, channel_embed
+
+
+async def create_emote(ctx, name, img_url):
+    try:
+        icon = requests.get(img_url)
+        img = Image.open(BytesIO(icon.content), mode='r')
+        b = BytesIO()
+        img.save(b, format='PNG')
+        image = b.getvalue()
+        await ctx.guild.create_custom_emoji(name=name, image=image)
+        await channel_embed(ctx, 'Created', f'Emote `{name}` was created')
+        logging.info(f'{ctx.author.id} created an emote')
+    except discord.HTTPException:
+        await error_embed(ctx, 'Emote cannot be larger than 256kb')
+
 
 class Emote(commands.Cog):
     def __init__(self, bot):
@@ -14,59 +29,21 @@ class Emote(commands.Cog):
     @commands.command(invoke_without_command=True)
     @commands.check(mod_group)
     async def emote(self, ctx, name=None, url=None):
-        if name == None:
+        if name is None:
             await Help.emote(self, ctx)
         elif len(ctx.message.attachments) > 0:
             if ctx.message.attachments[0].url.lower().endswith(('.png', '.jpeg', '.jpg', '.gif')):
-                try:
-                    imgUrl = ctx.message.attachments[0].url
-                    icon = requests.get(imgUrl)
-                    img = Image.open(BytesIO(icon.content), mode='r')
-                    b = BytesIO()
-                    img.save(b, format='PNG')
-                    image = b.getvalue()
-                    await ctx.guild.create_custom_emoji(name=name, image=image)
-                    title = 'Created'
-                    desc = (f'Emote `{name}` was created')
-                    await channel_embed(ctx, title, desc)
-                    logging.info(f'{ctx.author.id} created an emote')
-                except:
-                    desc = 'Emote cannot be larger than 256kb'
-                    await error_embed(ctx, desc)
+                await create_emote(ctx, name, ctx.message.attachments[0].url)
             else:
-                desc = 'Invalid attachment, must be `.png` `.gif` `.jpeg` or `.jpg` or an image url'
-                await error_embed(ctx, desc)
-        elif url == None:
-            desc = 'You need to either provide a link or attach a `.png` `.gif` `.jpeg` or `.jpg` to create an emote'
-            await error_embed(ctx, desc)
+                await error_embed(ctx, 'Invalid attachment, must be `.png` `.gif` `.jpeg` or `.jpg` or an image url')
+        elif url is None:
+            await error_embed(ctx, 'You need to either provide a link or attach a `.png` `.gif` `.jpeg` or `.jpg` to create an emote')
         else:
             if url.endswith(('.png', '.jpeg', '.jpg', '.gif')):
-                try:
-                    icon = requests.get(url)
-                    img = Image.open(BytesIO(icon.content), mode='r')
-                    b = BytesIO()
-                    img.save(b, format='PNG')
-                    image = b.getvalue()
-                    await ctx.guild.create_custom_emoji(name=name, image=image)
-                    title = 'Created'
-                    desc = (f'Emote `{name}` was created')
-                    await channel_embed(ctx, title, desc)
-                    logging.info(f'{ctx.author.id} created an emote')
-                except:
-                    desc = 'Emote cannot be larger than 256kb'
-                    await error_embed(ctx, desc)
+                await create_emote(ctx, name, url)
             else:
-                desc = 'Url needs to end with `.png` `.gif` `.jpeg` or `.jpg`'
-                await error_embed(ctx, desc)
+                await error_embed(ctx, 'Url needs to end with `.png` `.gif` `.jpeg` or `.jpg`')
 
-    @emote.error
-    async def emote_error(self, ctx, error):
-        if isinstance(error, commands.errors.CheckFailure):
-            pass
-        else:
-            desc = None
-            await error_embed(ctx, desc, error)
-            logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 def setup(bot):
     bot.add_cog(Emote(bot))

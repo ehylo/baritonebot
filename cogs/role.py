@@ -4,39 +4,30 @@ from discord.ext import commands
 from cogs.help import Help
 from cogs.const import ignoreRole, releasesRole, channel_embed, error_embed, baritoneDiscord
 
+
 class Ignore(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.group(invoke_without_command=True)
     async def ignore(self, ctx):
-        dcCheck = self.bot.get_guild(baritoneDiscord)
-        mmCheck = dcCheck.get_member(ctx.author.id)
-        if mmCheck == None:
-            desc = ('You are not in the baritone discord which is required to recieve the Ignored role')
-            await error_embed(ctx, desc)
+        b_guild = self.bot.get_guild(baritoneDiscord)
+        member_check = b_guild.get_member(ctx.author.id)
+        if member_check is None:
+            await error_embed(ctx, 'You are not in the baritone discord which is required to recieve the Ignored role')
         else:
-            roleVar = discord.utils.get(dcCheck.roles, id=ignoreRole)
-            if roleVar in mmCheck.roles:
-                desc = ('You already have the Ignored role!')
-                await error_embed(ctx, desc)
+            b_role = discord.utils.get(b_guild.roles, id=ignoreRole)
+            if b_role in member_check.roles:
+                await error_embed(ctx, 'You already have the Ignored role!')
             else:
-                await mmCheck.add_roles(roleVar)
-                title = (f'Ignored role obtained')
-                desc = ('Your messages will not trigger most of the response regexes now.')
-                await channel_embed(ctx, title, desc)
+                await member_check.add_roles(b_role)
+                await channel_embed(ctx, f'Ignored role obtained', 'Your messages will not trigger most of the response regexes now.')
                 logging.info(f'{ctx.author.id} gave themselfs ignore role')
 
     @ignore.command()
     async def help(self, ctx):
         await Help.ignore(self, ctx)
 
-    @ignore.error
-    @help.error
-    async def role_error(self, ctx, error):
-        desc = None
-        await error_embed(ctx, desc, error)
-        logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 class Unignore(commands.Cog):
     def __init__(self, bot):
@@ -44,33 +35,23 @@ class Unignore(commands.Cog):
 
     @commands.group(invoke_without_command=True)
     async def unignore(self, ctx):
-        dcCheck = self.bot.get_guild(baritoneDiscord)
-        mmCheck = dcCheck.get_member(ctx.author.id)
-        if mmCheck == None:
-            desc = ('You are not in the baritone discord which is required to remove the Ignored role')
-            await error_embed(ctx, desc)
+        b_guild = self.bot.get_guild(baritoneDiscord)
+        member_check = b_guild.get_member(ctx.author.id)
+        if member_check is None:
+            await error_embed(ctx, 'You are not in the baritone discord which is required to remove the Ignored role')
         else:
-            roleVar = discord.utils.get(dcCheck.roles, id=ignoreRole)
-            if roleVar not in mmCheck.roles:
-                desc = ("You don't have the Ignored role!")
-                await error_embed(ctx, desc)
+            b_role = discord.utils.get(b_guild.roles, id=ignoreRole)
+            if b_role not in member_check.roles:
+                await error_embed(ctx, 'You don\'t have the Ignored role!')
             else:
-                await mmCheck.remove_roles(roleVar)
-                title = (f'Ignored role lost')
-                desc = ('Your messages will now trigger most of the response regexes.')
-                await channel_embed(ctx, title, desc)
+                await member_check.remove_roles(b_role)
+                await channel_embed(ctx, f'Ignored role lost', 'Your messages will now trigger most of the response regexes.')
                 logging.info(f'{ctx.author.id} removed ignore role')
         
     @unignore.command()
     async def help(self, ctx):
         await Help.ignore(self, ctx)
 
-    @unignore.error
-    @help.error
-    async def role_error(self, ctx, error):
-        desc = None
-        await error_embed(ctx, desc, error)
-        logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 class Releases(commands.Cog):
     def __init__(self, bot):
@@ -78,33 +59,23 @@ class Releases(commands.Cog):
 
     @commands.group(invoke_without_command=True)
     async def releases(self, ctx):
-        dcCheck = self.bot.get_guild(baritoneDiscord)
-        mmCheck = dcCheck.get_member(ctx.author.id)
-        if mmCheck == None:
-            desc = ('You are not in the baritone discord which is required to recieve the Releases role')
-            await error_embed(ctx, desc)
+        b_guild = self.bot.get_guild(baritoneDiscord)
+        member_check = b_guild.get_member(ctx.author.id)
+        if member_check is None:
+            await error_embed(ctx, 'You are not in the baritone discord which is required to recieve the Releases role')
         else:
-            roleVar = discord.utils.get(dcCheck.roles, id=releasesRole)
-            if roleVar in mmCheck.roles:
-                desc = ('You already have the Releases role!')
-                await error_embed(ctx, desc)
+            b_role = discord.utils.get(b_guild.roles, id=releasesRole)
+            if b_role in member_check.roles:
+                await error_embed(ctx, 'You already have the Releases role!')
             else:
-                await mmCheck.add_roles(roleVar)
-                title = (f'Releases role obtained')
-                desc = ('You will now be pinged when a new release is made!')
-                await channel_embed(ctx, title, desc)
+                await member_check.add_roles(b_role)
+                await channel_embed(ctx, 'Releases role obtained', 'You will now be pinged when a new release is made!')
                 logging.info(f'{ctx.author.id} gave themselfs releases role')
 
     @releases.command()
     async def help(self, ctx):
         await Help.releases(self, ctx)
 
-    @releases.error
-    @help.error
-    async def role_error(self, ctx, error):
-        desc = None
-        await error_embed(ctx, desc, error)
-        logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 class Unreleases(commands.Cog):
     def __init__(self, bot):
@@ -112,33 +83,23 @@ class Unreleases(commands.Cog):
 
     @commands.group(invoke_without_command=True)
     async def unreleases(self, ctx):
-        dcCheck = self.bot.get_guild(baritoneDiscord)
-        mmCheck = dcCheck.get_member(ctx.author.id)
-        if mmCheck == None:
-            desc = ('You are not in the baritone discord which is required to remove the Releases role')
-            await error_embed(ctx, desc)
+        b_guild = self.bot.get_guild(baritoneDiscord)
+        member_check = b_guild.get_member(ctx.author.id)
+        if member_check is None:
+            await error_embed(ctx, 'You are not in the baritone discord which is required to remove the Releases role')
         else:
-            roleVar = discord.utils.get(dcCheck.roles, id=releasesRole)
-            if roleVar not in mmCheck.roles:
-                desc = ("You don't have the Releases role!")
-                await error_embed(ctx, desc)
+            ignore = discord.utils.get(b_guild.roles, id=releasesRole)
+            if ignore not in member_check.roles:
+                await error_embed(ctx, 'You don\'t have the Releases role!')
             else:
-                await mmCheck.remove_roles(roleVar)
-                title = (f'Releases role lost')
-                desc = ('You now will not be pinged when a new release is made .')
-                await channel_embed(ctx, title, desc)
+                await member_check.remove_roles(ignore)
+                await channel_embed(ctx, 'Releases role lost', 'You now will not be pinged when a new release is made .')
                 logging.info(f'{ctx.author.id} removed releases role')
 
     @unreleases.command()
     async def help(self, ctx):
         await Help.releases(self, ctx)
 
-    @unreleases.error
-    @help.error
-    async def role_error(self, ctx, error):
-        desc = None
-        await error_embed(ctx, desc, error)
-        logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
 def setup(bot):
     bot.add_cog(Ignore(bot))

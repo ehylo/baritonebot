@@ -3,7 +3,7 @@ import json
 import logging
 from cogs.help import Help
 from discord.ext import commands
-from cogs.const import console, channel_embed, error_embed, fault_footer, coolEmbedColor, timeDate, admin_group, help_embed
+from cogs.const import channel_embed, error_embed, fault_footer, coolEmbedColor, timeDate, admin_group, help_embed
 
 
 class Rule(commands.Cog):
@@ -13,7 +13,7 @@ class Rule(commands.Cog):
     @commands.group(invoke_without_command=True)
     async def rule(self, ctx, rulenum: int = None):
         if rulenum is None:
-            await Help.rule(ctx)
+            await Help.rule(self, ctx)
         elif rulenum <= 0:
             await error_embed(ctx, 'You need to give a **positive non zero** rule number')
         else:
@@ -67,24 +67,14 @@ class Rule(commands.Cog):
         with open('./data/rules.json') as jsonRules:
             rules_list = json.load(jsonRules)
         r_list = (len(rules_list) + 1)
-        em = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title='Rules')
-        em.set_footer(text=fault_footer)
-        em.set_thumbnail(url='https://bigrat.monster/media/noanime.gif')
+        em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title='Rules')
+        em_v.set_footer(text=fault_footer)
+        em_v.set_thumbnail(url='https://bigrat.monster/media/noanime.gif')
         for x in range(1, r_list):
             field_title = (rules_list[x - 1]['title'])
             field_value = (rules_list[x - 1]['description'])
-            em.add_field(name=field_title, value=field_value, inline=False)
-        await ctx.send(embed=em)
-
-    @rule.error
-    @rules.error
-    @remove.error
-    @add.error
-    async def rule_error(self, ctx, error):
-        if isinstance(error, commands.errors.BadArgument):
-            await error_embed(ctx, 'You need to give a rule **number**')
-        elif not isinstance(error, commands.errors.CheckFailure):
-            await error_embed(ctx, None, error), await console(ctx, error)
+            em_v.add_field(name=field_title, value=field_value, inline=False)
+        await ctx.send(embed=em_v)
 
 
 def setup(bot):

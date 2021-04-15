@@ -1,8 +1,8 @@
-import discord
 import logging
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import logChannel, mod_group, log_embed, error_embed
+from cogs.const import logChannel, log_embed, mod_group
+
 
 class Clear(commands.Cog):
     def __init__(self, bot):
@@ -10,30 +10,15 @@ class Clear(commands.Cog):
 
     @commands.command()
     @commands.check(mod_group)
-    async def clear(self, ctx, limit=None):
-        if limit == None:
+    async def clear(self, ctx, limit: int = None):
+        if limit is None:
             await Help.clear(self, ctx)
         else:
-            try:
-                channel = await self.bot.fetch_channel(logChannel)
-                clearNum = (int(limit))
-                await ctx.channel.purge(limit=clearNum)
-                title = 'Bulk messages deleted'
-                desc = (f'Cleared {clearNum} messages in {ctx.channel.mention}')
-                await log_embed(ctx, title, desc, channel)
-                logging.info(f'{ctx.author.id} cleared {limit} messages in {ctx.channel}')
-            except:
-                desc = ('You need to give a **number** of messages to clear')
-                await error_embed(ctx, desc)
-        
-    @clear.error
-    async def clear_error(self, ctx, error):
-        if isinstance(error, commands.errors.CheckFailure):
-            pass
-        else:
-            desc = None
-            await error_embed(ctx, desc, error)
-            logging.info(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
+            await ctx.channel.purge(limit=limit)
+            channel = await self.bot.fetch_channel(logChannel)
+            await log_embed(ctx, 'Bulk messages deleted', f'Cleared {limit} messages in {ctx.channel.mention}', channel)
+            logging.info(f'{ctx.author.id} cleared {limit} messages in {ctx.channel}')
+
 
 def setup(bot):
     bot.add_cog(Clear(bot))
