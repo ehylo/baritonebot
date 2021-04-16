@@ -2,7 +2,7 @@ import logging
 
 import discord
 from discord.ext import commands
-from cogs.const import mod_group, channel_embed, error_embed
+from const import mod_group, channel_embed, error_embed
 from cogs.help import Help
 
 

@@ -1,7 +1,7 @@
 import logging
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import channel_embed, log_embed, logChannel, dm_embed, baritoneDiscord
+from const import channel_embed, log_embed, logChannel, dm_embed, baritoneDiscord
 
 
 class Optout(commands.Cog):

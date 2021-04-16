@@ -1,7 +1,7 @@
 import discord
 import logging
 from discord.ext import commands
-from cogs.const import voiceRole
+from const import voiceRole
 
 
 class Voice(commands.Cog):

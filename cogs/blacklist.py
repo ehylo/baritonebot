@@ -1,7 +1,7 @@
 import logging
 from cogs.help import Help
 from discord.ext import commands
-from cogs.const import helper_group, mod_group, error_embed, channel_embed
+from const import helper_group, mod_group, error_embed, channel_embed
 
 
 class Blacklist(commands.Cog):

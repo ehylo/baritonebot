@@ -2,7 +2,7 @@ import discord
 import logging
 from cogs.help import Help
 from discord.ext import commands
-from cogs.const import helper_group, mod_group, admin_group, muteRole, channel_embed, log_embed, error_embed, logChannel, dm_embed, baritoneDiscord
+from const import helper_group, mod_group, admin_group, muteRole, channel_embed, log_embed, error_embed, logChannel, dm_embed, baritoneDiscord
 
 
 class Bkm(commands.Cog):

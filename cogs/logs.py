@@ -1,7 +1,7 @@
 import discord
 import logging
 from discord.ext import commands
-from cogs.const import coolEmbedColor, logChannel, leaveChannel, timeDate, log_embed, fault_footer, bbi, error_embed
+from const import coolEmbedColor, logChannel, leaveChannel, timeDate, log_embed, fault_footer, bbi, error_embed
 
 e_c = open("./data/exemptchannels.txt", "r")
 exempt_channels = e_c.read()

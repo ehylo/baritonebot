@@ -3,7 +3,7 @@ import logging
 import random
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import mod_group, channel_embed, error_embed, helper_group, fault_footer, coolEmbedColor, timeDate
+from const import mod_group, channel_embed, error_embed, helper_group, fault_footer, coolEmbedColor, timeDate
 
 
 class Cringe(commands.Cog):
@@ -11,19 +11,18 @@ class Cringe(commands.Cog):
         self.bot = bot
 
     @commands.group(invoke_without_command=True)
-    async def cringe(self, ctx):
-        try:
-            f = open("./data/cringe.txt", "r")
-            em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title=':camera_with_flash:')
-            em_v.set_image(url=((f.readlines())[(random.randint(1, (sum(1 for _ in open("./data/cringe.txt"))))) - 1]))
-            em_v.set_footer(text=fault_footer)
-            await ctx.send(embed=em_v)
-        except ValueError:
-            await error_embed(ctx, 'There is no cringe, please add one to use this command')
-
-    @cringe.command()
-    async def help(self, ctx):
-        await Help.cringe(self, ctx)
+    async def cringe(self, ctx, arg=None):
+        if arg == 'help':
+            await Help.cringe(self, ctx)
+        else:
+            try:
+                f = open("./data/cringe.txt", "r")
+                em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title=':camera_with_flash:')
+                em_v.set_image(url=((f.readlines())[(random.randint(1, (sum(1 for _ in open("./data/cringe.txt"))))) - 1]))
+                em_v.set_footer(text=fault_footer)
+                await ctx.send(embed=em_v)
+            except ValueError:
+                await error_embed(ctx, 'There is no cringe, please add one to use this command')
 
     @cringe.command()
     @commands.check(mod_group)

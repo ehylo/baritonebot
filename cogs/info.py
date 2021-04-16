@@ -2,7 +2,7 @@ import discord
 import datetime
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import baritoneDiscord, coolEmbedColor, error_embed
+from const import baritoneDiscord, coolEmbedColor, error_embed
 
 
 async def info_embed(ctx, member, title, field1, field2, field3, value):
@@ -61,25 +61,24 @@ class Info(commands.Cog):
         else:
             await varistuff(ctx, ctx.author, ismember=False)
 
-    @commands.group(invoke_without_command=True)
-    async def serverinfo(self, ctx):
-        b_guild = self.bot.get_guild(baritoneDiscord)
-        em_v = discord.Embed(color=coolEmbedColor, timestamp=datetime.datetime.utcnow(), title=f'Server Information: {b_guild.name}')
-        em_v.add_field(name='Owner:', value=f'{b_guild.owner} (ID: {b_guild.owner_id})', inline=False)
-        em_v.add_field(name='Description:', value=b_guild.description, inline=False)
-        em_v.add_field(name='Created:', value=b_guild.created_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " "), inline=False)
-        em_v.add_field(name='Region:', value=b_guild.region, inline=False)
-        em_v.add_field(name=f'Roles ({len(b_guild.roles)}):', value=(' '.join([str(r.mention) for r in b_guild.roles][1:])+'\u200b'), inline=False)
-        em_v.add_field(name='Text Channels:', value=str(len(b_guild.text_channels)), inline=True)
-        em_v.add_field(name='Voice Channels:', value=str(len(b_guild.voice_channels)), inline=True)
-        em_v.add_field(name='Members:', value=b_guild.member_count, inline=True)
-        em_v.set_footer(text=f'ID: {b_guild.id}')
-        em_v.set_thumbnail(url=b_guild.icon_url)
-        await ctx.send(embed=em_v)
-
-    @serverinfo.command()
-    async def help(self, ctx):
-        await Help.serverinfo(self, ctx)
+    @commands.command()
+    async def serverinfo(self, ctx, arg=None):
+        if arg == 'help':
+            await Help.serverinfo(self, ctx)
+        else:
+            b_guild = self.bot.get_guild(baritoneDiscord)
+            em_v = discord.Embed(color=coolEmbedColor, timestamp=datetime.datetime.utcnow(), title=f'Server Information: {b_guild.name}')
+            em_v.add_field(name='Owner:', value=f'{b_guild.owner} (ID: {b_guild.owner_id})', inline=False)
+            em_v.add_field(name='Description:', value=b_guild.description, inline=False)
+            em_v.add_field(name='Created:', value=b_guild.created_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " "), inline=False)
+            em_v.add_field(name='Region:', value=b_guild.region, inline=False)
+            em_v.add_field(name=f'Roles ({len(b_guild.roles)}):', value=(' '.join([str(r.mention) for r in b_guild.roles][1:])+'\u200b'), inline=False)
+            em_v.add_field(name='Text Channels:', value=str(len(b_guild.text_channels)), inline=True)
+            em_v.add_field(name='Voice Channels:', value=str(len(b_guild.voice_channels)), inline=True)
+            em_v.add_field(name='Members:', value=b_guild.member_count, inline=True)
+            em_v.set_footer(text=f'ID: {b_guild.id}')
+            em_v.set_thumbnail(url=b_guild.icon_url)
+            await ctx.send(embed=em_v)
 
 
 def setup(bot):

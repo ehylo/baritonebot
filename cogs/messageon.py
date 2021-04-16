@@ -4,7 +4,7 @@ import requests
 import js_regex
 import re
 import json
-from cogs.const import preCmd, logChannel, log_embed, channel_embed, pasteToken, bbi, ignoreRole, baritoneDiscord, error_embed
+from const import preCmd, logChannel, log_embed, channel_embed, pasteToken, bbi, ignoreRole, baritoneDiscord, error_embed
 from datetime import datetime, timedelta
 from discord.ext import commands
 

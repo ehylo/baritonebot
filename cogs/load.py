@@ -1,7 +1,7 @@
 import logging
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import admin_group, channel_embed
+from const import admin_group, channel_embed
 
 
 class Load(commands.Cog):

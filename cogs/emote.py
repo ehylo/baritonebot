@@ -5,7 +5,7 @@ from PIL import Image
 from io import BytesIO
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import mod_group, error_embed, channel_embed
+from const import mod_group, error_embed, channel_embed
 
 
 async def create_emote(ctx, name, img_url):

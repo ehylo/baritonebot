@@ -3,7 +3,7 @@ import json
 import logging
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import valuesStr, channel_embed, admin_group, mod_group
+from const import valuesStr, channel_embed, admin_group, mod_group
 
 
 class Prefix(commands.Cog):

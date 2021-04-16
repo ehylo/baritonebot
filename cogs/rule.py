@@ -3,7 +3,7 @@ import json
 import logging
 from cogs.help import Help
 from discord.ext import commands
-from cogs.const import channel_embed, error_embed, fault_footer, coolEmbedColor, timeDate, admin_group, help_embed
+from const import channel_embed, error_embed, fault_footer, coolEmbedColor, timeDate, admin_group, help_embed
 
 
 class Rule(commands.Cog):

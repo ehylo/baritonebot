@@ -2,7 +2,7 @@ import logging
 import json
 from discord.ext import commands
 from cogs.help import Help
-from cogs.const import error_embed, channel_embed, helper_group, mod_group, help_embed
+from const import error_embed, channel_embed, helper_group, mod_group, help_embed
 
 
 class Response(commands.Cog):
