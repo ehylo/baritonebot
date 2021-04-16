@@ -16,16 +16,13 @@ class Role(commands.Cog):
         else:
             b_guild = self.bot.get_guild(baritoneDiscord)
             member_check = b_guild.get_member(ctx.author.id)
-            if member_check is None:
-                await error_embed(ctx, 'You are not in the baritone discord which is required to recieve the Ignored role')
+            b_role = discord.utils.get(b_guild.roles, id=ignoreRole)
+            if b_role in member_check.roles:
+                await error_embed(ctx, 'You already have the Ignored role!')
             else:
-                b_role = discord.utils.get(b_guild.roles, id=ignoreRole)
-                if b_role in member_check.roles:
-                    await error_embed(ctx, 'You already have the Ignored role!')
-                else:
-                    await member_check.add_roles(b_role)
-                    await channel_embed(ctx, f'Ignored role obtained', 'Your messages will not trigger most of the response regexes now.')
-                    logging.info(f'{ctx.author.id} gave themselfs ignore role')
+                await member_check.add_roles(b_role)
+                await channel_embed(ctx, f'Ignored role obtained', 'Your messages will not trigger the response regexes unless you ping me')
+                logging.info(f'{ctx.author.id} gave themselfs ignore role')
 
     @commands.command()
     async def unignore(self, ctx, arg=None):
@@ -34,16 +31,13 @@ class Role(commands.Cog):
         else:
             b_guild = self.bot.get_guild(baritoneDiscord)
             member_check = b_guild.get_member(ctx.author.id)
-            if member_check is None:
-                await error_embed(ctx, 'You are not in the baritone discord which is required to remove the Ignored role')
+            b_role = discord.utils.get(b_guild.roles, id=ignoreRole)
+            if b_role not in member_check.roles:
+                await error_embed(ctx, 'You don\'t have the Ignored role!')
             else:
-                b_role = discord.utils.get(b_guild.roles, id=ignoreRole)
-                if b_role not in member_check.roles:
-                    await error_embed(ctx, 'You don\'t have the Ignored role!')
-                else:
-                    await member_check.remove_roles(b_role)
-                    await channel_embed(ctx, f'Ignored role lost', 'Your messages will now trigger most of the response regexes.')
-                    logging.info(f'{ctx.author.id} removed ignore role')
+                await member_check.remove_roles(b_role)
+                await channel_embed(ctx, f'Ignored role removed', 'Your messages will now trigger the response regexes.')
+                logging.info(f'{ctx.author.id} removed ignore role')
 
     @commands.command()
     async def releases(self, ctx, arg=None):
@@ -52,16 +46,13 @@ class Role(commands.Cog):
         else:
             b_guild = self.bot.get_guild(baritoneDiscord)
             member_check = b_guild.get_member(ctx.author.id)
-            if member_check is None:
-                await error_embed(ctx, 'You are not in the baritone discord which is required to recieve the Releases role')
+            b_role = discord.utils.get(b_guild.roles, id=releasesRole)
+            if b_role in member_check.roles:
+                await error_embed(ctx, 'You already have the Releases role!')
             else:
-                b_role = discord.utils.get(b_guild.roles, id=releasesRole)
-                if b_role in member_check.roles:
-                    await error_embed(ctx, 'You already have the Releases role!')
-                else:
-                    await member_check.add_roles(b_role)
-                    await channel_embed(ctx, 'Releases role obtained', 'You will now be pinged when a new release is made!')
-                    logging.info(f'{ctx.author.id} gave themselfs releases role')
+                await member_check.add_roles(b_role)
+                await channel_embed(ctx, 'Releases role obtained', 'You will now be pinged when a new release is made!')
+                logging.info(f'{ctx.author.id} gave themselfs releases role')
 
     @commands.command()
     async def unreleases(self, ctx, arg=None):
@@ -70,16 +61,13 @@ class Role(commands.Cog):
         else:
             b_guild = self.bot.get_guild(baritoneDiscord)
             member_check = b_guild.get_member(ctx.author.id)
-            if member_check is None:
-                await error_embed(ctx, 'You are not in the baritone discord which is required to remove the Releases role')
+            ignore = discord.utils.get(b_guild.roles, id=releasesRole)
+            if ignore not in member_check.roles:
+                await error_embed(ctx, 'You don\'t have the Releases role!')
             else:
-                ignore = discord.utils.get(b_guild.roles, id=releasesRole)
-                if ignore not in member_check.roles:
-                    await error_embed(ctx, 'You don\'t have the Releases role!')
-                else:
-                    await member_check.remove_roles(ignore)
-                    await channel_embed(ctx, 'Releases role lost', 'You now will not be pinged when a new release is made .')
-                    logging.info(f'{ctx.author.id} removed releases role')
+                await member_check.remove_roles(ignore)
+                await channel_embed(ctx, 'Releases role removed', 'You now will not be pinged when a new release is made .')
+                logging.info(f'{ctx.author.id} removed releases role')
 
 
 def setup(bot):

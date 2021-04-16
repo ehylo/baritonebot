@@ -49,6 +49,8 @@ class Logs(commands.Cog):
             await error_embed(ctx, 'You need to give a **number**')
         elif isinstance(error, commands.errors.MemberNotFound):
             await error_embed(ctx, 'That member is invalid')
+        elif isinstance(error, commands.errors.CommandNotFound):
+            await error_embed(ctx, f'The command `{ctx.message.content}` was not found, do `help` to see command categories')
         elif not isinstance(error, commands.errors.CheckFailure):
             await error_embed(ctx, None, error)
             logging.error(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')

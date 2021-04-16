@@ -9,13 +9,11 @@ timeDate = datetime.datetime.utcnow()
 
 with open('./data/values.json') as jsonValues:
     valuesStr = json.load(jsonValues)
-    coolEmbedColor = int((valuesStr[0]['color']), 16)
-    setPresence = str(valuesStr[0]['presence'])
-    preCmd = str(valuesStr[0]['prefix'])
-    pasteToken = str(valuesStr[0]['pasteToken'])
+coolEmbedColor = int((valuesStr[0]['color']), 16)
+pasteToken = str(valuesStr[0]['pasteToken'])
 
 bbi = 823620099054239744  # not adding these to values.json that way its easier to add more later on
-helperRole = 826950651698610200
+helperRole = 826950651698610200  # currently set to my test server aswell, will need to change when bot gets added
 devRole = 826950651711979530
 bypsRole = 826950651711979531
 moderatorRole = 826950651698610201
@@ -33,49 +31,39 @@ logging.basicConfig(filename='console.log', level=logging.INFO, format='[%(ascti
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
-async def dm_check(ctx):
-    try:
-        [int(r.id) for r in ctx.author.roles]
-        return True
-    except AttributeError:
-        await error_embed(ctx, f'You cannot use the command `{ctx.command}` in dms!')
-
-
 async def perms_check(ctx, required_role):
-    role_list = [int(r.id) for r in ctx.author.roles]
+    b_discord = ctx.bot.get_guild(baritoneDiscord)
+    dm_user = b_discord.get_member(ctx.author.id)
     if required_role == 'admin':
-        if role_list.count(adminRole) == 1 or role_list.count(devRole) == 1 or role_list.count(bypsRole) == 1:
+        if b_discord.get_role((adminRole, devRole, bypsRole)) in dm_user.roles:
             return True
         else:
             await error_embed(ctx, f'You need to be an Admin to use the command `{ctx.command}`')
     if required_role == 'mod':
-        if role_list.count(moderatorRole) == 1 or role_list.count(bypsRole) == 1:
+        if b_discord.get_role((moderatorRole, adminRole, devRole, bypsRole)) in dm_user.roles:
             return True
         else:
             await error_embed(ctx, f'You need to be an Moderator to use the command `{ctx.command}`')
     if required_role == 'helper':
-        if role_list.count(helperRole) == 1 or role_list.count(bypsRole) == 1:
+        if b_discord.get_role((helperRole, moderatorRole, adminRole, devRole, bypsRole)) in dm_user.roles:
             return True
         else:
             await error_embed(ctx, f'You need to be an Helper to use the command `{ctx.command}`')
 
 
 async def admin_group(ctx):
-    if await dm_check(ctx) is True:
-        if await perms_check(ctx, 'admin'):
-            return True
+    if await perms_check(ctx, 'admin'):
+        return True
 
 
 async def mod_group(ctx):
-    if await dm_check(ctx) is True:
-        if await perms_check(ctx, 'mod'):
-            return True
+    if await perms_check(ctx, 'mod'):
+        return True
 
 
 async def helper_group(ctx):
-    if await dm_check(ctx) is True:
-        if await perms_check(ctx, 'helper'):
-            return True
+    if await perms_check(ctx, 'helper'):
+        return True
 
 
 async def error_embed(ctx, desc=None, error=None):

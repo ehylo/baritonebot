@@ -18,9 +18,7 @@ class Help(commands.Cog):
     @help.command()
     async def admin(self, ctx):
         field_value = '\
-            \u2022 `reload <extension>` \
-            \n\u2022 `unload <extension>` \
-            \n\u2022 `load <extension>` \
+            \u2022 `extension <reload|unload|load|list> <extension>` \
             \n\u2022 `unban <user ID>` \
             \n\u2022 `embedcolor <default|hex color>` \
             \n\u2022 `prefix <default|prefix>` \
@@ -159,16 +157,8 @@ class Help(commands.Cog):
         await help_embed(ctx, 'User Information', 'Shows information about the given member/user', '`userinfo <me|user|member>`')
 
     @help.command()
-    async def load(self, ctx):
-        await help_embed(ctx, 'Load', 'Loads the specified extension', '`load <extension>`')
-
-    @help.command()
-    async def unload(self, ctx):
-        await help_embed(ctx, 'Unload', 'Unloads the specified extension', '`unload <extension>`')
-
-    @help.command()
-    async def reload(self, ctx):
-        await help_embed(ctx, 'Reload', 'Reloads the specified extension', '`reload <extension>`')
+    async def extension(self, ctx):
+        await help_embed(ctx, 'Extension', 'Loads, unloads, or reloads the specified extension or lists all of the extensions', '`extension <reload|unload|load|list> <extension>`')
 
     @help.command()
     async def exempt(self, ctx):
