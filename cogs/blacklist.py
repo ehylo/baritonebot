@@ -8,7 +8,7 @@ class Blacklist(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True)
     @commands.check(helper_group)
     async def blacklist(self, ctx):
         await Help.blacklist(self, ctx)

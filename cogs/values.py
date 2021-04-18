@@ -10,7 +10,7 @@ class Prefix(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True)
     @commands.check(admin_group)
     async def prefix(self, ctx, fixpre=None):
         if fixpre is None:
@@ -38,7 +38,7 @@ class EmbedColor(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True)
     @commands.check(admin_group)
     async def embedcolor(self, ctx, color=None):
         if color is None:
@@ -66,7 +66,7 @@ class Nick(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True)
     @commands.check(mod_group)
     async def nick(self, ctx, *, name=None):
         if name is None:
@@ -95,7 +95,7 @@ class Status(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True)
     @commands.check(mod_group)
     async def status(self, ctx, *, presence=None):
         if presence is None:

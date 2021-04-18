@@ -3,8 +3,9 @@ import logging
 import requests
 import re
 import json
+import mimetypes
 from bot import preCmd
-from const import logChannel, log_embed, channel_embed, pasteToken, botID, ignoreRole, baritoneDiscord, error_embed, coolEmbedColor, leaveChannel, dm_embed
+from const import logChannel, log_embed, channel_embed, pasteToken, botID, ignoreRole, baritoneDiscord, error_embed, coolEmbedColor, leaveChannel, dm_embed, voiceRole
 from datetime import datetime, timedelta
 from discord.ext import commands
 
@@ -55,7 +56,10 @@ async def dm_log(message, b_discord):
 
 async def att_paste(message):
     if len(message.attachments) > 0:
-        if message.attachments[0].url.lower().endswith(('.log', '.txt', '.json')):
+        file_type = mimetypes.guess_type(message.attachments[0].url)
+        if file_type[0] is not None:
+            file_type = file_type[0].split('/')[0]
+        if message.attachments[0].url.lower().endswith(('.log', '.json5', '.json', '.py', '.sh', '.config', '.properties', '.toml', '.bat', '.cfg')) or file_type == 'text':
             if pasteToken == "":
                 await error_embed(message.channel, 'There is no paste.ee API token in values.json so I am unable to upload that file for you')
             else:
@@ -145,7 +149,18 @@ class Event(commands.Cog):
             if (message.created_at + timedelta(hours=24)) < datetime.utcnow():
                 await message.delete()
                 logging.info('cleared logs older then 24 hours in the logs channel')
-        await self.bot.process_commands(message)
+        # await self.bot.process_commands(message) ## commenting this out because it didn't work at one point without it but now if enabled it sends 2 messages idfk just leave it why not
+
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        if before.channel is None:  # only reason its 'before' and 'is' is so that before is used and pycharm stops yelling at me
+            b_role = discord.utils.get(member.guild.roles, id=voiceRole)
+            await member.add_roles(b_role)
+            logging.info(f'{member.id} joined a voice channel and got the voice role')
+        elif after.channel is None:
+            b_role = discord.utils.get(member.guild.roles, id=voiceRole)
+            await member.remove_roles(b_role)
+            logging.info(f'{member.id} left a voice channel and the voice role was removed')
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):

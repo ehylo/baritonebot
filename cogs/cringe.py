@@ -10,7 +10,7 @@ class Cringe(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True)
     async def cringe(self, ctx, arg=None):
         if arg == 'help':
             await Help.cringe(self, ctx)

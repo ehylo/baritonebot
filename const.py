@@ -89,21 +89,25 @@ async def log_embed(ctx=None, title=None, desc=None, channel=None, member=None):
     await channel.send(embed=em_v)
 
 
-async def channel_embed(ctx, title=None, desc=None, channel=None):
+async def channel_embed(ctx, title=None, desc=None, channel=None, thumbnail=None):
     if title is None:
         title = 'PING FLURR TO FIX'
     em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title=title)
     if desc is not None:
         em_v.description = desc
     em_v.set_footer(text=fault_footer)
+    if thumbnail is not None:
+        em_v.set_thumbnail(url=thumbnail)
     if channel is not None:
         await channel.send(embed=em_v)
     else:
         await ctx.send(embed=em_v)
 
 
-async def help_embed(ctx, title, desc=None, field_value=None, field_name=None):
+async def help_embed(ctx, title, desc=None, field_value=None, field_name=None, image=None):
     em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title=title, description=desc)
+    if image is not None:
+        em_v.set_image(url=image)
     if field_name is None:
         field_name = 'Usage:'
     em_v.add_field(name=field_name, value=field_value, inline=False)

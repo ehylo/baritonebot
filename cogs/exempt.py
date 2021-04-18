@@ -8,7 +8,7 @@ class Exempt(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True)
     @commands.check(admin_group)
     async def exempt(self, ctx, arg=None):
         if arg == 'help':

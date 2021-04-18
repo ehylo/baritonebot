@@ -9,7 +9,7 @@ class Embed(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True)
     @commands.check(mod_group)
     async def embed(self, ctx, send_channel=None, etitle=None, *, edesc=None):
         channel_str = str(ctx.message.raw_channel_mentions)[1:-1]

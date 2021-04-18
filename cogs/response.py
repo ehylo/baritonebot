@@ -9,7 +9,7 @@ class Response(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True)
     @commands.check(helper_group)
     async def response(self, ctx):
         await Help.response(self, ctx)

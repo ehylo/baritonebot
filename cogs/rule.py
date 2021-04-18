@@ -10,7 +10,7 @@ class Rule(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True)
     async def rule(self, ctx, rulenum: int = None):
         if rulenum is None:
             await Help.rule(self, ctx)
@@ -48,19 +48,33 @@ class Rule(commands.Cog):
 
     @rule.command()
     @commands.check(admin_group)
-    async def add(self, ctx, dtitle=None, *, ddesc=None):
-        if dtitle is None:
+    async def add(self, ctx, anum: int = None, dtitle=None, *, ddesc=None):
+        if anum is None:
+            await error_embed(ctx, 'You need to give a number')
+        elif anum <= 0:
+            await error_embed(ctx, 'You need to give a **positive non zero** rule number')
+        elif dtitle is None:
             await error_embed(ctx, 'You need to give a title')
         elif ddesc is None:
             await error_embed(ctx, 'You need to give a description')
         else:
             with open('./data/rules.json') as jsonValues:
                 rules_list = json.load(jsonValues)
-            rules_list.append({'title': dtitle, 'description': ddesc})
-            with open('./data/rules.json', 'w') as file:
-                json.dump(rules_list, file, indent=2)
-            await help_embed(ctx, 'New rule:', '', ddesc, dtitle)
-            logging.info(f'{ctx.author.id} added rule with title: {dtitle}')
+            frul = []
+            addx = 1
+            if anum-1 <= len(rules_list):
+                for x in range(1, (len(rules_list) + 2)):
+                    if anum == x:
+                        frul.append({'title': dtitle, 'description': ddesc})
+                        addx += 1
+                    else:
+                        frul.append(rules_list[x - addx])
+                with open('./data/rules.json', 'w') as file:
+                    json.dump(frul, file, indent=2)
+                await help_embed(ctx, 'New rule:', f'{ctx.author.mention} add rule {anum}', ddesc, dtitle)
+                logging.info(f'{ctx.author.id} added rule with title: {dtitle}')
+            else:
+                await error_embed(ctx, 'That rule number is too high')
 
     @commands.command()
     async def rules(self, ctx):

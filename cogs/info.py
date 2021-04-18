@@ -29,7 +29,7 @@ class Info(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True)
     async def userinfo(self, ctx, user_id=None):
         user_men = str(ctx.message.raw_mentions)[1:-1]
         b_guild = self.bot.get_guild(baritoneDiscord)

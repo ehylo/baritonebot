@@ -6,7 +6,7 @@ class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True)
     async def help(self, ctx):
         desc = '\
             \u2022 `help admin` - Admin commands \
@@ -59,6 +59,8 @@ class Help(commands.Cog):
         field_value = '\
             \u2022 `rule<s> <number>` \
             \n\u2022 `ping <help>` \
+            \n\u2022 `rps <rock|paper|scissors>` \
+            \n\u2022 `flip <help>` \
             \n\u2022 `cringe <help>` \
             \n\u2022 `serverinfo <help>` \
             \n\u2022 `userinfo <me|user|member>` \
@@ -114,7 +116,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def rule(self, ctx):
-        await help_embed(ctx, 'Rules', 'Sends the specified rule, or all of them, or add/remove a rule', '`<rule><s> <number|add|remove> <number|title> <description>`')
+        await help_embed(ctx, 'Rules', 'Sends the specified rule, or all of them, or add/remove a rule', '`<rule><s> <add|remove|number> <number> <title> <description>`')
 
     @help.command()
     async def prefix(self, ctx):
@@ -147,6 +149,18 @@ class Help(commands.Cog):
     @help.command()
     async def ping(self, ctx):
         await help_embed(ctx, 'huh', 'why would you need help for ping? did you think it pings someone specific? xD', '`ping`')
+
+    @help.command()
+    async def rps(self, ctx):
+        await help_embed(ctx, 'Rock, Paper, Scissors', 'Play a game of rock, paper, scissors against a bot', '`rps <rock|paper|scissors>`')
+
+    @help.command()
+    async def rpsls(self, ctx):
+        await help_embed(ctx, 'Rock, Paper, Scissors, Lizard, Spock', 'Play a game of rock, paper, scissors, lizard, spock against a bot', '`rps ls <rock|paper|scissors|lizard|spock>`', None, 'https://cdn.discordapp.com/attachments/819449117561585704/833201595189035008/Rock_paper_scissors_lizard_spock.png')
+
+    @help.command()
+    async def flip(self, ctx):
+        await help_embed(ctx, 'Coin Flip', 'Randomly flips a coin for you, for when you need someone else to decide something for you', '`flip`')
 
     @help.command()
     async def serverinfo(self, ctx):
