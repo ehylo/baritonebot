@@ -31,6 +31,7 @@ class Info(commands.Cog):
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ui'])
     async def userinfo(self, ctx, user_id=None):
+        b_guild = self.bot.get_guild(baritoneDiscord)
         user_men = str(ctx.message.raw_mentions)[1:-1]
         if user_id is None:
             await Help.userinfo(self, ctx)
@@ -40,12 +41,12 @@ class Info(commands.Cog):
             elif (user_id.isdigit()) and (len(user_id) == 18):
                 clear_member = await self.bot.fetch_user(int(user_id))  # get the user if they gave an ID
             else:
-                clear_member = ctx.guild.get_member_named(user_id)  # get the member if they gave a name with/without discrimitor
+                clear_member = b_guild.get_member_named(user_id)  # get the member if they gave a name with/without discrimitor
             if clear_member is None:
                 await error_embed(ctx, 'The user you gave is invalid')
             else:
-                if ctx.guild.get_member(clear_member.id) is not None:
-                    member = ctx.guild.get_member(clear_member.id)
+                if b_guild.get_member(clear_member.id) is not None:
+                    member = b_guild.get_member(clear_member.id)
                     await varistuff(ctx, member, ismember=True)
                 else:
                     member = await self.bot.fetch_user(clear_member.id)

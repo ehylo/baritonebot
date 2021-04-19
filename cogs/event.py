@@ -14,7 +14,7 @@ exempt_channels = e_c.read()
 e_c.close()
 
 
-async def del_blacklist(message, b_discord):
+async def del_blacklist(message, b_guild):
     del_message = 0
     if del_message == 0:
         if (not message.content.startswith(preCmd) and              # don't delete commands
@@ -43,13 +43,13 @@ async def del_blacklist(message, b_discord):
                         logging.info(f'{message.author.id} sent a message but it was deleted because it has a word on the blacklist')
     if del_message == 0:
         await att_paste(message)
-        await dm_log(message, b_discord)
-        await gexre(message, b_discord)
+        await dm_log(message, b_guild)
+        await gexre(message, b_guild)
 
 
-async def dm_log(message, b_discord):
+async def dm_log(message, b_guild):
     if (message.guild is None) and (message.author.id != botID):
-        channel = b_discord.get_channel(logChannel)
+        channel = b_guild.get_channel(logChannel)
         await log_embed(message, f'I have recieved a DM', message.content, channel, None)
         logging.info(f'{message.author.id} dmed me \"{message.content}\"')
 
@@ -70,18 +70,19 @@ async def att_paste(message):
                 logging.info(f'{message.author.id} uploaded a paste to {(actual_link["link"])}')
 
 
-async def gexre(message, b_discord):
-    with open('./data/responses.json') as jsonResp:
-        response_list = json.load(jsonResp)
-    for x in range(1, (len(response_list) + 1)):
-        if re.search((response_list[x - 1]['regex']), message.content) is not None:
-            member = await b_discord.fetch_member(message.author.id)
-            if (b_discord.get_member(botID) in message.mentions) or (message.content.startswith('!')):  # this is seperate from the elif so there is no trash reaction to delete a pinged/command response, and also the bot won't reply
-                await channel_embed(message.channel, (response_list[x - 1]['title']), (response_list[x - 1]['description']))
-                logging.info(f'{message.author.id} manually triggered response number {x}')
-            elif (b_discord.get_role(ignoreRole) not in member.roles) and (str(message.channel.id) not in exempt_channels):
-                await channel_embed(message, (response_list[x - 1]['title']), (response_list[x - 1]['description']), None, 'Reply')
-                logging.info(f'{message.author.id} sent a message and triggered response number {x}')
+async def gexre(message, b_guild):
+    if not message.content.startswith(preCmd):
+        with open('./data/responses.json') as jsonResp:
+            response_list = json.load(jsonResp)
+        for x in range(1, (len(response_list) + 1)):
+            if re.search((response_list[x - 1]['regex']), message.content) is not None:
+                member = await b_guild.fetch_member(message.author.id)
+                if (b_guild.get_member(botID) in message.mentions) or (message.content.startswith('!')):  # this is seperate from the elif so there is no trash reaction to delete a pinged/command response, and also the bot won't reply
+                    await channel_embed(message.channel, (response_list[x - 1]['title']), (response_list[x - 1]['description']))
+                    logging.info(f'{message.author.id} manually triggered response number {x}')
+                elif (b_guild.get_role(ignoreRole) not in member.roles) and (str(message.channel.id) not in exempt_channels):
+                    await channel_embed(message, (response_list[x - 1]['title']), (response_list[x - 1]['description']), None, 'Reply')
+                    logging.info(f'{message.author.id} sent a message and triggered response number {x}')
 
 
 class Event(commands.Cog):
@@ -92,21 +93,29 @@ class Event(commands.Cog):
     async def on_message_delete(self, message):
         if message.author.id != botID and str(message.channel.id) not in exempt_channels:
             channel = await self.bot.fetch_channel(logChannel)
-            await log_embed(message, None, f'**Message deleted in <#{message.channel.id}>** \n{message.content}', channel)
+            if message.guild is None:
+                del_channel = 'DMs'
+            else:
+                del_channel = message.channel.mention
+            await log_embed(message, None, f'**Message deleted in {del_channel}** \n{message.content}', channel)
             logging.info(f'{message.author.id} message was deleted: \"{message.content}\"')
 
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
-        if message_before.author.id != botID and str(message_before.channel.id) not in exempt_channels:
-            embed = discord.Embed(color=coolEmbedColor, timestamp=datetime.utcnow(), description=f'**Message edited in <#{message_after.channel.id}>** [(jump)](https://discord.com/channels/{message_after.guild.id}/{message_after.channel.id}/{message_after.id})')
-            embed.add_field(name='Befored Edit:', value=message_before.content, inline=True)
-            embed.add_field(name='After Edit:', value=message_after.content, inline=True)
-            embed.set_author(name=message_after.author, icon_url=message_after.author.avatar_url)
-            embed.set_footer(text=f'\U0001f916 Baritone Bot \U0001f916 ID: {message_after.author.id}')
+        if (message_before.author.id != botID) and (str(message_before.channel.id) not in exempt_channels):
+            if message_before.guild is None:
+                jump = 'DMs**'
+            else:
+                jump = f'{message_after.channel.mention}** [(jump)](https://discord.com/channels/{message_after.guild.id}/{message_after.channel.id}/{message_after.id})'
+            em_v = discord.Embed(color=coolEmbedColor, timestamp=datetime.utcnow(), description=f'**Message edited in {jump}')
+            em_v.add_field(name='Befored Edit:', value=message_before.content, inline=True)
+            em_v.add_field(name='After Edit:', value=message_after.content, inline=True)
+            em_v.set_author(name=message_after.author, icon_url=message_after.author.avatar_url)
+            em_v.set_footer(text=f'\U0001f916 Baritone Bot \U0001f916 ID: {message_after.author.id}')
             channel = await self.bot.fetch_channel(logChannel)
-            await channel.send(embed=embed)
+            await channel.send(embed=em_v)
             logging.info(f'{message_after.author.id} edited a message, Before: \"{message_before.content}\" After: \"{message_after.content}\"')
-        await del_blacklist(message_after, b_discord=self.bot.get_guild(baritoneDiscord))
+        await del_blacklist(message_after, b_guild=self.bot.get_guild(baritoneDiscord))
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
@@ -116,7 +125,7 @@ class Event(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        if member.name.starswith(('!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/')):
+        if member.name.startswith(('!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/')):
             await member.edit(nick=f'z{member.name}')
             logging.info(f'{member.id} joined with a name that puts them to the top of the list, so z was added infront')
         channel = await self.bot.fetch_channel(leaveChannel)
@@ -138,7 +147,7 @@ class Event(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        await del_blacklist(message, b_discord=self.bot.get_guild(baritoneDiscord))
+        await del_blacklist(message, b_guild=self.bot.get_guild(baritoneDiscord))
 
         channel = await self.bot.fetch_channel(logChannel)
         async for message in channel.history():
@@ -170,7 +179,7 @@ class Event(commands.Cog):
                         await message.delete()
                 except AttributeError:  # to stop errors if people use this in dms
                     pass
-
+'''
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.BadArgument):
@@ -181,7 +190,7 @@ class Event(commands.Cog):
             await error_embed(ctx, f'The command `{ctx.message.content}` was not found, do `help` to see command categories')
         elif not isinstance(error, commands.errors.CheckFailure):
             await error_embed(ctx, None, error)
-            logging.error(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
+            logging.error(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')'''
 
 
 def setup(bot):

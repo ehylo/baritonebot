@@ -49,7 +49,7 @@ class Cringe(commands.Cog):
         if len(ctx.message.attachments) == 0 and url is None:
             await error_embed(ctx, 'You need to give a url or attachment to add cringe')
         else:
-            if ctx.message.attachments[0].url.lower().endswith(('.png', '.jpeg', '.jpg', '.gif')) or (url.startswith('https://') and url.endswith(('.png', '.jpeg', '.jpg', '.gif'))):
+            async def add_cringe():
                 f = open("./data/cringe.txt", "r")
                 lines = f.readlines()
                 if len(ctx.message.attachments) > 0 or url not in [sub.replace('\n', '') for sub in lines]:
@@ -63,8 +63,16 @@ class Cringe(commands.Cog):
                     logging.info(f'{ctx.author.id} added a cringe')
                 else:
                     await error_embed(ctx, 'That cringe already exists')
-            else:
-                await error_embed(ctx, 'Invalid attachment, must be `.png`, `.gif`, `.jpeg`, or `.jpg` or an image url')
+            if len(ctx.message.attachments) > 0:
+                if ctx.message.attachments[0].url.lower().endswith(('.png', '.jpeg', '.jpg', '.gif')):
+                    await add_cringe()
+                else:
+                    await error_embed(ctx, 'Invalid attachment, must be `.png`, `.gif`, `.jpeg`, or `.jpg`')
+            elif url is not None:
+                if url.startswith('https://') and url.endswith(('.png', '.jpeg', '.jpg', '.gif')):
+                    await add_cringe()
+                else:
+                    await error_embed(ctx, 'Invalid url, must be `.png`, `.gif`, `.jpeg`, or `.jpg`')
 
 
 def setup(bot):

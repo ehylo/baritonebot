@@ -12,12 +12,13 @@ class Bkm(commands.Cog):
     @commands.command(aliases=['ub'])
     @commands.check(admin_group)
     async def unban(self, ctx, user_id: int = None):
+        b_guild = self.bot.get_guild(baritoneDiscord)
         if user_id is None:
             await Help.unban(self, ctx)
         else:
             try:
                 user = await self.bot.fetch_user(user_id)
-                await ctx.guild.unban(user)
+                await b_guild.unban(user)
                 channel = await self.bot.fetch_channel(logChannel)
                 logging.info(f'{ctx.author.id} unbanned {user.id}')
                 await channel_embed(ctx, 'User Unbanned', f'{user.name}#{user.discriminator} has been unbanned!')
@@ -30,11 +31,13 @@ class Bkm(commands.Cog):
 
     @commands.command(aliases=['um'])
     @commands.check(mod_group)
-    async def unmute(self, ctx, member: discord.Member = None):
-        b_discord = self.bot.get_guild(baritoneDiscord)
+    async def unmute(self, ctx, user: discord.User = None):
+        b_guild = self.bot.get_guild(baritoneDiscord)
+        member = await b_guild.fetch_member(user.id)
+        author_member = await b_guild.fetch_member(ctx.author.id)
         if member is None:
             await Help.unmute(self, ctx)
-        elif member.top_role == ctx.author.top_role:
+        elif member.top_role == author_member.top_role:
             await error_embed(ctx, f'You don\'t outrank {member.mention}')
         else:
             channel = await self.bot.fetch_channel(logChannel)
@@ -43,14 +46,17 @@ class Bkm(commands.Cog):
             await channel_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted')
             await log_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted', channel)
             await dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
-            await member.remove_roles(b_discord.get_role(muteRole))
+            await member.remove_roles(b_guild.get_role(muteRole))
 
     @commands.command(aliases=['b', 'rm'])
     @commands.check(mod_group)
-    async def ban(self, ctx, member: discord.Member = None, *, reason=None):
+    async def ban(self, ctx, user: discord.User = None, *, reason=None):
+        b_guild = self.bot.get_guild(baritoneDiscord)
+        member = await b_guild.fetch_member(user.id)
+        author_member = await b_guild.fetch_member(ctx.author.id)
         if member is None:
             await Help.ban(self, ctx)
-        elif member.top_role == ctx.author.top_role:
+        elif member.top_role == author_member.top_role:
             await error_embed(ctx, f'You don\'t outrank {member.mention}')
         elif reason is None:
             await error_embed(ctx, 'You need to give a reason')
@@ -65,11 +71,13 @@ class Bkm(commands.Cog):
 
     @commands.command(aliases=['m'])
     @commands.check(helper_group)
-    async def mute(self, ctx, member: discord.Member = None, *, reason=None):
-        b_discord = self.bot.get_guild(baritoneDiscord)
+    async def mute(self, ctx, user: discord.User = None, *, reason=None):
+        b_guild = self.bot.get_guild(baritoneDiscord)
+        member = await b_guild.fetch_member(user.id)
+        author_member = await b_guild.fetch_member(ctx.author.id)
         if member is None:
             await Help.mute(self, ctx)
-        elif member.top_role == ctx.author.top_role:
+        elif member.top_role == author_member.top_role:
             await error_embed(ctx, f'You don\'t outrank {member.mention}')
         elif reason is None:
             await error_embed(ctx, 'You need to give a reason')
@@ -80,14 +88,17 @@ class Bkm(commands.Cog):
             await channel_embed(ctx, 'User Muted', f'{member.mention} has been muted for reason: \n```{reason}```')
             await log_embed(ctx, 'User Muted', f'{member.mention} has been muted for reason: \n```{reason}```', channel)
             await dm_embed('Muted', f'You have been muted in the baritone discord for reason: \n```{reason}```', dm_channel)
-            await member.add_roles(b_discord.get_role(muteRole))
+            await member.add_roles(b_guild.get_role(muteRole))
 
     @commands.command(aliases=['k'])
     @commands.check(mod_group)
-    async def kick(self, ctx, member: discord.Member = None, *, reason=None):
+    async def kick(self, ctx, user: discord.User = None, *, reason=None):
+        b_guild = self.bot.get_guild(baritoneDiscord)
+        member = await b_guild.fetch_member(user.id)
+        author_member = await b_guild.fetch_member(ctx.author.id)
         if member is None:
             await Help.kick(self, ctx)
-        elif member.top_role == ctx.author.top_role:
+        elif member.top_role == author_member.top_role:
             await error_embed(ctx, f'You don\'t outrank {member.mention}')
         elif reason is None:
             await error_embed(ctx, 'You need to give a reason')

@@ -71,7 +71,7 @@ class Rule(commands.Cog):
                         frul.append(rules_list[x - addx])
                 with open('./data/rules.json', 'w') as file:
                     json.dump(frul, file, indent=2)
-                await help_embed(ctx, 'New rule:', f'{ctx.author.mention} add rule {anum}', ddesc, dtitle)
+                await help_embed(ctx, 'New rule:', f'{ctx.author.mention} added rule {anum}', ddesc, dtitle)
                 logging.info(f'{ctx.author.id} added rule with title: {dtitle}')
             else:
                 await error_embed(ctx, 'That rule number is too high')

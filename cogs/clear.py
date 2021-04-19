@@ -16,6 +16,8 @@ class Clear(commands.Cog):
         user_men = str(ctx.message.raw_mentions)[1:-1]
         if num is None:
             await Help.clear(self, ctx)
+        elif ctx.guild is None:
+            await error_embed(ctx, 'You cannot use this command in DMs')
         else:
             if (user_men == '') and (len(num) != 18) and (num.isdigit()):  # make sure a number is given and its not an ID
                 int_num = int(num)

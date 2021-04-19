@@ -35,7 +35,7 @@ class Response(commands.Cog):
             with open('./data/responses.json') as jsonResp:
                 response_list = json.load(jsonResp)
                 try:
-                    await help_embed(ctx, f'Response #{rnum} details:', (response_list[rnum - 1]['regex']), (response_list[rnum - 1]['description']), (response_list[rnum - 1]['title']))
+                    await help_embed(ctx, f'Response #{rnum} details:', f'`{(response_list[rnum - 1]["regex"])}`', (response_list[rnum - 1]['description']), (response_list[rnum - 1]['title']))
                 except IndexError:
                     await error_embed(ctx, 'There is no response with that number yet')
 

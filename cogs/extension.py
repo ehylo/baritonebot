@@ -60,22 +60,22 @@ class Extension(commands.Cog):
     @commands.check(admin_group)
     async def list(self, ctx):
         desc = '\
-            \u2022 `event` - blacklist, regex responses, paste upload, dm log, invite delete, nick changer, 24h log clear, message edit/delete, member join/leave, join/leave voice, and error handler \
-            \n\u2022 `values` - `embedcolor`, `status`, `prefix`, and `nick` commands \
-            \n\u2022 `bkm` - `mute`, `ban`, `kick`, `unban`, and `unmute` commands \
-            \n\u2022 `misc` - `ping`, `rps`, and `flip` commands \
-            \n\u2022 `info` - `serverinfo` and `userinfo` commands \
-            \n\u2022 `role` - `ignore` and `releases` commands \
-            \n\u2022 `optout` - command \
-            \n\u2022 `response` - command \
-            \n\u2022 `rule` - command \
-            \n\u2022 `blacklist` - command \
-            \n\u2022 `clear` - command \
-            \n\u2022 `cringe` - command \
-            \n\u2022 `embed` - command \
-            \n\u2022 `emote` - command \
-            \n\u2022 `exempt` - command \
-            \n\u2022 `help` - commands'
+            \u2022 **`event`** - blacklist, regex responses, paste upload, dm log, invite delete, nick changer, 24h log clear, message edit/delete, member join/leave, join/leave voice, and error handler \
+            \n\u2022 **`values`** - `embedcolor`, `status`, `prefix`, and `nick` commands \
+            \n\u2022 **`bkm`** - `mute`, `ban`, `kick`, `unban`, and `unmute` commands \
+            \n\u2022 **`misc`** - `ping`, `rps`, and `flip` commands \
+            \n\u2022 **`info`** - `serverinfo` and `userinfo` commands \
+            \n\u2022 **`role`** - `ignore` and `releases` commands \
+            \n\u2022 **`optout`** - command \
+            \n\u2022 **`response`** - command \
+            \n\u2022 **`rule`** - command \
+            \n\u2022 **`blacklist`** - command \
+            \n\u2022 **`clear`** - command \
+            \n\u2022 **`cringe`** - command \
+            \n\u2022 **`embed`** - command \
+            \n\u2022 **`emote`** - command \
+            \n\u2022 **`exempt`** - command \
+            \n\u2022 **`help`** - commands'
         await channel_embed(ctx, 'All Extensions:', desc)
 
 

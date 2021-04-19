@@ -15,6 +15,8 @@ class Exempt(commands.Cog):
     async def exempt(self, ctx, arg=None):
         if (arg is not None) and (arg.lower() == 'help'):
             await Help.exempt(self, ctx)
+        elif ctx.guild is None:
+            await error_embed(ctx, 'You cannot use this command in DMs')
         else:
             num_lines = sum(1 for _ in open("./data/exemptchannels.txt"))
             word = str(ctx.channel.id)
@@ -51,6 +53,8 @@ class Exempt(commands.Cog):
     async def unexempt(self, ctx, arg=None):
         if (arg is not None) and (arg.lower() == 'help'):
             await Help.exempt(self, ctx)
+        elif ctx.guild is None:
+            await error_embed(ctx, 'You cannot use this command in DMs')
         else:
             num_lines = sum(1 for _ in open("./data/exemptchannels.txt"))
             tlines = 1

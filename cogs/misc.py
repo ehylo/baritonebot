@@ -23,8 +23,7 @@ async def computer_rps(ctx, choice_num, choice, image):
         str_compchoice = 'Scissors'
     if choice_num == comp_choice:
         title = 'We Tied :|'
-        action = tie
-        await channel_embed(ctx, title,  f'{choice} {action} {str_compchoice}', image)
+        action = f'{choice} {tie} {str_compchoice}'
     elif choice_num+1 < comp_choice or choice_num-1 == comp_choice:
         title = 'You Won! :)'
         if choice_num == 1:

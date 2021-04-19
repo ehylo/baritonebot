@@ -3,7 +3,7 @@ import json
 import logging
 from discord.ext import commands
 from cogs.help import Help
-from const import valuesStr, channel_embed, admin_group, mod_group
+from const import valuesStr, channel_embed, admin_group, mod_group, baritoneDiscord
 
 
 class Prefix(commands.Cog):
@@ -69,24 +69,27 @@ class Nick(commands.Cog):
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['n'])
     @commands.check(mod_group)
     async def nick(self, ctx, *, name=None):
+        b_guild = self.bot.get_guild(baritoneDiscord)
         if name is None:
             await Help.nick(self, ctx)
         else:
-            await ctx.guild.me.edit(nick=name)
+            await b_guild.me.edit(nick=name)
             await channel_embed(ctx, 'Nick set', f'Set the bot\'s nickname in this server to `{name}`')
             logging.info(f'{ctx.author.id} set the nick to {name}')
 
     @nick.command(aliases=['d'])
     @commands.check(mod_group)
     async def default(self, ctx):
-        await ctx.guild.me.edit(nick='Franky')
+        b_guild = self.bot.get_guild(baritoneDiscord)
+        await b_guild.me.edit(nick='Franky')
         await channel_embed(ctx, 'Nick set', 'Set the bot\'s nickname in this server to the default (Franky)')
         logging.info(f'{ctx.author.id} set the nick to default')
 
     @nick.command(aliases=['r'])
     @commands.check(mod_group)
     async def remove(self, ctx):
-        await ctx.guild.me.edit(nick=None)
+        b_guild = self.bot.get_guild(baritoneDiscord)
+        await b_guild.me.edit(nick=None)
         await channel_embed(ctx, 'Nick removed', 'Removed the bot\'s nick in this server')
         logging.info(f'{ctx.author.id} removed the nick')
 
