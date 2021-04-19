@@ -3,15 +3,17 @@ from cogs.help import Help
 from discord.ext import commands
 from const import error_embed, admin_group, channel_embed
 
+slist = open("./data/exemptchannels.txt", "r")
+
 
 class Exempt(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True, case_insensitive=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ex'])
     @commands.check(admin_group)
     async def exempt(self, ctx, arg=None):
-        if arg == 'help':
+        if (arg is not None) and (arg.lower() == 'help'):
             await Help.exempt(self, ctx)
         else:
             num_lines = sum(1 for _ in open("./data/exemptchannels.txt"))
@@ -35,20 +37,19 @@ class Exempt(commands.Cog):
                 else:
                     await error_embed(ctx, 'This channel is already on the exempt list')
 
-    @exempt.command()
+    @exempt.command(aliases=['l'])
     @commands.check(admin_group)
     async def list(self, ctx):
-        slist = open("./data/exemptchannels.txt", "r")
         mlist = []
         for line in slist:
             exm_chl = self.bot.get_channel(int(line))
             mlist.append(exm_chl.mention)
         await channel_embed(ctx, 'Exempted Channels', f'<{((", ".join(mlist))[1:-1])}>')
 
-    @commands.command()
+    @commands.group(aliases=['unex'])
     @commands.check(admin_group)
     async def unexempt(self, ctx, arg=None):
-        if arg == 'help':
+        if (arg is not None) and (arg.lower() == 'help'):
             await Help.exempt(self, ctx)
         else:
             num_lines = sum(1 for _ in open("./data/exemptchannels.txt"))
@@ -84,6 +85,15 @@ class Exempt(commands.Cog):
                 f.close()
             else:
                 await error_embed(ctx, 'This channel is not exempted')
+
+    @commands.group(aliases=['l'])
+    @commands.check(admin_group)
+    async def list(self, ctx):
+        mlist = []
+        for line in slist:
+            exm_chl = self.bot.get_channel(int(line))
+            mlist.append(exm_chl.mention)
+        await channel_embed(ctx, 'Exempted Channels', f'<{((", ".join(mlist))[1:-1])}>')
 
 
 def setup(bot):

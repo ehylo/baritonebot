@@ -11,7 +11,7 @@ class Role(commands.Cog):
 
     @commands.command()
     async def ignore(self, ctx, arg=None):
-        if arg == 'help':
+        if (arg is not None) and (arg.lower() == 'help'):
             await Help.ignore(self, ctx)
         else:
             b_guild = self.bot.get_guild(baritoneDiscord)
@@ -26,7 +26,7 @@ class Role(commands.Cog):
 
     @commands.command()
     async def unignore(self, ctx, arg=None):
-        if arg == 'help':
+        if (arg is not None) and (arg.lower() == 'help'):
             await Help.ignore(self, ctx)
         else:
             b_guild = self.bot.get_guild(baritoneDiscord)
@@ -41,7 +41,7 @@ class Role(commands.Cog):
 
     @commands.command()
     async def releases(self, ctx, arg=None):
-        if arg == 'help':
+        if (arg is not None) and (arg.lower() == 'help'):
             await Help.releases(self, ctx)
         else:
             b_guild = self.bot.get_guild(baritoneDiscord)
@@ -56,7 +56,7 @@ class Role(commands.Cog):
 
     @commands.command()
     async def unreleases(self, ctx, arg=None):
-        if arg == 'help':
+        if (arg is not None) and (arg.lower() == 'help'):
             await Help.releases(self, ctx)
         else:
             b_guild = self.bot.get_guild(baritoneDiscord)

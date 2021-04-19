@@ -10,7 +10,7 @@ class Rule(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True, case_insensitive=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['r'])
     async def rule(self, ctx, rulenum: int = None):
         if rulenum is None:
             await Help.rule(self, ctx)
@@ -24,7 +24,7 @@ class Rule(commands.Cog):
                 except IndexError:
                     await error_embed(ctx, 'That rule does not exist yet')
 
-    @rule.command()
+    @rule.command(aliases=['r'])
     @commands.check(admin_group)
     async def remove(self, ctx, num: int = None):
         if num is None:
@@ -46,7 +46,7 @@ class Rule(commands.Cog):
             else:
                 await error_embed(ctx, 'There is no rule with that number')
 
-    @rule.command()
+    @rule.command(aliases=['a'])
     @commands.check(admin_group)
     async def add(self, ctx, anum: int = None, dtitle=None, *, ddesc=None):
         if anum is None:

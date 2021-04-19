@@ -14,26 +14,26 @@ Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Bari
 
 * have a xp/rank system where it either tracks total messages, or you get random amount of xp (like 10-20) per message (probably requires database, but I think I know a way with json)
 
+* For the flip and rps commands, add db stats and stuff to that (requires database)
+
 * read [this](https://gist.github.com/InterStella0/b78488fb28cadf279dfd3164b9f0cf96) and see if it's better than current help command
 
 * find a way to use the GitHub api and stuff to get info about the baritone repo
 
 ### can probably do
-* add aliases to as many commands as possible, then add those aliases to each command's help
+* Add more options to the embed command (field, footer, author, image, etc) will probably require a new function in [const.py](const.py) or just put it in [embed.py](cogs/embed.py), also be able to edit it
 
-* clear a specific member's messages only without banning
+* Find a way to make the "Watching" in the status changeable with commands (don't know where to store this, don't really want to make a new thing in [values](cogs/values.py), might wait for database)
 
-* add more options to the embed command (field, footer, author, image, etc) will probably require a new function in [const.py](const.py) or just put it in [embed.py](cogs/embed.py), also be able to edit it
+* Maybe add a nitro boost event like join/leave instead of discords default
 
-* find a way to make the "Watching" in the status changeable with commands
+* Add days to clear messages or max/none to ban command 
 
-* maybe add a nitro boost event like join/leave instead of discords default
+* Add gif support/improve the emote command
 
-* add days to clear messages or max/none to ban command 
+* Add a polls command
 
-* add gif support/improve the emote command
-
-* Some sort of lockdown/sync command where you can lock down specific channels or just sync them with the category
+* Some sort of lockdown command where you can lock down specific channels or all of them or a specific category
 
 ## How to run
 

@@ -8,12 +8,12 @@ class Extension(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True, case_insensitive=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ext'])
     @commands.check(admin_group)
     async def extension(self, ctx):
         await Help.extension(self, ctx)
 
-    @extension.command()
+    @extension.command(aliases=['ld'])
     @commands.check(admin_group)
     async def load(self, ctx, extension=None):
         if extension is None:
@@ -28,7 +28,7 @@ class Extension(commands.Cog):
             except commands.ExtensionAlreadyLoaded:
                 await error_embed(ctx, 'That extension is already loaded')
 
-    @extension.command()
+    @extension.command(aliases=['u'])
     @commands.check(admin_group)
     async def unload(self, ctx, extension=None):
         if extension is None:
@@ -43,7 +43,7 @@ class Extension(commands.Cog):
             except commands.ExtensionNotLoaded:
                 await error_embed(ctx, 'That extension is already unloaded')
 
-    @extension.command()
+    @extension.command(aliases=['r'])
     @commands.check(admin_group)
     async def reload(self, ctx, extension=None):
         if extension is None:
@@ -56,7 +56,7 @@ class Extension(commands.Cog):
             except commands.ExtensionNotFound:
                 await error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
 
-    @extension.command()
+    @extension.command(aliases=['l'])
     @commands.check(admin_group)
     async def list(self, ctx):
         desc = '\

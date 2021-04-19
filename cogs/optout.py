@@ -13,7 +13,7 @@ class Optout(commands.Cog):
         b_guild = self.bot.get_guild(baritoneDiscord)
         if arg is None:
             await Help.optout(self, ctx)
-        elif arg == 'I am sure':
+        elif arg.lower() == 'I am sure':
             channel = await self.bot.fetch_channel(logChannel)
             dchannel = await ctx.author.create_dm()
             logging.info(f'{ctx.author.id} has been banned for reason: Opted out')

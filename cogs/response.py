@@ -9,12 +9,12 @@ class Response(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True, case_insensitive=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['rp'])
     @commands.check(helper_group)
     async def response(self, ctx):
         await Help.response(self, ctx)
 
-    @response.command()
+    @response.command(aliases=['l'])
     @commands.check(helper_group)
     async def list(self, ctx):
         with open('./data/responses.json') as jsonResp:
@@ -24,7 +24,7 @@ class Response(commands.Cog):
             desc += f'**{x}.** {(response_list[x - 1]["title"])}\n'
         await channel_embed(ctx, 'Current Responses:', desc)
 
-    @response.command()
+    @response.command(aliases=['d'])
     @commands.check(helper_group)
     async def details(self, ctx, rnum: int = None):
         if rnum is None:
@@ -39,7 +39,7 @@ class Response(commands.Cog):
                 except IndexError:
                     await error_embed(ctx, 'There is no response with that number yet')
 
-    @response.command()
+    @response.command(aliases=['r'])
     @commands.check(mod_group)
     async def remove(self, ctx, rnum: int = None):
         if rnum is None:
@@ -61,7 +61,7 @@ class Response(commands.Cog):
             else:
                 await error_embed(ctx, 'There is no response with that number')
 
-    @response.command()
+    @response.command(aliases=['a'])
     @commands.check(mod_group)
     async def add(self, ctx, eregex=None, etitle=None, *, edesc=None):
         if eregex is None:

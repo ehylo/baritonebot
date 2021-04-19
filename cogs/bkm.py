@@ -9,7 +9,7 @@ class Bkm(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(aliases=['ub'])
     @commands.check(admin_group)
     async def unban(self, ctx, user_id: int = None):
         if user_id is None:
@@ -28,7 +28,7 @@ class Bkm(commands.Cog):
                 elif e.code == 10026:
                     await error_embed(ctx, 'That user is not banned')
 
-    @commands.command()
+    @commands.command(aliases=['um'])
     @commands.check(mod_group)
     async def unmute(self, ctx, member: discord.Member = None):
         b_discord = self.bot.get_guild(baritoneDiscord)
@@ -45,7 +45,7 @@ class Bkm(commands.Cog):
             await dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
             await member.remove_roles(b_discord.get_role(muteRole))
 
-    @commands.command()
+    @commands.command(aliases=['b', 'rm'])
     @commands.check(mod_group)
     async def ban(self, ctx, member: discord.Member = None, *, reason=None):
         if member is None:
@@ -63,7 +63,7 @@ class Bkm(commands.Cog):
             await dm_embed('Banned', f'You have been banned from the baritone discord for reason: \n```{reason}```', dm_channel)
             await member.ban(reason=reason)
 
-    @commands.command()
+    @commands.command(aliases=['m'])
     @commands.check(helper_group)
     async def mute(self, ctx, member: discord.Member = None, *, reason=None):
         b_discord = self.bot.get_guild(baritoneDiscord)
@@ -82,7 +82,7 @@ class Bkm(commands.Cog):
             await dm_embed('Muted', f'You have been muted in the baritone discord for reason: \n```{reason}```', dm_channel)
             await member.add_roles(b_discord.get_role(muteRole))
 
-    @commands.command()
+    @commands.command(aliases=['k'])
     @commands.check(mod_group)
     async def kick(self, ctx, member: discord.Member = None, *, reason=None):
         if member is None:

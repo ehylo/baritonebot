@@ -9,7 +9,7 @@ class Embed(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True, case_insensitive=True, alias='eb')
+    @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['eb'])
     @commands.check(mod_group)
     async def embed(self, ctx, send_channel=None, etitle=None, *, edesc=None):
         channel_str = str(ctx.message.raw_channel_mentions)[1:-1]
@@ -41,7 +41,7 @@ class Embed(commands.Cog):
                 except discord.Forbidden:
                     await error_embed(ctx, 'I do not have access to that channel')
 
-    @embed.command(alias='h')
+    @embed.command(aliases=['h'])
     @commands.check(mod_group)
     async def here(self, ctx, etitle=None, *, edesc=None):
         if etitle is None:

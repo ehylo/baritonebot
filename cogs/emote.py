@@ -26,7 +26,7 @@ class Emote(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(invoke_without_command=True)
+    @commands.command(invoke_without_command=True, aliases=['em'])
     @commands.check(mod_group)
     async def emote(self, ctx, name=None, url=None):
         if name is None:

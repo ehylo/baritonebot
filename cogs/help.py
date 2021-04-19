@@ -6,7 +6,7 @@ class Help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True, case_insensitive=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['h'])
     async def help(self, ctx):
         desc = '\
             \u2022 `help admin` - Admin commands \
@@ -15,59 +15,59 @@ class Help(commands.Cog):
             \n\u2022 `help everyone` - Commands available to everyone'
         await channel_embed(ctx, 'List of help categories:', desc)
         
-    @help.command()
+    @help.command(aliases=['a'])
     async def admin(self, ctx):
         field_value = '\
-            \u2022 `extension <reload|unload|load|list> <extension>` \
-            \n\u2022 `unban <user ID>` \
-            \n\u2022 `embedcolor <default|hex color>` \
-            \n\u2022 `prefix <default|prefix>` \
-            \n\u2022 `<un>exempt <help|list>` \
-            \n\u2022 `rule <add|remove> <title|number> <description>` \
+            \u2022 `extension(ext) <reload(r)|unload(u)|load(ld)|list(l)> <extension>` \
+            \n\u2022 `unban(ub) <user ID>` \
+            \n\u2022 `embedcolor(ec) <default(d)|hex color>` \
+            \n\u2022 `prefix(pf) <default(d)|prefix>` \
+            \n\u2022 `<un>exempt <help|list(l)>` \
+            \n\u2022 `rule(r) <add(a)|remove(r)> <title|number> <description>` \
             \n*+ all lower commands*'
         await help_embed(ctx, 'Admin', '`help <command>` to get command info or give no arguments if it does not have `<help>`', field_value, 'Commands:')
 
-    @help.command()
+    @help.command(aliases=['m'])
     async def mod(self, ctx):
         field_value = '\
-            \u2022 `ban <user> <reason>` \
-            \n\u2022 `response <add|remove> <regex|number> <title> <description>` \
-            \n\u2022 `blacklist <add|remove> <word>` \
-            \n\u2022 `cringe <remove>` \
-            \n\u2022 `kick <user> <reason>` \
-            \n\u2022 `clear <number>` \
-            \n\u2022 `unmute <user>` \
-            \n\u2022 `nick <default|remove|name>` \
-            \n\u2022 `status <default|presence>` \
-            \n\u2022 `emote <name> <image attachment|image url>` \
+            \u2022 `ban(b|rm) <user> <reason>` \
+            \n\u2022 `response(rp) <add(a)|remove(r)> <regex|number> <title> <description>` \
+            \n\u2022 `blacklist(bl) <add(a)|remove(r)> <word>` \
+            \n\u2022 `cringe(c) <remove(r)>` \
+            \n\u2022 `kick(k) <user> <reason>` \
+            \n\u2022 `clear(cl|pg|purge) <number|user> <number>` \
+            \n\u2022 `unmute(um) <user>` \
+            \n\u2022 `nick(n) <default(d)|remove(r)|name>` \
+            \n\u2022 `status(s) <default(d)|presence>` \
+            \n\u2022 `emote(em) <name> <image attachment|image url>` \
             \n\u2022 `embed(eb) <channel|here(h)> <title> <description>` \
             \n*+ all lower commands*'
         await help_embed(ctx, 'Moderator', '`help <command>` to get command info or give no arguments', field_value, 'Commands:')
 
-    @help.command()
+    @help.command(aliases=['h'])
     async def helper(self, ctx):
         field_value = '\
-            \u2022 `mute <user> <reason>` \
-            \n\u2022 `response <details|list> <number>` \
-            \n\u2022 `blacklist <list>` \
-            \n\u2022 `cringe <add> <image url|image attachment>` \
+            \u2022 `mute(m) <user> <reason>` \
+            \n\u2022 `response(rp) <details(d)|list(l)> <number>` \
+            \n\u2022 `blacklist(bl) <list(l)>` \
+            \n\u2022 `cringe(c) <add(a)> <image url|image attachment>` \
             \n*+ all lower commands*'
         await help_embed(ctx, 'Helper', '`help <command>` to get command info or give no arguments if it does not have `<help>`', field_value, 'Commands:')
 
-    @help.command()
+    @help.command(aliases=['e'])
     async def everyone(self, ctx):
         field_value = '\
-            \u2022 `rule<s> <number>` \
+            \u2022 `rule(r)<s> <number>` \
             \n\u2022 `ping(p) <help>` \
             \n\u2022 `rps <rock(r)|paper(p)|scissors(s)>` \
-            \n\u2022 `flip(f) <help>` \
-            \n\u2022 `cringe <help>` \
-            \n\u2022 `serverinfo <help>` \
-            \n\u2022 `userinfo <me|user|member>` \
+            \n\u2022 `flip <help>` \
+            \n\u2022 `cringe(c) <help>` \
+            \n\u2022 `serverinfo(si) <help>` \
+            \n\u2022 `userinfo(ui) <me|user|member>` \
             \n\u2022 `<un>releases <help>` \
             \n\u2022 `<un>ignore <help>` \
             \n\u2022 `optout <I am sure>` \
-            \n\u2022 `help <admin|mod|helper|everyone>`'
+            \n\u2022 `help(h) <admin(a)|mod(m)|helper(h)|everyone(e)>`'
         await help_embed(ctx, 'Available to everyone:', '`help <command>` to get command info or give no arguments if it does not have `<help>`', field_value, 'Commands:')
 
     @help.command()
@@ -104,7 +104,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def clear(self, ctx):
-        await help_embed(ctx, 'Clear', 'Clears the specified amount of messages in that channel', '`clear <number>`')
+        await help_embed(ctx, 'Clear', 'Clears the specified amount of messages in that channel or give a user to clear a specific amount of their messages', '`clear(cl|pg|purge) <number|user> <number>`')
 
     @help.command()
     async def optout(self, ctx):

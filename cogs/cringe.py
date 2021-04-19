@@ -10,9 +10,9 @@ class Cringe(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True, case_insensitive=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['c'])
     async def cringe(self, ctx, arg=None):
-        if arg == 'help':
+        if (arg is not None) and (arg.lower() == 'help'):
             await Help.cringe(self, ctx)
         else:
             try:
@@ -24,7 +24,7 @@ class Cringe(commands.Cog):
             except ValueError:
                 await error_embed(ctx, 'There is no cringe, please add one to use this command')
 
-    @cringe.command()
+    @cringe.command(aliases=['r'])
     @commands.check(mod_group)
     async def remove(self, ctx, url=None):
         if url is None:
@@ -43,7 +43,7 @@ class Cringe(commands.Cog):
             else:
                 await error_embed(ctx, 'That url does not exist in the cringe db')
 
-    @cringe.command()
+    @cringe.command(aliases=['a'])
     @commands.check(helper_group)
     async def add(self, ctx, url=None):
         if len(ctx.message.attachments) == 0 and url is None:

@@ -29,28 +29,27 @@ class Info(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True, case_insensitive=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ui'])
     async def userinfo(self, ctx, user_id=None):
         user_men = str(ctx.message.raw_mentions)[1:-1]
-        b_guild = self.bot.get_guild(baritoneDiscord)
         if user_id is None:
             await Help.userinfo(self, ctx)
         else:
-            if user_men == '':
-                try:
-                    usrint = int(user_id)
-                    if b_guild.get_member(usrint) is not None:
-                        member = b_guild.get_member(usrint)
-                        await varistuff(ctx, member, ismember=True)
-                    elif await self.bot.fetch_user(usrint) is not None:
-                        member = await self.bot.fetch_user(usrint)
-                        await varistuff(ctx, member, ismember=False)
-                except ValueError:
-                    await error_embed(ctx, 'That is not a valid ID (use **numbers**)')
-                except discord.NotFound:
-                    await error_embed(ctx, 'That is not a valid user ID')
+            if user_men != '':
+                clear_member = await self.bot.fetch_user(int(user_men))  # get the user if they mentioned
+            elif (user_id.isdigit()) and (len(user_id) == 18):
+                clear_member = await self.bot.fetch_user(int(user_id))  # get the user if they gave an ID
             else:
-                await varistuff(ctx, b_guild.get_member(int(user_men)), ismember=True)
+                clear_member = ctx.guild.get_member_named(user_id)  # get the member if they gave a name with/without discrimitor
+            if clear_member is None:
+                await error_embed(ctx, 'The user you gave is invalid')
+            else:
+                if ctx.guild.get_member(clear_member.id) is not None:
+                    member = ctx.guild.get_member(clear_member.id)
+                    await varistuff(ctx, member, ismember=True)
+                else:
+                    member = await self.bot.fetch_user(clear_member.id)
+                    await varistuff(ctx, member, ismember=False)
 
     @userinfo.command()
     async def me(self, ctx):
@@ -61,9 +60,9 @@ class Info(commands.Cog):
         else:
             await varistuff(ctx, ctx.author, ismember=False)
 
-    @commands.command()
+    @commands.command(aliases=['si'])
     async def serverinfo(self, ctx, arg=None):
-        if arg == 'help':
+        if (arg is not None) and (arg.lower() == 'help'):
             await Help.serverinfo(self, ctx)
         else:
             b_guild = self.bot.get_guild(baritoneDiscord)

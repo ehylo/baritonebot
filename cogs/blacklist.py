@@ -8,12 +8,12 @@ class Blacklist(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True, case_insensitive=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['bl'])
     @commands.check(helper_group)
     async def blacklist(self, ctx):
         await Help.blacklist(self, ctx)
 
-    @blacklist.command()
+    @blacklist.command(aliases=['l'])
     @commands.check(helper_group)
     async def list(self, ctx):
         blist = open("./data/blacklist.txt", "r")
@@ -21,7 +21,7 @@ class Blacklist(commands.Cog):
         blist.close()
         await channel_embed(ctx, 'Blacklisted Words', desc)
     
-    @blacklist.command()
+    @blacklist.command(aliases=['a'])
     @commands.check(mod_group)
     async def add(self, ctx, word=None):
         f = open("./data/blacklist.txt", "r")
@@ -42,7 +42,7 @@ class Blacklist(commands.Cog):
             else:
                 await error_embed(ctx, 'That word already exists on the blacklist')
 
-    @blacklist.command()
+    @blacklist.command(aliases=['r'])
     @commands.check(mod_group)
     async def remove(self, ctx, word=None):
         f = open("./data/blacklist.txt", "r")

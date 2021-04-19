@@ -10,7 +10,7 @@ class Prefix(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True, case_insensitive=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['pf'])
     @commands.check(admin_group)
     async def prefix(self, ctx, fixpre=None):
         if fixpre is None:
@@ -23,7 +23,7 @@ class Prefix(commands.Cog):
                 await channel_embed(ctx, 'Prefix set', f'Set the prefix to {fixpre}, please restart the bot for the changes to take affect')
                 logging.info(f'{ctx.author.id} set the prefix to {fixpre}')
 
-    @prefix.command()
+    @prefix.command(aliases=['d'])
     @commands.check(admin_group)
     async def default(self, ctx):
         for item in valuesStr:
@@ -38,7 +38,7 @@ class EmbedColor(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True, case_insensitive=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ec'])
     @commands.check(admin_group)
     async def embedcolor(self, ctx, color=None):
         if color is None:
@@ -51,7 +51,7 @@ class EmbedColor(commands.Cog):
                 await channel_embed(ctx, 'Embedcolor set', f'Set the embed color to {color}, please restart the bot for the changes to take affect')
                 logging.info(f'{ctx.author.id} set the embedcolor to {color}')
 
-    @embedcolor.command()
+    @embedcolor.command(aliases=['d'])
     @commands.check(admin_group)
     async def default(self, ctx):
         for item in valuesStr:
@@ -66,7 +66,7 @@ class Nick(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True, case_insensitive=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['n'])
     @commands.check(mod_group)
     async def nick(self, ctx, *, name=None):
         if name is None:
@@ -76,14 +76,14 @@ class Nick(commands.Cog):
             await channel_embed(ctx, 'Nick set', f'Set the bot\'s nickname in this server to `{name}`')
             logging.info(f'{ctx.author.id} set the nick to {name}')
 
-    @nick.command()
+    @nick.command(aliases=['d'])
     @commands.check(mod_group)
     async def default(self, ctx):
         await ctx.guild.me.edit(nick='Franky')
         await channel_embed(ctx, 'Nick set', 'Set the bot\'s nickname in this server to the default (Franky)')
         logging.info(f'{ctx.author.id} set the nick to default')
 
-    @nick.command()
+    @nick.command(aliases=['r'])
     @commands.check(mod_group)
     async def remove(self, ctx):
         await ctx.guild.me.edit(nick=None)
@@ -95,7 +95,7 @@ class Status(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True, case_insensitive=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['s'])
     @commands.check(mod_group)
     async def status(self, ctx, *, presence=None):
         if presence is None:
@@ -109,7 +109,7 @@ class Status(commands.Cog):
             await channel_embed(ctx, 'Presence set', f'Set the presence to `Watching {presence}`.')
             logging.info(f'{ctx.author.id} set the status to {presence}')
 
-    @status.command()
+    @status.command(aliases=['d'])
     @commands.check(mod_group)
     async def default(self, ctx):
         for item in valuesStr:
