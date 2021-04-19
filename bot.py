@@ -35,7 +35,7 @@ logging.info('[STARTUP] loaded all extensions')
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=setPresence))
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=setPresence))
     logging.info('[STARTUP] Successfully started baritoe bot and set the presence according to the values.json')
 
 bot.run(token)

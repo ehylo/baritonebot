@@ -12,22 +12,18 @@ Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Bari
 
 * add durations to mute command (requires database I think, though might be possible with just json)
 
-* have a xp/rank system where it either tracks total messages, or you get random amount of xp (like 10-20) per message (probably requires database but I think I know a way with json)
+* have a xp/rank system where it either tracks total messages, or you get random amount of xp (like 10-20) per message (probably requires database, but I think I know a way with json)
 
 * read [this](https://gist.github.com/InterStella0/b78488fb28cadf279dfd3164b9f0cf96) and see if it's better than current help command
 
 * find a way to use the GitHub api and stuff to get info about the baritone repo
 
 ### can probably do
-* Add trash emote delete to regex responses
-
-* add a coin flip command/rock paper scissors
-
 * add aliases to as many commands as possible, then add those aliases to each command's help
 
 * clear a specific member's messages only without banning
 
-* add more options to the embed command (field, footer, author, image, etc) will probably require a new function in [const.py](cogs/const.py) or just put it in [embed.py](cogs/embed.py), also be able to edit it
+* add more options to the embed command (field, footer, author, image, etc) will probably require a new function in [const.py](const.py) or just put it in [embed.py](cogs/embed.py), also be able to edit it
 
 * find a way to make the "Watching" in the status changeable with commands
 

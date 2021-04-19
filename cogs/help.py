@@ -40,7 +40,7 @@ class Help(commands.Cog):
             \n\u2022 `nick <default|remove|name>` \
             \n\u2022 `status <default|presence>` \
             \n\u2022 `emote <name> <image attachment|image url>` \
-            \n\u2022 `embed <channel|here> <title> <description>` \
+            \n\u2022 `embed(eb) <channel|here(h)> <title> <description>` \
             \n*+ all lower commands*'
         await help_embed(ctx, 'Moderator', '`help <command>` to get command info or give no arguments', field_value, 'Commands:')
 
@@ -58,9 +58,9 @@ class Help(commands.Cog):
     async def everyone(self, ctx):
         field_value = '\
             \u2022 `rule<s> <number>` \
-            \n\u2022 `ping <help>` \
-            \n\u2022 `rps <rock|paper|scissors>` \
-            \n\u2022 `flip <help>` \
+            \n\u2022 `ping(p) <help>` \
+            \n\u2022 `rps <rock(r)|paper(p)|scissors(s)>` \
+            \n\u2022 `flip(f) <help>` \
             \n\u2022 `cringe <help>` \
             \n\u2022 `serverinfo <help>` \
             \n\u2022 `userinfo <me|user|member>` \

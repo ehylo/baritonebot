@@ -24,7 +24,7 @@ async def computer_rps(ctx, choice_num, choice, image):
     if choice_num == comp_choice:
         title = 'We Tied :|'
         action = tie
-        await channel_embed(ctx, title,  f'{choice} {action} {str_compchoice}', None, image)
+        await channel_embed(ctx, title,  f'{choice} {action} {str_compchoice}', image)
     elif choice_num+1 < comp_choice or choice_num-1 == comp_choice:
         title = 'You Won! :)'
         if choice_num == 1:
@@ -41,23 +41,23 @@ async def computer_rps(ctx, choice_num, choice, image):
         else:
             action = scissors_paper
         title = 'You lost :('
-    await channel_embed(ctx, title,  action, None, image)
+    await channel_embed(ctx, title,  action, image)
 
 
 class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(alias='p')
     async def ping(self, ctx, arg=None):
-        if arg == 'help':
+        if arg.lower() == 'help':
             await Help.ping(self, ctx)
         else:
             await channel_embed(ctx, f'Pong! 🏓 ({round(self.bot.latency * 1000)}ms)', None)
 
-    @commands.command()
+    @commands.command(alias='f')
     async def flip(self, ctx, arg=None):  # add some sort of total flips and stuff, when I use db
-        if arg == 'help':
+        if arg.lower() == 'help':
             await Help.flip(self, ctx)
         else:
             c = random.randint(1, 2)
@@ -70,15 +70,15 @@ class Misc(commands.Cog):
     async def rps(self, ctx):
         await Help.rps(self, ctx)  # when I figure out db add wins, loses, and that stuff
 
-    @rps.command()
+    @rps.command(alias='r')
     async def rock(self, ctx):
         await computer_rps(ctx, 1, 'Rock', rock_img)
 
-    @rps.command()
+    @rps.command(alias='p')
     async def paper(self, ctx):
         await computer_rps(ctx, 2, 'Paper', paper_img)
 
-    @rps.command()
+    @rps.command(alias='s')
     async def scissors(self, ctx):
         await computer_rps(ctx, 3, 'Scissors', scissors_img)
 
@@ -175,7 +175,7 @@ class Misc(commands.Cog):
             else:
                 action = f'{choice} {tie} {choice}'
                 title = 'We Tied :|'
-            await channel_embed(ctx, title,  action, None, image)
+            await channel_embed(ctx, title,  action, image)
 
 
 def setup(bot):

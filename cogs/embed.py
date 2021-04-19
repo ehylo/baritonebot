@@ -9,7 +9,7 @@ class Embed(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.group(invoke_without_command=True, case_insensitive=True)
+    @commands.group(invoke_without_command=True, case_insensitive=True, alias='eb')
     @commands.check(mod_group)
     async def embed(self, ctx, send_channel=None, etitle=None, *, edesc=None):
         channel_str = str(ctx.message.raw_channel_mentions)[1:-1]
@@ -24,7 +24,7 @@ class Embed(commands.Cog):
                 try:
                     int(send_channel)
                     channel = await self.bot.fetch_channel(send_channel)
-                    await channel_embed(ctx, etitle, edesc, channel)
+                    await channel_embed(channel, etitle, edesc)
                     logging.info(f'{ctx.author.id} sent a custom embed to a channel')
                 except ValueError:
                     await error_embed(ctx, 'That is not a valid ID (use **numbers**)')
@@ -36,12 +36,12 @@ class Embed(commands.Cog):
                 try:
                     channel_id = int(channel_str)
                     channel = await self.bot.fetch_channel(channel_id)
-                    await channel_embed(ctx, etitle, edesc, channel)
+                    await channel_embed(channel, etitle, edesc)
                     logging.info(f'{ctx.author.id} sent a custom embed to a channel')
                 except discord.Forbidden:
                     await error_embed(ctx, 'I do not have access to that channel')
 
-    @embed.command()
+    @embed.command(alias='h')
     @commands.check(mod_group)
     async def here(self, ctx, etitle=None, *, edesc=None):
         if etitle is None:

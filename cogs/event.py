@@ -5,7 +5,7 @@ import re
 import json
 import mimetypes
 from bot import preCmd
-from const import logChannel, log_embed, channel_embed, pasteToken, botID, ignoreRole, baritoneDiscord, error_embed, coolEmbedColor, leaveChannel, dm_embed, voiceRole
+from const import logChannel, log_embed, channel_embed, pasteToken, botID, ignoreRole, baritoneDiscord, error_embed, coolEmbedColor, leaveChannel, dm_embed, voiceRole, helperRole
 from datetime import datetime, timedelta
 from discord.ext import commands
 
@@ -71,20 +71,16 @@ async def att_paste(message):
 
 
 async def gexre(message, b_discord):
-    try:
-        member_check = b_discord.get_member(message.author.id)
-        if b_discord.get_role(ignoreRole) not in member_check.roles:
-            ignore = False
-        else:
-            ignore = True
-    except AttributeError:
-        ignore = False
-    if (b_discord.get_member(botID) in message.mentions) or ((ignore is False) and (str(message.channel.id) not in exempt_channels)):
-        with open('./data/responses.json') as jsonResp:
-            response_list = json.load(jsonResp)
-        for x in range(1, (len(response_list) + 1)):
-            if re.search((response_list[x - 1]['regex']), message.content) is not None:
+    with open('./data/responses.json') as jsonResp:
+        response_list = json.load(jsonResp)
+    for x in range(1, (len(response_list) + 1)):
+        if re.search((response_list[x - 1]['regex']), message.content) is not None:
+            member = await b_discord.fetch_member(message.author.id)
+            if (b_discord.get_member(botID) in message.mentions) or (message.content.startswith('!')):  # this is seperate from the elif so there is no trash reaction to delete a pinged/command response, and also the bot won't reply
                 await channel_embed(message.channel, (response_list[x - 1]['title']), (response_list[x - 1]['description']))
+                logging.info(f'{message.author.id} manually triggered response number {x}')
+            elif (b_discord.get_role(ignoreRole) not in member.roles) and (str(message.channel.id) not in exempt_channels):
+                await channel_embed(message, (response_list[x - 1]['title']), (response_list[x - 1]['description']), None, 'Reply')
                 logging.info(f'{message.author.id} sent a message and triggered response number {x}')
 
 
@@ -161,6 +157,19 @@ class Event(commands.Cog):
             b_role = discord.utils.get(member.guild.roles, id=voiceRole)
             await member.remove_roles(b_role)
             logging.info(f'{member.id} left a voice channel and the voice role was removed')
+
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction, user):
+        message = reaction.message
+        if reaction.emoji == '🗑️':  # make sure the reaction is the wastebasket
+            if (message.author.id == botID) and (user.id != botID):  # make sure the bot sent the message and it wasn't the one who reacted
+                helper_role = self.bot.get_guild(baritoneDiscord).get_role(helperRole)
+                try:
+                    reaction_trigger = await message.channel.fetch_message(message.reference.message_id)
+                    if (user.id == reaction_trigger.author.id) or (helper_role in user.roles):  # delete if the person is a helper or they were the ones who triggered it
+                        await message.delete()
+                except AttributeError:  # to stop errors if people use this in dms
+                    pass
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):

@@ -89,7 +89,7 @@ async def log_embed(ctx=None, title=None, desc=None, channel=None, member=None):
     await channel.send(embed=em_v)
 
 
-async def channel_embed(ctx, title=None, desc=None, channel=None, thumbnail=None):
+async def channel_embed(ctx, title=None, desc=None, thumbnail=None, replyorsend=None):
     if title is None:
         title = 'PING FLURR TO FIX'
     em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title=title)
@@ -98,8 +98,9 @@ async def channel_embed(ctx, title=None, desc=None, channel=None, thumbnail=None
     em_v.set_footer(text=fault_footer)
     if thumbnail is not None:
         em_v.set_thumbnail(url=thumbnail)
-    if channel is not None:
-        await channel.send(embed=em_v)
+    if replyorsend is not None:
+        bot_reply = await ctx.reply(embed=em_v)
+        await bot_reply.add_reaction('🗑️')
     else:
         await ctx.send(embed=em_v)
 
