@@ -3,8 +3,6 @@ from cogs.help import Help
 from discord.ext import commands
 from const import error_embed, admin_group, channel_embed, baritoneDiscord
 
-slist = open("./data/exemptchannels.txt", "r")
-
 
 class Exempt(commands.Cog):
     def __init__(self, bot):
@@ -42,10 +40,12 @@ class Exempt(commands.Cog):
     @exempt.command(aliases=['list', 'l'])
     @commands.check(admin_group)
     async def show(self, ctx):  # totally didn't make this 'show' so I didn't have to make a new class :whistle:
+        slist = open("./data/exemptchannels.txt", "r")
         mlist = []
         for line in slist:
             exm_chl = self.bot.get_channel(int(line))
             mlist.append(str(exm_chl.id))
+        slist.close()
         await channel_embed(ctx, f'Exempted Channels ({len(mlist)})', f'<#{(">, <#".join(mlist))}>')
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['unex'])
@@ -93,6 +93,7 @@ class Exempt(commands.Cog):
     @unexempt.command(aliases=['l'])
     @commands.check(admin_group)
     async def list(self, ctx):
+        slist = open("./data/exemptchannels.txt", "r")
         channels = self.bot.get_guild(baritoneDiscord).text_channels
         clist = []
         klist = []
@@ -102,6 +103,7 @@ class Exempt(commands.Cog):
         flist = [x for x in channels if x not in clist]
         for channel in flist:
             klist.append(str(channel.id))
+        slist.close()
         await channel_embed(ctx, f'Unexempted Channels ({len(flist)})', f'<#{(">, <#".join(klist))}>')
 
 
