@@ -11,22 +11,29 @@ class Bkm(commands.Cog):
 
     @commands.command(aliases=['ub'])
     @commands.check(admin_group)
-    async def unban(self, ctx, user_id: int = None):
+    async def unban(self, ctx, user=None):
+        user_men = str(ctx.message.raw_mentions[0])[1:-1]
         b_guild = self.bot.get_guild(baritoneDiscord)
-        if user_id is None:
+        if user is None:
             await Help.unban(self, ctx)
         else:
-            try:
-                user = await self.bot.fetch_user(user_id)
-                await b_guild.unban(user)
-                channel = await self.bot.fetch_channel(logChannel)
-                logging.info(f'{ctx.author.id} unbanned {user.id}')
-                await channel_embed(ctx, 'User Unbanned', f'{user.name}#{user.discriminator} has been unbanned!')
-                await log_embed(ctx, 'User Unbanned', f'{user.name}#{user.discriminator} has been unbanned!', channel)
-            except discord.NotFound as e:
-                if e.code == 10013:
-                    await error_embed(ctx, 'That is not a valid user ID')
-                elif e.code == 10026:
+            if user_men != '':
+                unban_user = self.bot.get_user(int(user_men))  # get the user if they mentioned
+            elif (user.isdigit()) and (len(user) == 18):
+                unban_user = self.bot.get_user(int(user))
+            else:
+                unban_user = None
+            if unban_user is None:
+                await error_embed(ctx, 'The user you gave is invalid')
+            else:
+                try:
+                    user = await self.bot.fetch_user(user)
+                    await b_guild.unban(unban_user)
+                    channel = await self.bot.fetch_channel(logChannel)
+                    logging.info(f'{ctx.author.id} unbanned {user.id}')
+                    await channel_embed(ctx, 'User Unbanned', f'{user.name}#{user.discriminator} has been unbanned!')
+                    await log_embed(ctx, 'User Unbanned', f'{user.name}#{user.discriminator} has been unbanned!', channel)
+                except discord.NotFound:
                     await error_embed(ctx, 'That user is not banned')
 
     @commands.command(aliases=['um'])
@@ -40,13 +47,16 @@ class Bkm(commands.Cog):
         elif member.top_role == author_member.top_role:
             await error_embed(ctx, f'You don\'t outrank {member.mention}')
         else:
-            channel = await self.bot.fetch_channel(logChannel)
-            dm_channel = await member.create_dm()
-            logging.info(f'{ctx.author.id} unmuted {member.id}')
-            await channel_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted')
-            await log_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted', channel)
-            await dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
-            await member.remove_roles(b_guild.get_role(muteRole))
+            if b_guild.get_role(muteRole) not in member.roles:
+                await error_embed(ctx, 'That member is not muted')
+            else:
+                channel = await self.bot.fetch_channel(logChannel)
+                dm_channel = await member.create_dm()
+                logging.info(f'{ctx.author.id} unmuted {member.id}')
+                await channel_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted')
+                await log_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted', channel)
+                await dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
+                await member.remove_roles(b_guild.get_role(muteRole))
 
     @commands.command(aliases=['b', 'rm'])
     @commands.check(mod_group)
@@ -61,13 +71,16 @@ class Bkm(commands.Cog):
         elif reason is None:
             await error_embed(ctx, 'You need to give a reason')
         else:
-            channel = await self.bot.fetch_channel(logChannel)
-            dm_channel = await member.create_dm()
-            logging.info(f'{ctx.author.id} banned {member.id} for reason: {reason}')
-            await channel_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reason}```')
-            await log_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reason}```', channel)
-            await dm_embed('Banned', f'You have been banned from the baritone discord for reason: \n```{reason}```', dm_channel)
-            await member.ban(reason=reason)
+            if b_guild.get_role(muteRole) in member.roles:
+                await error_embed(ctx, 'That member is already muted')
+            else:
+                channel = await self.bot.fetch_channel(logChannel)
+                dm_channel = await member.create_dm()
+                logging.info(f'{ctx.author.id} banned {member.id} for reason: {reason}')
+                await channel_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reason}```')
+                await log_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reason}```', channel)
+                await dm_embed('Banned', f'You have been banned from the baritone discord for reason: \n```{reason}```', dm_channel)
+                await member.ban(reason=reason)
 
     @commands.command(aliases=['m'])
     @commands.check(helper_group)

@@ -1,4 +1,5 @@
 import logging
+import os
 from discord.ext import commands
 from cogs.help import Help
 from const import admin_group, channel_embed, error_embed
@@ -19,14 +20,19 @@ class Extension(commands.Cog):
         if extension is None:
             await error_embed(ctx, 'You need to give an extenstion to load (do `extension list` for a list of extensions')
         else:
-            try:
-                self.bot.load_extension(f'cogs.{extension}')
-                await channel_embed(ctx, 'Loaded Extension', f'The extension {extension} has been loaded')
-                logging.info(f'{ctx.author.id} loaded the extension {extension}')
-            except commands.ExtensionNotFound:
-                await error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
-            except commands.ExtensionAlreadyLoaded:
-                await error_embed(ctx, 'That extension is already loaded')
+            if extension == 'all':
+                for filename in os.listdir('./cogs'):
+                    if filename.endswith('.py'):
+                        self.bot.load_extension(f'cogs.{filename[:-3]}')
+            else:
+                try:
+                    self.bot.load_extension(f'cogs.{extension}')
+                    await channel_embed(ctx, 'Loaded Extension', f'The extension {extension} has been loaded')
+                    logging.info(f'{ctx.author.id} loaded the extension {extension}')
+                except commands.ExtensionNotFound:
+                    await error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
+                except commands.ExtensionAlreadyLoaded:
+                    await error_embed(ctx, 'That extension is already loaded')
 
     @extension.command(aliases=['u'])
     @commands.check(admin_group)
@@ -34,14 +40,19 @@ class Extension(commands.Cog):
         if extension is None:
             await error_embed(ctx, 'You need to give an extenstion to unload (do `extension list` for a list of extensions')
         else:
-            try:
-                self.bot.unload_extension(f'cogs.{extension}')
-                await channel_embed(ctx, 'Unloaded Extension', f'The extension {extension} has been unloaded')
-                logging.info(f'{ctx.author.id} unloaded the extension {extension}')
-            except commands.ExtensionNotFound:
-                await error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
-            except commands.ExtensionNotLoaded:
-                await error_embed(ctx, 'That extension is already unloaded')
+            if extension == 'all':
+                for filename in os.listdir('./cogs'):
+                    if filename.endswith('.py'):
+                        self.bot.unload_extension(f'cogs.{filename[:-3]}')
+            else:
+                try:
+                    self.bot.unload_extension(f'cogs.{extension}')
+                    await channel_embed(ctx, 'Unloaded Extension', f'The extension {extension} has been unloaded')
+                    logging.info(f'{ctx.author.id} unloaded the extension {extension}')
+                except commands.ExtensionNotFound:
+                    await error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
+                except commands.ExtensionNotLoaded:
+                    await error_embed(ctx, 'That extension is already unloaded')
 
     @extension.command(aliases=['r'])
     @commands.check(admin_group)
@@ -49,12 +60,17 @@ class Extension(commands.Cog):
         if extension is None:
             await error_embed(ctx, 'You need to give an extenstion to reload (do `extension list` for a list of extensions')
         else:
-            try:
-                self.bot.reload_extension(f'cogs.{extension}')
-                await channel_embed(ctx, 'Reloaded Extension', f'The extension {extension} has been reloaded')
-                logging.info(f'{ctx.author.id} reloaded the extension {extension}')
-            except commands.ExtensionNotFound:
-                await error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
+            if extension == 'all':
+                for filename in os.listdir('./cogs'):
+                    if filename.endswith('.py'):
+                        self.bot.reload_extension(f'cogs.{filename[:-3]}')
+            else:
+                try:
+                    self.bot.reload_extension(f'cogs.{extension}')
+                    await channel_embed(ctx, 'Reloaded Extension', f'The extension {extension} has been reloaded')
+                    logging.info(f'{ctx.author.id} reloaded the extension {extension}')
+                except commands.ExtensionNotFound:
+                    await error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
 
     @extension.command(aliases=['l'])
     @commands.check(admin_group)

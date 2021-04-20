@@ -13,7 +13,7 @@ class Clear(commands.Cog):
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['cl', 'pg', 'purge'])
     @commands.check(mod_group)
     async def clear(self, ctx, num=None, num2=None):
-        user_men = str(ctx.message.raw_mentions)[1:-1]
+        user_men = str(ctx.message.raw_mentions[0])[1:-1]
         if num is None:
             await Help.clear(self, ctx)
         elif ctx.guild is None:
@@ -39,7 +39,7 @@ class Clear(commands.Cog):
                     else:
                         clear_member = ctx.guild.get_member_named(num)  # get the member if they gave a name with/without discrimitor
                     if clear_member is None:
-                        await error_embed(ctx, 'You need to either give an amount of messages to clear, mention someone, give an ID, or give a name')
+                        await error_embed(ctx, 'The user you gave is either invalid or the name you gave is not a member')
                     else:
                         async for message in ctx.channel.history(limit=None):
                             limit += 1

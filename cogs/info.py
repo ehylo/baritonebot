@@ -32,7 +32,7 @@ class Info(commands.Cog):
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ui'])
     async def userinfo(self, ctx, user_id=None):
         b_guild = self.bot.get_guild(baritoneDiscord)
-        user_men = str(ctx.message.raw_mentions)[1:-1]
+        user_men = str(ctx.message.raw_mentions[0])[1:-1]
         if user_id is None:
             await Help.userinfo(self, ctx)
         else:

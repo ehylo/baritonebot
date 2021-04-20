@@ -45,17 +45,36 @@ class Blacklist(commands.Cog):
     @blacklist.command(aliases=['r'])
     @commands.check(mod_group)
     async def remove(self, ctx, word=None):
-        f = open("./data/blacklist.txt", "r")
         if word is None:
             await error_embed(ctx, 'You need to give a word to remove')
         else:
-            if word in [sub.replace('\n', '') for sub in (f.readlines())]:
+            num_lines = sum(1 for _ in open("./data/blacklist.txt"))
+            tlines = 1
+            f = open("./data/blacklist.txt", "r")
+            lines = f.readlines()
+            res = [sub.replace('\n', '') for sub in lines]
+            if word in res:
                 with open("./data/blacklist.txt", "r") as f:
                     lines = f.readlines()
                 with open("./data/blacklist.txt", "w") as f:
                     for line in lines:
-                        if line.strip("\n") != word:
+                        tlines += 1
+                        if tlines == num_lines and (line.strip("\n") == word):
+                            with open("./data/blacklist.txt", "r") as d:
+                                llines = d.readlines()
+                            with open("./data/blacklist.txt", "w") as d:
+                                for lline in llines:
+                                    if tlines != num_lines and lline.strip("\n") != word:
+                                        f.write(lline)
+                                    elif tlines == num_lines:
+                                        sline = lline.strip('\n')
+                                        f.write(sline)
+                            d.close()
+                        elif tlines != num_lines and line.strip("\n") != word:
                             f.write(line)
+                        elif tlines == num_lines:
+                            sline = line.strip('\n')
+                            f.write(sline)
                 await channel_embed(ctx, 'Removed', f'The word `{word}` has been removed from the blacklist')
                 logging.info(f'{ctx.author.id} removed a word from the blacklist')
             else:

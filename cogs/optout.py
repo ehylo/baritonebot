@@ -1,6 +1,7 @@
 import logging
 from discord.ext import commands
 from cogs.help import Help
+from bot import preCmd
 from const import channel_embed, log_embed, logChannel, dm_embed, baritoneDiscord
 
 
@@ -22,7 +23,7 @@ class Optout(commands.Cog):
             await log_embed(ctx, 'User Banned', f'{ctx.author.mention} has been banned for reason: \n```User {ctx.author} has opted out```', channel)
             await b_guild.ban(user=ctx.author, reason='Opted out and banned', delete_message_days=7)
         else:
-            await channel_embed(ctx, 'Opt-Out', f'You will be **banned from this server** and **lose all your roles** by continuing. Are you sure you want to opt out? if yes, type `b?optout I am sure`')
+            await channel_embed(ctx, 'Opt-Out', f'You will be **banned from this server** and **lose all your roles** by continuing. Are you sure you want to opt out? if yes, type `{preCmd}optout I am sure`')
 
 
 def setup(bot):

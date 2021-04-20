@@ -30,14 +30,33 @@ class Cringe(commands.Cog):
         if url is None:
             await error_embed(ctx, 'You need to give a url to remove')
         else:
+            num_lines = sum(1 for _ in open("./data/cringe.txt"))
+            tlines = 1
             f = open("./data/cringe.txt", "r")
-            if url in [sub.replace('\n', '') for sub in (f.readlines())]:
+            lines = f.readlines()
+            res = [sub.replace('\n', '') for sub in lines]
+            if url in res:
                 with open("./data/cringe.txt", "r") as f:
                     lines = f.readlines()
                 with open("./data/cringe.txt", "w") as f:
                     for line in lines:
-                        if line.strip("\n") != url:
+                        tlines += 1
+                        if tlines == num_lines and (line.strip("\n") == url):
+                            with open("./data/cringe.txt", "r") as d:
+                                llines = d.readlines()
+                            with open("./data/cringe.txt", "w") as d:
+                                for lline in llines:
+                                    if tlines != num_lines and lline.strip("\n") != url:
+                                        f.write(lline)
+                                    elif tlines == num_lines:
+                                        sline = lline.strip('\n')
+                                        f.write(sline)
+                            d.close()
+                        elif tlines != num_lines and line.strip("\n") != url:
                             f.write(line)
+                        elif tlines == num_lines:
+                            sline = line.strip('\n')
+                            f.write(sline)
                 await channel_embed(ctx, 'Removed', 'I guess that wasn\'nt cringe enough')
                 logging.info(f'{ctx.author.id} removed a cringe')
             else:

@@ -90,8 +90,6 @@ async def log_embed(ctx=None, title=None, desc=None, channel=None, member=None):
 
 
 async def channel_embed(ctx, title=None, desc=None, thumbnail=None, replyorsend=None):
-    if title is None:
-        title = 'PING FLURR TO FIX'
     em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title=title)
     if desc is not None:
         em_v.description = desc
