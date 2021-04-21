@@ -1,9 +1,8 @@
 import discord
-import json
 import logging
 from discord.ext import commands
 from cogs.help import Help
-from const import valuesStr, channel_embed, admin_group, mod_group, baritoneDiscord
+from const import channel_embed, admin_group, mod_group, baritoneDiscord, cur, db
 
 
 class Prefix(commands.Cog):
@@ -16,22 +15,18 @@ class Prefix(commands.Cog):
         if fixpre is None:
             await Help.prefix(self, ctx)
         else:
-            for item in valuesStr:
-                item['prefix'] = fixpre
-            with open('./data/values.json', 'w') as file:
-                json.dump(valuesStr, file, indent=2)
-                await channel_embed(ctx, 'Prefix set', f'Set the prefix to {fixpre}, please restart the bot for the changes to take affect')
-                logging.info(f'{ctx.author.id} set the prefix to {fixpre}')
+            cur.execute(f'UPDATE settings SET prefix={fixpre}')
+            db.commit()
+            await channel_embed(ctx, 'Prefix set', f'Set the prefix to {fixpre}, please restart the bot for the changes to take affect')
+            logging.info(f'{ctx.author.id} set the prefix to {fixpre}')
 
     @prefix.command(aliases=['d'])
     @commands.check(admin_group)
     async def default(self, ctx):
-        for item in valuesStr:
-            item['prefix'] = "b?"
-        with open('./data/values.json', 'w') as file:
-            json.dump(valuesStr, file, indent=2)
-            await channel_embed(ctx, 'Prefix set', 'Set the prefix to the default (b?), please restart the bot for the changes to take affect')
-            logging.info(f'{ctx.author.id} set the prefix to default')
+        cur.execute('UPDATE settings SET prefix="b?"')
+        db.commit()
+        await channel_embed(ctx, 'Prefix set', 'Set the prefix to the default (b?), please restart the bot for the changes to take affect')
+        logging.info(f'{ctx.author.id} set the prefix to default')
 
 
 class EmbedColor(commands.Cog):
@@ -44,22 +39,18 @@ class EmbedColor(commands.Cog):
         if color is None:
             await Help.embedcolor(self, ctx)
         else:
-            for item in valuesStr:
-                item['color'] = color
-            with open('./data/values.json', 'w') as file:
-                json.dump(valuesStr, file, indent=2)
-                await channel_embed(ctx, 'Embedcolor set', f'Set the embed color to {color}, please restart the bot for the changes to take affect')
-                logging.info(f'{ctx.author.id} set the embedcolor to {color}')
+            cur.execute(f'UPDATE settings SET embedcolor={color}')
+            db.commit()
+            await channel_embed(ctx, 'Embedcolor set', f'Set the embed color to {color}, please restart the bot for the changes to take affect')
+            logging.info(f'{ctx.author.id} set the embedcolor to {color}')
 
     @embedcolor.command(aliases=['d'])
     @commands.check(admin_group)
     async def default(self, ctx):
-        for item in valuesStr:
-            item['color'] = "81C3FF"
-        with open('./data/values.json', 'w') as file:
-            json.dump(valuesStr, file, indent=2)
-            await channel_embed(ctx, 'Embedcolor set', 'Set the embed color to the default (81C3FF), please restart the bot for the changes to take affect')
-            logging.info(f'{ctx.author.id} set the embedcolor to default')
+        cur.execute('UPDATE settings SET embedcolor="81C3FF"')
+        db.commit()
+        await channel_embed(ctx, 'Embedcolor set', 'Set the embed color to the default (81C3FF), please restart the bot for the changes to take affect')
+        logging.info(f'{ctx.author.id} set the embedcolor to default')
 
 
 class Nick(commands.Cog):
@@ -104,10 +95,8 @@ class Status(commands.Cog):
         if presence is None:
             await Help.status(self, ctx)
         else:
-            for item in valuesStr:
-                item['presence'] = presence
-            with open('./data/values.json', 'w') as file:
-                json.dump(valuesStr, file, indent=2)
+            cur.execute(f'UPDATE settings SET presence={presence}')
+            db.commit()
             await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=presence))
             await channel_embed(ctx, 'Presence set', f'Set the presence to `Watching {presence}`.')
             logging.info(f'{ctx.author.id} set the status to {presence}')
@@ -115,10 +104,8 @@ class Status(commands.Cog):
     @status.command(aliases=['d'])
     @commands.check(mod_group)
     async def default(self, ctx):
-        for item in valuesStr:
-            item['presence'] = 'humans interact'
-        with open('./data/values.json', 'w') as file:
-            json.dump(valuesStr, file, indent=2)
+        cur.execute('UPDATE settings SET presence="humans interact"')
+        db.commit()
         await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name='humans interact'))
         await channel_embed(ctx, 'Presence set', 'Set the presence to the default (`Watching humans interact`).')
         logging.info(f'{ctx.author.id} set the presence to default')

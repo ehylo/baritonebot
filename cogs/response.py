@@ -1,8 +1,7 @@
 import logging
-import json
 from discord.ext import commands
 from cogs.help import Help
-from const import error_embed, channel_embed, helper_group, mod_group, help_embed
+from const import error_embed, channel_embed, helper_group, mod_group, help_embed, cur, db
 
 
 class Response(commands.Cog):
@@ -17,12 +16,12 @@ class Response(commands.Cog):
     @response.command(aliases=['l'])
     @commands.check(helper_group)
     async def list(self, ctx):
-        with open('./data/responses.json') as jsonResp:
-            response_list = json.load(jsonResp)
+        cur.execute('SELECT ROW_NUMBER () OVER ( ORDER BY rowid ) rowid, response_title FROM responses')
+        responses = cur.fetchall()
         desc = ''
-        for x in range(1, (len(response_list) + 1)):
-            desc += f'**{x}.** {(response_list[x - 1]["title"])}\n'
-        await channel_embed(ctx, 'Current Responses:', desc)
+        for row in responses:
+            desc += f'**{row[0]}.** {row[1]}\n'
+        await channel_embed(ctx, f'Current Responses ({len(responses)}):', desc)
 
     @response.command(aliases=['d'])
     @commands.check(helper_group)
@@ -32,12 +31,12 @@ class Response(commands.Cog):
         elif rnum <= 0:
             await error_embed(ctx, 'You need to give a **positive non zero** response number')
         else:
-            with open('./data/responses.json') as jsonResp:
-                response_list = json.load(jsonResp)
-                try:
-                    await help_embed(ctx, f'Response #{rnum} details:', f'`{(response_list[rnum - 1]["regex"])}`', (response_list[rnum - 1]['description']), (response_list[rnum - 1]['title']))
-                except IndexError:
-                    await error_embed(ctx, 'There is no response with that number yet')
+            cur.execute(f'SELECT * FROM responses WHERE rowid={rnum}')
+            response = cur.fetchone()
+            if response is not None:
+                await help_embed(ctx, f'Response #{rnum} details:', f'`{response[0]}`', response[2], response[1])
+            else:
+                await error_embed(ctx, 'There is no response with that number yet')
 
     @response.command(aliases=['r'])
     @commands.check(mod_group)
@@ -47,17 +46,13 @@ class Response(commands.Cog):
         elif rnum <= 0:
             await error_embed(ctx, 'You need to give a **positive non zero** response number')
         else:
-            with open('./data/responses.json') as jsonResp:
-                response_list = json.load(jsonResp)
-            if rnum <= len(response_list):
-                frep = []
-                for x in range(1, (len(response_list)+1)):
-                    if x != rnum:
-                        frep.append(response_list[x - 1])
-                with open('./data/responses.json', 'w') as file:
-                    json.dump(frep, file, indent=2)
-                await channel_embed(ctx, f'Removed response #{rnum}:', (response_list[rnum - 1]["title"]))
-                logging.info(f'{ctx.author.id} removed response #{rnum}, \"{(response_list[rnum - 1]["title"])}\"')
+            cur.execute(f'SELECT * FROM responses WHERE rowid={rnum}')
+            response = cur.fetchone()
+            if response is not None:
+                await channel_embed(ctx, f'Removed response #{rnum}:', response[1])
+                logging.info(f'{ctx.author.id} removed response #{rnum}, \"{response[1]}\"')
+                cur.execute(f'DELETE FROM responses WHERE rowid={rnum}')
+                db.commit()
             else:
                 await error_embed(ctx, 'There is no response with that number')
 
@@ -70,13 +65,11 @@ class Response(commands.Cog):
             await error_embed(ctx, 'You need to give a title')
         elif edesc is None:
             await error_embed(ctx, 'You need to give a description')
-        else:  # maybe add a try and except to see if the regex is valid (dont know if i can verify that)
-            with open('./data/responses.json') as jsonValues:
-                response_list = json.load(jsonValues)
-            response_list.append({'regex': eregex, 'title': etitle, 'description': edesc})
-            with open('./data/responses.json', 'w') as file:
-                json.dump(response_list, file, indent=2)
-            await help_embed(ctx, 'New response:', eregex, edesc, etitle)
+        else:
+            cur.execute('SELECT * FROM responses')
+            cur.execute(f'INSERT INTO responses(response_regex, response_title, response_description) VALUES(?,?,?)', (eregex, etitle, edesc))
+            db.commit()
+            await help_embed(ctx, 'New response:', f'`{eregex}`', edesc, etitle)
             logging.info(f'{ctx.author.id} added response with title: {etitle}')
 
 

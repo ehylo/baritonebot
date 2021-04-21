@@ -112,7 +112,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def response(self, ctx):
-        await help_embed(ctx, 'Response', 'Command to control responses, can add/remove them or list/get details of them \n*use [this](https://regexr.com/) website to make the regex*', '`response(rp) <add(a)|remove(r)|details(d)|list(l)> <regex|[number]> <[title]> <[description]>`')
+        await help_embed(ctx, 'Response', 'Command to control responses, can add/remove them or list/get details of them \n*use [this](https://regexr.com/) website to make the regex*', '`response(rp) <add(a)|remove(r)|details(d)|list(l)> <[regex]|[number]> <[title]> <[description]>`')
 
     @help.command()
     async def rule(self, ctx):

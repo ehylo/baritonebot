@@ -1,9 +1,8 @@
 import discord
-import json
 import logging
 from cogs.help import Help
 from discord.ext import commands
-from const import channel_embed, error_embed, fault_footer, coolEmbedColor, timeDate, admin_group, help_embed
+from const import channel_embed, error_embed, fault_footer, coolEmbedColor, timeDate, admin_group, help_embed, cur, db
 
 
 class Rule(commands.Cog):
@@ -17,12 +16,12 @@ class Rule(commands.Cog):
         elif rulenum <= 0:
             await error_embed(ctx, 'You need to give a **positive non zero** rule number')
         else:
-            with open('./data/rules.json') as jsonRules:
-                rules_list = json.load(jsonRules)
-                try:
-                    await channel_embed(ctx, (rules_list[rulenum - 1]['title']), (rules_list[rulenum - 1]['description']))
-                except IndexError:
-                    await error_embed(ctx, 'That rule does not exist yet')
+            cur.execute(f'SELECT * FROM rules WHERE rules_number = {rulenum}')
+            rule = cur.fetchone()
+            if rule is not None:
+                await channel_embed(ctx, rule[1], rule[2])
+            else:
+                await error_embed(ctx, 'That rule does not exist yet')
 
     @rule.command(aliases=['r'])
     @commands.check(admin_group)
@@ -32,17 +31,13 @@ class Rule(commands.Cog):
         elif num <= 0:
             await error_embed(ctx, 'You need to give a **positive non zero** rule number')
         else:
-            with open('./data/rules.json') as jsonRules:
-                rules_list = json.load(jsonRules)
-            if num <= len(rules_list):
-                frul = []
-                for x in range(1, (len(rules_list)+1)):
-                    if x != num:
-                        frul.append(rules_list[x - 1])
-                with open('./data/rules.json', 'w') as file:
-                    json.dump(frul, file, indent=2)
-                await channel_embed(ctx, f'Removed rule #{num}:', (rules_list[num - 1]["title"]))
-                logging.info(f'{ctx.author.id} removed rule #{num}, \"{(rules_list[num - 1]["title"])}\"')
+            cur.execute(f'SELECT rules_number, rules_title FROM rules WHERE rules_number={num}')
+            rule = cur.fetchone()
+            if rule is not None:
+                await channel_embed(ctx, f'Removed rule #{num}:', rule[1])
+                logging.info(f'{ctx.author.id} removed rule #{num}, \"{rule[1]}\"')
+                cur.execute(f'DELETE FROM rules WHERE rules_number={num}')
+                db.commit()
             else:
                 await error_embed(ctx, 'There is no rule with that number')
 
@@ -58,35 +53,26 @@ class Rule(commands.Cog):
         elif ddesc is None:
             await error_embed(ctx, 'You need to give a description')
         else:
-            with open('./data/rules.json') as jsonValues:
-                rules_list = json.load(jsonValues)
-            frul = []
-            addx = 1
-            if anum-1 <= len(rules_list):
-                for x in range(1, (len(rules_list) + 2)):
-                    if anum == x:
-                        frul.append({'title': dtitle, 'description': ddesc})
-                        addx += 1
-                    else:
-                        frul.append(rules_list[x - addx])
-                with open('./data/rules.json', 'w') as file:
-                    json.dump(frul, file, indent=2)
+            cur.execute(f'SELECT rules_number FROM rules WHERE rules_number={anum}')
+            if cur.fetchone() is None:
+                cur.execute(f'INSERT INTO rules(rules_number, rules_title, rules_description) VALUES(?,?,?)', (anum, dtitle, ddesc))
+                db.commit()
                 await help_embed(ctx, 'New rule:', f'{ctx.author.mention} added rule {anum}', ddesc, dtitle)
                 logging.info(f'{ctx.author.id} added rule with title: {dtitle}')
             else:
-                await error_embed(ctx, 'That rule number is too high')
+                await error_embed(ctx, 'That rule already exists')
 
     @commands.command()
     async def rules(self, ctx):
-        with open('./data/rules.json') as jsonRules:
-            rules_list = json.load(jsonRules)
-        r_list = (len(rules_list) + 1)
         em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title='Rules')
         em_v.set_footer(text=fault_footer)
         em_v.set_thumbnail(url='https://bigrat.monster/media/noanime.gif')
-        for x in range(1, r_list):
-            field_title = (rules_list[x - 1]['title'])
-            field_value = (rules_list[x - 1]['description'])
+        cur.execute('SELECT ROW_NUMBER () OVER ( ORDER BY rules_number ) rowNum, rules_number, rules_title, rules_description FROM rules')
+        db.commit()
+        rules = cur.fetchall()
+        for row in rules:
+            field_title = f'**{row[1]} )** {row[2]}'
+            field_value = row[3]
             em_v.add_field(name=field_title, value=field_value, inline=False)
         await ctx.send(embed=em_v)
 

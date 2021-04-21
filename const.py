@@ -1,16 +1,17 @@
 import discord
-import json
 import logging
 import sys
+import sqlite3
 from datetime import datetime
+
+db = sqlite3.connect('main.sqlite')
+cur = db.cursor()
+cur.execute(f'SELECT * FROM settings')
+values = cur.fetchone()
 
 fault_footer = u'\U0001f916' 'Baritone Bot' u'\U0001f916'
 timeDate = datetime.utcnow()
-
-with open('./data/values.json') as jsonValues:
-    valuesStr = json.load(jsonValues)
-coolEmbedColor = int((valuesStr[0]['color']), 16)
-pasteToken = str(valuesStr[0]['pasteToken'])
+coolEmbedColor = int(values[1], 16)
 
 botID = 823620099054239744  # not adding these to values.json that way its easier to add more later on
 helperRole = 826950651698610200  # currently set to my test server aswell, will need to change when bot gets added
@@ -26,27 +27,27 @@ leaveChannel = 826950652516106242
 logChannel = 826950652516106245
 baritoneDiscord = 826950651690745876
 
-
 logging.basicConfig(filename='console.log', level=logging.INFO, format='[%(asctime)s %(levelname)s] %(message)s', datefmt='%m-%d-%Y %H:%M:%S')
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
 async def perms_check(ctx, required_role):
-    b_discord = ctx.bot.get_guild(baritoneDiscord)
-    dm_user = b_discord.get_member(ctx.author.id)
     if required_role == 'admin':
-        if b_discord.get_role((adminRole or devRole or bypassRole)) in dm_user.roles:
-            return True
+        for x in [adminRole, devRole, bypassRole]:
+            if ctx.bot.get_guild(baritoneDiscord).get_role(x) in ctx.bot.get_guild(baritoneDiscord).get_member(ctx.author.id).roles:
+                return True
         else:
             await error_embed(ctx, f'You need to be an Admin to use the command `{ctx.command}`')
     if required_role == 'mod':
-        if b_discord.get_role((moderatorRole or adminRole or devRole or bypassRole)) in dm_user.roles:
-            return True
+        for x in [moderatorRole, adminRole, devRole, bypassRole]:
+            if ctx.bot.get_guild(baritoneDiscord).get_role(x) in ctx.bot.get_guild(baritoneDiscord).get_member(ctx.author.id).roles:
+                return True
         else:
             await error_embed(ctx, f'You need to be an Moderator to use the command `{ctx.command}`')
     if required_role == 'helper':
-        if b_discord.get_role((helperRole or moderatorRole or adminRole or devRole or bypassRole)) in dm_user.roles:
-            return True
+        for x in [helperRole, moderatorRole, adminRole, devRole, bypassRole]:
+            if ctx.bot.get_guild(baritoneDiscord).get_role(x) in ctx.bot.get_guild(baritoneDiscord).get_member(ctx.author.id).roles:
+                return True
         else:
             await error_embed(ctx, f'You need to be an Helper to use the command `{ctx.command}`')
 

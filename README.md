@@ -8,13 +8,11 @@ Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Bari
 ## Things to-do:
 
 ### look more into
-* use a database (no clue where to even start)
+* add durations to mute command
 
-* add durations to mute command (requires database I think, though might be possible with just json)
+* have a xp/rank system where it either tracks total messages, or you get random amount of xp (like 10-20) per message
 
-* have a xp/rank system where it either tracks total messages, or you get random amount of xp (like 10-20) per message (probably requires database, but I think I know a way with json)
-
-* For the flip and rps commands, add db stats and stuff to that (requires database)
+* For the flip and rps commands, add db stats and stuff to that
 
 * read [this](https://gist.github.com/InterStella0/b78488fb28cadf279dfd3164b9f0cf96) and see if it's better than current help command
 
@@ -37,7 +35,7 @@ Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Bari
 
 ## How to run
 
-You need [python 3.9.0](https://www.python.org/downloads/) +, [discord.py 1.7.1](https://pypi.org/project/discord.py/), and [Pillow 8.2.0](https://pypi.org/project/Pillow/)
+You need [python 3.9.0](https://www.python.org/downloads/) +, [discord.py 1.7.1](https://pypi.org/project/discord.py/), [python-dotenv](https://pypi.org/project/python-dotenv/), and [Pillow 8.2.0](https://pypi.org/project/Pillow/)
 
 Open terminal/cmd, and do the following commands:
 ```

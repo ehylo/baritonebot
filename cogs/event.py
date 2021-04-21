@@ -2,22 +2,20 @@ import discord
 import logging
 import requests
 import re
-import json
 import mimetypes
-from bot import preCmd
-from const import logChannel, log_embed, channel_embed, pasteToken, botID, ignoreRole, baritoneDiscord, error_embed, coolEmbedColor, leaveChannel, dm_embed, voiceRole, helperRole
+from bot import pasteToken
+from const import logChannel, log_embed, channel_embed, botID, ignoreRole, baritoneDiscord, error_embed, coolEmbedColor, leaveChannel, dm_embed, voiceRole, helperRole, values, cur
 from datetime import datetime, timedelta
 from discord.ext import commands
 
-e_c = open("./data/exemptchannels.txt", "r")
-exempt_channels = e_c.read()
-e_c.close()
+cur.execute('SELECT channel_id FROM ex_channels')
+exempt_channels = [str(item[0]) for item in cur.fetchall()]
 
 
 async def del_blacklist(message, b_guild):
     del_message = 0
     if del_message == 0:
-        if (not message.content.startswith(preCmd) and              # don't delete commands
+        if (not message.content.startswith(values[0]) and           # don't delete commands
                 message.author.id is not botID and                  # don't delete messages from itself
                 str(message.channel.id) not in exempt_channels and  # don't delete messages in exempted channels
                 message.guild is not None):                         # don't try to delete dm messages
@@ -27,20 +25,20 @@ async def del_blacklist(message, b_guild):
                 await dm_embed('Message Deleted', f'Your message in {message.channel.mention} was deleted because sending invite links is against the rules', dchannel)
                 logging.info(f'{message.author.id} tried to send an invite link but it was deleted')
             else:
-                with open("./data/blacklist.txt", "r") as f:
-                    for line in [sub.replace('\n', '') for sub in (f.readlines())]:
-                        if line in (re.sub(r"[\n]", "", message.content)):
-                            try:
-                                await message.delete()
-                                first_deleted_word = line
-                                deleted_word = ''
-                                del_message += 1
-                            except discord.NotFound:
-                                deleted_word += f'`, `{line}'
-                    if del_message > 0:
-                        dchannel = await message.author.create_dm()
-                        await dm_embed('Message Deleted', f'Your message in {message.channel.mention} was deleted because `{first_deleted_word}{deleted_word}` is blacklisted', dchannel)
-                        logging.info(f'{message.author.id} sent a message but it was deleted because it has a word on the blacklist')
+                cur.execute('SELECT blacklist_word FROM blacklist')
+                for line in [sub.replace('\n', '') for sub in [str(item[0]) for item in cur.fetchall()]]:
+                    if line in (re.sub(r"[\n]", "", message.content)):
+                        deleted_word = ''
+                        try:
+                            await message.delete()
+                            first_deleted_word = line
+                            del_message += 1
+                        except discord.NotFound:
+                            deleted_word += f'`, `{line}'
+                if del_message > 0:
+                    dchannel = await message.author.create_dm()
+                    await dm_embed('Message Deleted', f'Your message in {message.channel.mention} was deleted because `{first_deleted_word}{deleted_word}` is blacklisted', dchannel)
+                    logging.info(f'{message.author.id} sent a message but it was deleted because it has a word on the blacklist')
     if del_message == 0:
         await att_paste(message)
         await dm_log(message, b_guild)
@@ -60,8 +58,8 @@ async def att_paste(message):
         if file_type[0] is not None:
             file_type = file_type[0].split('/')[0]
         if message.attachments[0].url.lower().endswith(('.log', '.json5', '.json', '.py', '.sh', '.config', '.properties', '.toml', '.bat', '.cfg')) or file_type == 'text':
-            if pasteToken == "":
-                await error_embed(message.channel, 'There is no paste.ee API token in values.json so I am unable to upload that file for you')
+            if pasteToken is None:
+                await error_embed(message.channel, 'There is no paste.ee API token in the .env file so I am unable to upload that file for you')
             else:
                 text = await discord.Attachment.read(message.attachments[0], use_cached=False)
                 paste_response = requests.post(url='https://api.paste.ee/v1/pastes', json={'sections': [{'name': "Paste from " + str(message.author), 'contents': ("\n".join((text.decode('UTF-8')).splitlines()))}]}, headers={'X-Auth-Token': pasteToken})
@@ -71,17 +69,18 @@ async def att_paste(message):
 
 
 async def gexre(message, b_guild):
-    if not message.content.startswith(preCmd):
-        with open('./data/responses.json') as jsonResp:
-            response_list = json.load(jsonResp)
+    if (not message.content.startswith(values[0])) and (message.author.id != botID):
+        cur.execute('SELECT * FROM responses')
+        response_list = cur.fetchall()
         for x in range(1, (len(response_list) + 1)):
-            if re.search((response_list[x - 1]['regex']), message.content) is not None:
+            if re.search(response_list[x-1][0], message.content) is not None:
                 member = await b_guild.fetch_member(message.author.id)
                 if (b_guild.get_member(botID) in message.mentions) or (message.content.startswith('!')):  # this is seperate from the elif so there is no trash reaction to delete a pinged/command response, and also the bot won't reply
-                    await channel_embed(message.channel, (response_list[x - 1]['title']), (response_list[x - 1]['description']))
+                    await channel_embed(message.channel, (response_list[x-1][1]), (response_list[x-1][2]))
                     logging.info(f'{message.author.id} manually triggered response number {x}')
+                    # await message.delete() ## might add this, need to ask people first
                 elif (b_guild.get_role(ignoreRole) not in member.roles) and (str(message.channel.id) not in exempt_channels):
-                    await channel_embed(message, (response_list[x - 1]['title']), (response_list[x - 1]['description']), None, 'Reply')
+                    await channel_embed(message, (response_list[x-1][1]), (response_list[x-1][2]), None, 'Reply')
                     logging.info(f'{message.author.id} sent a message and triggered response number {x}')
 
 

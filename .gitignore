@@ -137,13 +137,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-#idea
+#stuff
 .idea/
-
-# data
-data/rules.json
-data/values.json
-data/responses.json
-data/cringe.txt
-data/blacklist.txt
-data/exemptchannels.txt
+main.sqlite

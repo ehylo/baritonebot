@@ -1,7 +1,7 @@
 import logging
 from cogs.help import Help
 from discord.ext import commands
-from const import helper_group, mod_group, error_embed, channel_embed
+from const import helper_group, mod_group, error_embed, channel_embed, cur, db
 
 
 class Blacklist(commands.Cog):
@@ -16,27 +16,21 @@ class Blacklist(commands.Cog):
     @blacklist.command(aliases=['l'])
     @commands.check(helper_group)
     async def list(self, ctx):
-        blist = open("./data/blacklist.txt", "r")
-        desc = f'```\n{blist.read()}```'
-        blist.close()
-        await channel_embed(ctx, 'Blacklisted Words', desc)
+        cur.execute('SELECT blacklist_word FROM blacklist')
+        await channel_embed(ctx, 'Blacklisted Words', '```\n'+'\n'.join([item[0] for item in cur.fetchall()])+'```')
     
     @blacklist.command(aliases=['a'])
     @commands.check(mod_group)
     async def add(self, ctx, word=None):
-        f = open("./data/blacklist.txt", "r")
         if word is None:
             await error_embed(ctx, 'You need to give a word to add')
         elif ' ' in word:
             await error_embed(ctx, 'Do not add a space')
         else:
-            if word not in [sub.replace('\n', '') for sub in (f.readlines())]:
-                f = open("./data/blacklist.txt", "a")
-                if (sum(1 for _ in open("./data/blacklist.txt"))) == 0:
-                    f.write(word)
-                else:
-                    f.write(f'\n{word}')
-                f.close()
+            cur.execute(f'SELECT blacklist_word FROM blacklist WHERE blacklist_word = "{word}"')
+            if cur.fetchone() is None:
+                cur.execute(f'INSERT INTO blacklist(blacklist_word) VALUES(?)', (word,))
+                db.commit()
                 await channel_embed(ctx, 'Added', f'The word `{word}` has been added to the blacklist')
                 logging.info(f'{ctx.author.id} added a word to the blacklist')
             else:
@@ -48,33 +42,10 @@ class Blacklist(commands.Cog):
         if word is None:
             await error_embed(ctx, 'You need to give a word to remove')
         else:
-            num_lines = sum(1 for _ in open("./data/blacklist.txt"))
-            tlines = 1
-            f = open("./data/blacklist.txt", "r")
-            lines = f.readlines()
-            res = [sub.replace('\n', '') for sub in lines]
-            if word in res:
-                with open("./data/blacklist.txt", "r") as f:
-                    lines = f.readlines()
-                with open("./data/blacklist.txt", "w") as f:
-                    for line in lines:
-                        tlines += 1
-                        if tlines == num_lines and (line.strip("\n") == word):
-                            with open("./data/blacklist.txt", "r") as d:
-                                llines = d.readlines()
-                            with open("./data/blacklist.txt", "w") as d:
-                                for lline in llines:
-                                    if tlines != num_lines and lline.strip("\n") != word:
-                                        f.write(lline)
-                                    elif tlines == num_lines:
-                                        sline = lline.strip('\n')
-                                        f.write(sline)
-                            d.close()
-                        elif tlines != num_lines and line.strip("\n") != word:
-                            f.write(line)
-                        elif tlines == num_lines:
-                            sline = line.strip('\n')
-                            f.write(sline)
+            cur.execute(f'SELECT blacklist_word FROM blacklist WHERE blacklist_word = "{word}"')
+            if cur.fetchone() is not None:
+                cur.execute('DELETE FROM blacklist WHERE blacklist_word=?', (word,))
+                db.commit()
                 await channel_embed(ctx, 'Removed', f'The word `{word}` has been removed from the blacklist')
                 logging.info(f'{ctx.author.id} removed a word from the blacklist')
             else:
