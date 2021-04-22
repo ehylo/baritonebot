@@ -15,7 +15,7 @@ class Prefix(commands.Cog):
         if fixpre is None:
             await Help.prefix(self, ctx)
         else:
-            cur.execute(f'UPDATE settings SET prefix={fixpre}')
+            cur.execute(f"UPDATE settings SET prefix='{fixpre}'")
             db.commit()
             await channel_embed(ctx, 'Prefix set', f'Set the prefix to {fixpre}, please restart the bot for the changes to take affect')
             logging.info(f'{ctx.author.id} set the prefix to {fixpre}')
@@ -23,7 +23,7 @@ class Prefix(commands.Cog):
     @prefix.command(aliases=['d'])
     @commands.check(admin_group)
     async def default(self, ctx):
-        cur.execute('UPDATE settings SET prefix="b?"')
+        cur.execute("UPDATE settings SET prefix='b?'")
         db.commit()
         await channel_embed(ctx, 'Prefix set', 'Set the prefix to the default (b?), please restart the bot for the changes to take affect')
         logging.info(f'{ctx.author.id} set the prefix to default')
@@ -39,7 +39,7 @@ class EmbedColor(commands.Cog):
         if color is None:
             await Help.embedcolor(self, ctx)
         else:
-            cur.execute(f'UPDATE settings SET embedcolor={color}')
+            cur.execute(f"UPDATE settings SET embedcolor='{color}'")
             db.commit()
             await channel_embed(ctx, 'Embedcolor set', f'Set the embed color to {color}, please restart the bot for the changes to take affect')
             logging.info(f'{ctx.author.id} set the embedcolor to {color}')
@@ -47,7 +47,7 @@ class EmbedColor(commands.Cog):
     @embedcolor.command(aliases=['d'])
     @commands.check(admin_group)
     async def default(self, ctx):
-        cur.execute('UPDATE settings SET embedcolor="81C3FF"')
+        cur.execute("UPDATE settings SET embedcolor='81C3FF'")
         db.commit()
         await channel_embed(ctx, 'Embedcolor set', 'Set the embed color to the default (81C3FF), please restart the bot for the changes to take affect')
         logging.info(f'{ctx.author.id} set the embedcolor to default')
@@ -95,7 +95,7 @@ class Status(commands.Cog):
         if presence is None:
             await Help.status(self, ctx)
         else:
-            cur.execute(f'UPDATE settings SET presence={presence}')
+            cur.execute(f"UPDATE settings SET presence='{presence}'")
             db.commit()
             await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=presence))
             await channel_embed(ctx, 'Presence set', f'Set the presence to `Watching {presence}`.')
@@ -104,7 +104,7 @@ class Status(commands.Cog):
     @status.command(aliases=['d'])
     @commands.check(mod_group)
     async def default(self, ctx):
-        cur.execute('UPDATE settings SET presence="humans interact"')
+        cur.execute("UPDATE settings SET presence='humans interact'")
         db.commit()
         await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name='humans interact'))
         await channel_embed(ctx, 'Presence set', 'Set the presence to the default (`Watching humans interact`).')

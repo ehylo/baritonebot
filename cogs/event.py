@@ -3,8 +3,7 @@ import logging
 import requests
 import re
 import mimetypes
-from bot import pasteToken
-from const import logChannel, log_embed, channel_embed, botID, ignoreRole, baritoneDiscord, error_embed, coolEmbedColor, leaveChannel, dm_embed, voiceRole, helperRole, values, cur
+from const import logChannel, log_embed, channel_embed, botID, ignoreRole, baritoneDiscord, error_embed, coolEmbedColor, leaveChannel, dm_embed, voiceRole, helperRole, values, cur, pasteToken
 from datetime import datetime, timedelta
 from discord.ext import commands
 
@@ -58,14 +57,11 @@ async def att_paste(message):
         if file_type[0] is not None:
             file_type = file_type[0].split('/')[0]
         if message.attachments[0].url.lower().endswith(('.log', '.json5', '.json', '.py', '.sh', '.config', '.properties', '.toml', '.bat', '.cfg')) or file_type == 'text':
-            if pasteToken is None:
-                await error_embed(message.channel, 'There is no paste.ee API token in the .env file so I am unable to upload that file for you')
-            else:
-                text = await discord.Attachment.read(message.attachments[0], use_cached=False)
-                paste_response = requests.post(url='https://api.paste.ee/v1/pastes', json={'sections': [{'name': "Paste from " + str(message.author), 'contents': ("\n".join((text.decode('UTF-8')).splitlines()))}]}, headers={'X-Auth-Token': pasteToken})
-                actual_link = paste_response.json()
-                await channel_embed(message.channel, 'Contents uploaded to paste.ee', (actual_link["link"]))
-                logging.info(f'{message.author.id} uploaded a paste to {(actual_link["link"])}')
+            text = await discord.Attachment.read(message.attachments[0], use_cached=False)
+            paste_response = requests.post(url='https://api.paste.ee/v1/pastes', json={'sections': [{'name': "Paste from " + str(message.author), 'contents': ("\n".join((text.decode('UTF-8')).splitlines()))}]}, headers={'X-Auth-Token': pasteToken})
+            actual_link = paste_response.json()
+            await channel_embed(message.channel, 'Contents uploaded to paste.ee', (actual_link["link"]))
+            logging.info(f'{message.author.id} uploaded a paste to {(actual_link["link"])}')
 
 
 async def gexre(message, b_guild):

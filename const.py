@@ -1,10 +1,16 @@
 import discord
 import logging
 import sys
-import sqlite3
+import os
+import psycopg2
+from dotenv import load_dotenv
 from datetime import datetime
 
-db = sqlite3.connect('main.sqlite')
+load_dotenv()
+DATABASE_URL = os.getenv('DATABASE_URL')
+pasteToken = os.getenv('paste_token')
+
+db = psycopg2.connect(DATABASE_URL, sslmode='require')
 cur = db.cursor()
 cur.execute(f'SELECT * FROM settings')
 values = cur.fetchone()

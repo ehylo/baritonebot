@@ -16,9 +16,9 @@ class Exempt(commands.Cog):
         elif ctx.guild is None:
             await error_embed(ctx, 'You cannot use this command in DMs')
         else:
-            cur.execute(f'SELECT channel_id FROM ex_channels WHERE channel_id = "{ctx.channel.id}"')
+            cur.execute(f"SELECT channel_id FROM ex_channels WHERE channel_id = {ctx.channel.id}")
             if cur.fetchone() is None:
-                cur.execute(f'INSERT INTO ex_channels(channel_id) VALUES(?)', (ctx.channel.id,))
+                cur.execute(f'INSERT INTO ex_channels(channel_id) VALUES(%s)', (ctx.channel.id,))
                 db.commit()
                 self.bot.reload_extension(f'cogs.event')
                 await channel_embed(ctx, 'Exempted', f'The channel {ctx.channel.mention} is now exempted from the blacklist, regex responses, and message logging')
@@ -41,9 +41,9 @@ class Exempt(commands.Cog):
         elif ctx.guild is None:
             await error_embed(ctx, 'You cannot use this command in DMs')
         else:
-            cur.execute(f'SELECT channel_id FROM ex_channels WHERE channel_id = "{ctx.channel.id}"')
+            cur.execute(f"SELECT channel_id FROM ex_channels WHERE channel_id = {ctx.channel.id}")
             if cur.fetchone() is not None:
-                cur.execute('DELETE FROM ex_channels WHERE channel_id=?', (ctx.channel.id,))
+                cur.execute('DELETE FROM ex_channels WHERE channel_id=%s', (ctx.channel.id,))
                 db.commit()
                 self.bot.reload_extension(f'cogs.event')
                 await channel_embed(ctx, 'Un-exempted', f'The channel {ctx.channel.mention} is no longer exempted from the blacklist and regex responses')

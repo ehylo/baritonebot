@@ -55,7 +55,7 @@ class Rule(commands.Cog):
         else:
             cur.execute(f'SELECT rules_number FROM rules WHERE rules_number={anum}')
             if cur.fetchone() is None:
-                cur.execute(f'INSERT INTO rules(rules_number, rules_title, rules_description) VALUES(?,?,?)', (anum, dtitle, ddesc))
+                cur.execute(f'INSERT INTO rules(rules_number, rules_title, rules_description) VALUES(%s, %s, %s)', (anum, dtitle, ddesc))
                 db.commit()
                 await help_embed(ctx, 'New rule:', f'{ctx.author.mention} added rule {anum}', ddesc, dtitle)
                 logging.info(f'{ctx.author.id} added rule with title: {dtitle}')
