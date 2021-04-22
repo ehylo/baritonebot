@@ -1,14 +1,46 @@
-import discord
-import logging
 import requests
 import re
 import mimetypes
-from const import logChannel, log_embed, channel_embed, botID, ignoreRole, baritoneDiscord, error_embed, coolEmbedColor, leaveChannel, dm_embed, voiceRole, helperRole, values, cur, pasteToken
+import asyncio
+from const import *
 from datetime import datetime, timedelta
 from discord.ext import commands
 
 cur.execute('SELECT channel_id FROM ex_channels')
 exempt_channels = [str(item[0]) for item in cur.fetchall()]
+
+
+async def one_min_timer(self):
+    while True:
+        await asyncio.sleep(60)
+        channel = await self.bot.fetch_channel(logChannel)
+        async for message in channel.history():
+            if (message.created_at + timedelta(hours=24)) < datetime.utcnow():
+                await message.delete()
+                logging.info('cleared logs older then 24 hours in the logs channel')
+        cur.execute('SELECT * FROM punish')
+        muted = cur.fetchall()
+        for i in muted:
+            b_guild = self.bot.get_guild(baritoneDiscord)
+            date_muted = datetime(i[4], i[5], i[6], i[7], i[8])
+
+            async def unmute_embeds():
+                dm_channel = await b_guild.get_member(i[0]).create_dm()
+                logging.info(f'{i[0]} was unmuted automatically')
+                await log_embed(None, 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted', channel, b_guild.get_member(i[0]))
+                await dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
+                await b_guild.get_member(i[0]).remove_roles(b_guild.get_role(muteRole))
+                cur.execute(f'DELETE FROM punish WHERE user_id = {i[0]}')
+                db.commit()
+            if i[2].lower() == 'm':
+                if (date_muted + timedelta(minutes=i[1])) <= datetime.utcnow():
+                    await unmute_embeds()
+            elif i[2].lower() == 'h':
+                if (date_muted + timedelta(hours=i[1])) <= datetime.utcnow():
+                    await unmute_embeds()
+            elif i[2].lower() == 'd':
+                if (date_muted + timedelta(days=i[1])) <= datetime.utcnow():
+                    await unmute_embeds()
 
 
 async def del_blacklist(message, b_guild):
@@ -85,6 +117,10 @@ class Event(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
+    async def on_ready(self):
+        await one_min_timer(self)
+
+    @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.author.id != botID and str(message.channel.id) not in exempt_channels:
             channel = await self.bot.fetch_channel(logChannel)
@@ -105,8 +141,8 @@ class Event(commands.Cog):
                     else:
                         jump = f'{message_after.channel.mention}** [(jump)](https://discord.com/channels/{message_after.guild.id}/{message_after.channel.id}/{message_after.id})'
                     em_v = discord.Embed(color=coolEmbedColor, timestamp=datetime.utcnow(), description=f'**Message edited in {jump}')
-                    em_v.add_field(name='Befored Edit:', value=message_before.content, inline=True)
-                    em_v.add_field(name='After Edit:', value=message_after.content, inline=True)
+                    em_v.add_field(name='Befored Edit:', value=message_before.content, inline=False)
+                    em_v.add_field(name='After Edit:', value=message_after.content, inline=False)
                     em_v.set_author(name=message_after.author, icon_url=message_after.author.avatar_url)
                     em_v.set_footer(text=f'\U0001f916 Baritone Bot \U0001f916 ID: {message_after.author.id}')
                     channel = await self.bot.fetch_channel(logChannel)
@@ -145,13 +181,7 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         await del_blacklist(message, b_guild=self.bot.get_guild(baritoneDiscord))
-
-        channel = await self.bot.fetch_channel(logChannel)
-        async for message in channel.history():
-            if (message.created_at + timedelta(hours=24)) < datetime.utcnow():
-                await message.delete()
-                logging.info('cleared logs older then 24 hours in the logs channel')
-        # await self.bot.process_commands(message) ## commenting this out because it didn't work at one point without it but now if enabled it sends 2 messages idfk just leave it why not
+    # await self.bot.process_commands(message) ## commenting this out because it didn't work at one point without it but now if enabled it sends 2 messages idfk just leave it why not
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):

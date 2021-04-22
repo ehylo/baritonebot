@@ -40,7 +40,7 @@ async def computer_rps(ctx, choice_num, choice, image):
         else:
             action = scissors_paper
         title = 'You lost :('
-    await channel_embed(ctx, title,  action, image)
+    await channel_embed(ctx, title, action, image)
 
 
 class Misc(commands.Cog):

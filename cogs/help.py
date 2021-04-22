@@ -23,7 +23,7 @@ class Help(commands.Cog):
             \n\u2022 `embedcolor(ec) <default(d)|[hex color]>` \
             \n\u2022 `prefix(pf) <default(d)|[prefix]>` \
             \n\u2022 `<un>exempt(ex) <help|list(l)>` \
-            \n\u2022 `rule(r) <add(a)|remove(r)> <[title]|[number]> <[description]>` \
+            \n\u2022 `rule(r) <add(a)|remove(r)> <[number]> <[title]> <[description]>` \
             \n*+ all lower commands*'
         await help_embed(ctx, 'Admin', '`help <command>` to get command info or give no arguments if it does not have `<help>`', field_value, 'Commands:')
 
@@ -47,7 +47,7 @@ class Help(commands.Cog):
     @help.command(aliases=['h'])
     async def helper(self, ctx):
         field_value = '\
-            \u2022 `mute(m) <[user]> <[reason]>` \
+            \u2022 `mute(m) <[user]> <[time(d=days, h=hours, m=minutes)]|[reason]> <[reason]>` \
             \n\u2022 `response(rp) <details(d)|list(l)> <[number]>` \
             \n\u2022 `blacklist(bl) <list(l)>` \
             \n\u2022 `cringe(c) <add(a)> <[image url]|[image attachment]>` \
@@ -84,7 +84,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def mute(self, ctx):
-        await help_embed(ctx, 'Mute', 'Mutes the specified member', '`mute(m) <[user]> <[reason]>`')
+        await help_embed(ctx, 'Mute', 'Mutes the specified member indefinitely or for the specified amount of time', '`mute(m) <[user]> <[time(d=days, h=hours, m=minutes)]|[reason]> <[reason]>`')
 
     @help.command()
     async def kick(self, ctx):
@@ -116,7 +116,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def rule(self, ctx):
-        await help_embed(ctx, 'Rules', 'Sends the specified rule, or all of them, or add/remove a rule', '`rule(r)<s> <add(a)|remove(r)|[number]> <[title]|[number]> <[description]>`')
+        await help_embed(ctx, 'Rules', 'Sends the specified rule, or all of them, or add/remove a rule', '`rule(r)<s> <add(a)|remove(r)|[number]> <[number]> <[title]> <[description]>`')
 
     @help.command()
     async def prefix(self, ctx):

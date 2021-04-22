@@ -9,23 +9,21 @@ Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Bari
 ### look more into
 * read [this](https://gist.github.com/InterStella0/b78488fb28cadf279dfd3164b9f0cf96) and see if it's better than current help command
 
+* support gifs in emote command
+
 * find a way to use the GitHub api and stuff to get info about the baritone repo
 ### can probably do
-* Add durations to mute command
-
 * Have a xp/rank system where it either tracks total messages, or you get random amount of xp (like 10-20) per message
 
 * For the flip and rps commands, add db stats and stuff to that
   
-* Add more options to the embed command (field, footer, author, image, etc) will probably require a new function in [const.py](const.py) or just put it in [embed.py](cogs/embed.py), also be able to edit it
+* Add more options to the embed command (field, footer, author, image, etc) also be able to edit it
 
-* Make the "Watching" in the status changeable with commands (don't know where to store this, don't really want to make a new thing in [values](cogs/values.py), might wait for database)
+* Make the "Watching" in the status changeable with commands
 
 * Add a nitro boost event like join/leave instead of discords default
 
-* Add days to clear messages/max or no days to ban command 
-
-* Add gif support/improve the emote command
+* For the ban command add an argument to either clear all/none of the messages or the specified amount of days
 
 * Add a polls command
 
