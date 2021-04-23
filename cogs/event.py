@@ -2,7 +2,6 @@ import requests
 import re
 import mimetypes
 import asyncio
-import discord
 from const import *
 from datetime import datetime, timedelta
 from discord.ext import commands
@@ -14,8 +13,9 @@ exempt_channels = [str(item[0]) for item in cur.fetchall()]
 async def one_min_timer(self):
     while True:
         await asyncio.sleep(60)
-        channel = await self.bot.fetch_channel(modlogChannel)
-        async for message in channel.history():
+        log_channel = await self.bot.fetch_channel(logChannel)
+        modlog_channel = await self.bot.fetch_channel(modlogChannel)
+        async for message in log_channel.history():
             if (message.created_at + timedelta(hours=24)) < datetime.utcnow():
                 await message.delete()
                 logging.info('cleared logs older then 24 hours in the logs channel')
@@ -28,7 +28,7 @@ async def one_min_timer(self):
             async def unmute_embeds():
                 dm_channel = await b_guild.get_member(i[0]).create_dm()
                 logging.info(f'{i[0]} was unmuted automatically')
-                await log_embed(None, 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted', channel, b_guild.get_member(i[0]))
+                await log_embed(None, 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted', modlog_channel, b_guild.get_member(i[0]))
                 await dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
                 await b_guild.get_member(i[0]).remove_roles(b_guild.get_role(muteRole))
                 cur.execute(f'DELETE FROM punish WHERE user_id = {i[0]}')
@@ -47,10 +47,12 @@ async def one_min_timer(self):
 async def del_blacklist(message, b_guild):
     del_message = 0
     if del_message == 0:
-        if (not message.content.startswith(values[0]) and           # don't delete commands
-                message.author.id is not botID and                  # don't delete messages from itself
-                str(message.channel.id) not in exempt_channels and  # don't delete messages in exempted channels
-                message.guild is not None):                         # don't try to delete dm messages
+        if (not message.content.startswith(values[0]) and                     # don't delete commands
+                message.guild is not None and                                 # don't try to delete dm messages
+                message.author.id is not botID and                            # don't delete messages from itself
+                b_guild.get_role(bypassRole) not in message.author.roles and  # don't delete messages from bypassed people
+                b_guild.get_role(devRole) not in message.author.roles and     # don't delete messages from developers
+                str(message.channel.id) not in exempt_channels):              # don't delete messages in exempted channels
             if re.search(r'(https?://)?(www.)?(discord.(gg|io|me|li)|discordapp.com/invite)/[^\s/]+?(?=\b)', message.content) is not None:
                 await message.delete()
                 dchannel = await message.author.create_dm()
@@ -59,25 +61,15 @@ async def del_blacklist(message, b_guild):
             else:
                 cur.execute('SELECT blacklist_word FROM blacklist')
                 blacklist_list = cur.fetchall()
-                for line in [sub.replace('\n', '') for sub in [str(item[0]) for item in blacklist_list]]:
-                    if line in (re.sub(r"[\n]", "", message.content)):
+                for x in range(1, (len(blacklist_list) + 1)):
+                    if re.search(blacklist_list[x - 1][0], message.content) is not None:
                         deleted_word = ''
                         try:
                             await message.delete()
-                            first_deleted_word = line
+                            first_deleted_word = f'{blacklist_list[x - 1][0]}'
                             del_message += 1
                         except discord.NotFound:
-                            deleted_word += f'`, `{line}'
-                if del_message < 1:
-                    for x in range(1, (len(blacklist_list) + 1)):
-                        if re.search(blacklist_list[x - 1][0], message.content) is not None:
-                            deleted_word = ''
-                            try:
-                                await message.delete()
-                                first_deleted_word = f'{blacklist_list[x - 1][0]}'
-                                del_message += 1
-                            except discord.NotFound:
-                                deleted_word += f'`, `{blacklist_list[x - 1][0]}'
+                            deleted_word += f'`, `{blacklist_list[x - 1][0]}'
                 if del_message > 0:
                     try:
                         dchannel = await message.author.create_dm()
