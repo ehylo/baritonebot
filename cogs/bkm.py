@@ -8,9 +8,12 @@ class Bkm(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=['ub'])
-    @commands.check(admin_group)
+    @commands.check(mod_group)
     async def unban(self, ctx, user=None):
-        user_men = str(ctx.message.raw_mentions[0])[1:-1]
+        try:
+            user_men = str(ctx.message.raw_mentions[0])
+        except IndexError:
+            user_men = ''
         b_guild = self.bot.get_guild(baritoneDiscord)
         if user is None:
             await Help.unban(self, ctx)
@@ -27,7 +30,7 @@ class Bkm(commands.Cog):
                 try:
                     user = await self.bot.fetch_user(user)
                     await b_guild.unban(unban_user)
-                    channel = await self.bot.fetch_channel(logChannel)
+                    channel = await self.bot.fetch_channel(modlogChannel)
                     logging.info(f'{ctx.author.id} unbanned {user.id}')
                     await channel_embed(ctx, 'User Unbanned', f'{user.name}#{user.discriminator} has been unbanned!')
                     await log_embed(ctx, 'User Unbanned', f'{user.name}#{user.discriminator} has been unbanned!', channel)
@@ -48,7 +51,7 @@ class Bkm(commands.Cog):
             if b_guild.get_role(muteRole) not in member.roles:
                 await error_embed(ctx, 'That member is not muted')
             else:
-                channel = await self.bot.fetch_channel(logChannel)
+                channel = await self.bot.fetch_channel(modlogChannel)
                 dm_channel = await member.create_dm()
                 logging.info(f'{ctx.author.id} unmuted {member.id}')
                 await channel_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted')
@@ -60,7 +63,7 @@ class Bkm(commands.Cog):
 
     @commands.command(aliases=['b', 'rm'])
     @commands.check(mod_group)
-    async def ban(self, ctx, user: discord.User = None, *, reason=None):
+    async def ban(self, ctx, user: discord.User = None, purge=None, *, reason=None):
         b_guild = self.bot.get_guild(baritoneDiscord)
         member = await b_guild.fetch_member(user.id)
         author_member = await b_guild.fetch_member(ctx.author.id)
@@ -68,16 +71,22 @@ class Bkm(commands.Cog):
             await Help.ban(self, ctx)
         elif member.top_role == author_member.top_role:
             await error_embed(ctx, f'You don\'t outrank {member.mention}')
-        elif reason is None:
+        elif purge is None:
             await error_embed(ctx, 'You need to give a reason')
         else:
-            channel = await self.bot.fetch_channel(logChannel)
-            dm_channel = await member.create_dm()
-            logging.info(f'{ctx.author.id} banned {member.id} for reason: {reason}')
-            await channel_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reason}```')
-            await log_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reason}```', channel)
-            await dm_embed('Banned', f'You have been banned from the baritone discord for reason: \n```{reason}```', dm_channel)
-            await member.ban(reason=reason)
+            async def ban_embeds(reasons):
+                channel = await self.bot.fetch_channel(modlogChannel)
+                dm_channel = await member.create_dm()
+                logging.info(f'{ctx.author.id} banned {member.id} for reason: {reasons}')
+                await channel_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reasons}```')
+                await log_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reasons}```', channel)
+                await dm_embed('Banned', f'You have been banned from the baritone discord for reason: \n```{reasons}```', dm_channel)
+            if purge.lower() == 'purge':
+                await member.ban(reason=reason, delete_message_days=7)
+                await ban_embeds(reason)
+            else:
+                await member.ban(reason=reason)
+                await ban_embeds(f'{purge} {reason}')
 
     @commands.command(aliases=['m'])
     @commands.check(helper_group)
@@ -98,7 +107,7 @@ class Bkm(commands.Cog):
                 await error_embed(ctx, 'That member is already muted')
             else:
                 async def mute_embeds(time_muted):
-                    channel = await self.bot.fetch_channel(logChannel)
+                    channel = await self.bot.fetch_channel(modlogChannel)
                     dm_channel = await member.create_dm()
                     logging.info(f'{ctx.author.id} muted {member.id} {time_muted}, reason: {reason}')
                     await channel_embed(ctx, 'User Muted', f'{member.mention} has been muted {time_muted}, reason: \n```{reason}```')
@@ -137,7 +146,7 @@ class Bkm(commands.Cog):
         elif reason is None:
             await error_embed(ctx, 'You need to give a reason')
         else:
-            channel = await self.bot.fetch_channel(logChannel)
+            channel = await self.bot.fetch_channel(modlogChannel)
             dm_channel = await member.create_dm()
             logging.info(f'{ctx.author.id} kicked {member.id} for reason: {reason}')
             await channel_embed(ctx, 'User Kicked', f'{member.mention} has been kicked for reason: \n```{reason}```')

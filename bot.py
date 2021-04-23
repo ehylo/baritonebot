@@ -27,7 +27,15 @@ logging.info('[STARTUP] loaded all extensions')
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=values[3]))
+    if values[2] == 'Watching':
+        atype = discord.ActivityType.watching
+    elif values[2] == 'Playing':
+        atype = discord.ActivityType.playing
+    elif values[2] == 'Listening to':
+        atype = discord.ActivityType.listening
+    else:
+        atype = discord.ActivityType.competing
+    await bot.change_presence(activity=discord.Activity(type=atype, name=values[3]))
     logging.info('[STARTUP] Successfully started baritoe bot and set the presence and prefix to the default')
 
 bot.run(token)

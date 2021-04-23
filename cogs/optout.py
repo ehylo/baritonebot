@@ -1,7 +1,6 @@
-import logging
 from discord.ext import commands
 from cogs.help import Help
-from const import channel_embed, log_embed, logChannel, dm_embed, baritoneDiscord, values
+from const import *
 
 
 class Optout(commands.Cog):
@@ -14,7 +13,7 @@ class Optout(commands.Cog):
         if arg is None:
             await Help.optout(self, ctx)
         elif arg.lower() == 'I am sure':
-            channel = await self.bot.fetch_channel(logChannel)
+            channel = await self.bot.fetch_channel(modlogChannel)
             dchannel = await ctx.author.create_dm()
             logging.info(f'{ctx.author.id} has been banned for reason: Opted out')
             await dm_embed('Opted out', 'We appreciate you opting out. You have been banned from the server to prevent bypassing our moderation system.', dchannel)

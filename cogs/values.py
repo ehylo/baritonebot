@@ -1,8 +1,6 @@
-import discord
-import logging
 from discord.ext import commands
 from cogs.help import Help
-from const import channel_embed, admin_group, mod_group, baritoneDiscord, cur, db
+from const import *
 
 
 class Prefix(commands.Cog):
@@ -91,20 +89,37 @@ class Status(commands.Cog):
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['s'])
     @commands.check(mod_group)
-    async def status(self, ctx, *, presence=None):
-        if presence is None:
+    async def status(self, ctx, ptype: int = None, *, presence=None):
+        if (ptype is None) or (presence is None):
             await Help.status(self, ctx)
         else:
-            cur.execute(f"UPDATE settings SET presence='{presence}'")
-            db.commit()
-            await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=presence))
-            await channel_embed(ctx, 'Presence set', f'Set the presence to `Watching {presence}`.')
-            logging.info(f'{ctx.author.id} set the status to {presence}')
+            if (ptype <= 0) or (ptype > 4):
+                await error_embed(ctx, 'You need to give a number between 1 and 4 for the presence type, see `help status` for what each is')
+            else:
+                if ptype == 1:
+                    atype = discord.ActivityType.watching
+                    dtype = 'Watching'
+                elif ptype == 2:
+                    atype = discord.ActivityType.playing
+                    dtype = 'Playing'
+                elif ptype == 3:
+                    atype = discord.ActivityType.listening
+                    dtype = 'Listening to'
+                else:
+                    atype = discord.ActivityType.competing
+                    dtype = 'Competing in'
+                cur.execute(f"UPDATE settings SET presence='{presence}'")
+                cur.execute(f"UPDATE settings SET presencetype='{dtype}'")
+                db.commit()
+                await self.bot.change_presence(activity=discord.Activity(type=atype, name=presence))
+                await channel_embed(ctx, 'Presence set', f'Set the presence to `{dtype} {presence}`.')
+                logging.info(f'{ctx.author.id} set the status to {dtype} {presence}')
 
     @status.command(aliases=['d'])
     @commands.check(mod_group)
     async def default(self, ctx):
         cur.execute("UPDATE settings SET presence='humans interact'")
+        cur.execute("UPDATE settings SET presencetype='Watching'")
         db.commit()
         await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name='humans interact'))
         await channel_embed(ctx, 'Presence set', 'Set the presence to the default (`Watching humans interact`).')

@@ -13,7 +13,10 @@ class Clear(commands.Cog):
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['cl', 'pg', 'purge'])
     @commands.check(mod_group)
     async def clear(self, ctx, num=None, num2=None):
-        user_men = str(ctx.message.raw_mentions[0])[1:-1]
+        try:
+            user_men = str(ctx.message.raw_mentions[0])
+        except IndexError:
+            user_men = ''
         if num is None:
             await Help.clear(self, ctx)
         elif ctx.guild is None:

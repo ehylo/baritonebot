@@ -19,12 +19,6 @@ Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Bari
   
 * Add more options to the embed command (field, footer, author, image, etc) also be able to edit it
 
-* Make the "Watching" in the status changeable with commands
-
-* Add a nitro boost event like join/leave instead of discords default
-
-* For the ban command add an argument to either clear all/none of the messages or the specified amount of days
-
 * Add a polls command
 
 * Some sort of lockdown command where you can lock down specific channels or all of them or a specific category

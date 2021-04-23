@@ -31,6 +31,8 @@ releasesRole = 829556104274509875
 voiceRole = 826954171961704458
 leaveChannel = 826950652516106242
 logChannel = 826950652516106245
+dmChannel = 834986986556882994
+modlogChannel = 826950652160114716
 baritoneDiscord = 826950651690745876
 
 logging.basicConfig(filename='console.log', level=logging.INFO, format='[%(asctime)s %(levelname)s] %(message)s', datefmt='%m-%d-%Y %H:%M:%S')

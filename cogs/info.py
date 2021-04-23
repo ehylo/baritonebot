@@ -32,7 +32,10 @@ class Info(commands.Cog):
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ui'])
     async def userinfo(self, ctx, user_id=None):
         b_guild = self.bot.get_guild(baritoneDiscord)
-        user_men = str(ctx.message.raw_mentions[0])[1:-1]
+        try:
+            user_men = str(ctx.message.raw_mentions[0])
+        except IndexError:
+            user_men = ''
         if user_id is None:
             await Help.userinfo(self, ctx)
         else:
@@ -72,7 +75,7 @@ class Info(commands.Cog):
             em_v.add_field(name='Description:', value=b_guild.description, inline=False)
             em_v.add_field(name='Created:', value=b_guild.created_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " "), inline=False)
             em_v.add_field(name='Region:', value=b_guild.region, inline=False)
-            em_v.add_field(name=f'Roles ({len(b_guild.roles)}):', value=(' '.join([str(r.mention) for r in b_guild.roles][1:])+'\u200b'), inline=False)
+            em_v.add_field(name=f'Roles ({len(b_guild.roles)-1}):', value=(' '.join([str(r.mention) for r in b_guild.roles][1:])+'\u200b'), inline=False)
             em_v.add_field(name='Text Channels:', value=str(len(b_guild.text_channels)), inline=True)
             em_v.add_field(name='Voice Channels:', value=str(len(b_guild.voice_channels)), inline=True)
             em_v.add_field(name='Members:', value=b_guild.member_count, inline=True)

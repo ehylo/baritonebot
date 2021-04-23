@@ -78,7 +78,7 @@ async def del_blacklist(message, b_guild):
 
 async def dm_log(message, b_guild):
     if (message.guild is None) and (message.author.id != botID):
-        channel = b_guild.get_channel(logChannel)
+        channel = b_guild.get_channel(dmChannel)
         await log_embed(message, f'I have recieved a DM', message.content, channel, None)
         logging.info(f'{message.author.id} dmed me \"{message.content}\"')
 
@@ -106,7 +106,7 @@ async def gexre(message, b_guild):
                 if (b_guild.get_member(botID) in message.mentions) or (message.content.startswith('!')):  # this is seperate from the elif so there is no trash reaction to delete a pinged/command response, and also the bot won't reply
                     await channel_embed(message.channel, (response_list[x-1][1]), (response_list[x-1][2]))
                     logging.info(f'{message.author.id} manually triggered response number {x}')
-                    # await message.delete() ## might add this, need to ask people first
+                    # await message.delete()  # might add this, need to ask people first
                 elif (b_guild.get_role(ignoreRole) not in member.roles) and (str(message.channel.id) not in exempt_channels):
                     await channel_embed(message, (response_list[x-1][1]), (response_list[x-1][2]), None, 'Reply')
                     logging.info(f'{message.author.id} sent a message and triggered response number {x}')
@@ -118,7 +118,10 @@ class Event(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        await one_min_timer(self)
+        started_loop = 0
+        if started_loop == 0:  # this is to prevent reconnects from messing with the loop
+            await one_min_timer(self)
+            started_loop += 1
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
@@ -181,7 +184,7 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         await del_blacklist(message, b_guild=self.bot.get_guild(baritoneDiscord))
-    # await self.bot.process_commands(message) ## commenting this out because it didn't work at one point without it but now if enabled it sends 2 messages idfk just leave it why not
+    # await self.bot.process_commands(message)  # commenting this out because it didn't work at one point without it but now if enabled it sends 2 messages idfk just leave it why not
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):

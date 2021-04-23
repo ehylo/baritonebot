@@ -30,7 +30,7 @@ class Help(commands.Cog):
     @help.command(aliases=['m'])
     async def mod(self, ctx):
         field_value = '\
-            \u2022 `ban(b|rm) <[user]> <[reason]>` \
+            \u2022 `ban(b|rm) <[user]> <purge|[reason]> <[reason]>` \
             \n\u2022 `response(rp) <add(a)|remove(r)> <[regex]|[number]> <[title]> <[description]>` \
             \n\u2022 `blacklist(bl) <add(a)|remove(r)> <word]>` \
             \n\u2022 `cringe(c) <remove(r)>` \
@@ -38,7 +38,7 @@ class Help(commands.Cog):
             \n\u2022 `clear(cl|pg|purge) <[number]|[user]> <[number]>` \
             \n\u2022 `unmute(um) <[user]>` \
             \n\u2022 `nick(n) <default(d)|remove(r)|[name]>` \
-            \n\u2022 `status(s) <default(d)|[presence]>` \
+            \n\u2022 `status(s) <default(d)|[type(1=\'Watching\', 2=\'Playing\', 3=\'Listening to\', 4=\'Competing in\')]> <[presence]>` \
             \n\u2022 `emote(em) <[name]> <[image attachment]|[image url]>` \
             \n\u2022 `embed(eb) <[channel]|here(h)> <[title]> <[description]>` \
             \n*+ all lower commands*'
@@ -80,7 +80,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def ban(self, ctx):
-        await help_embed(ctx, 'Ban', 'Bans the specified member', '`ban(b|rm) <[user]> <[reason]>`')
+        await help_embed(ctx, 'Ban', 'Bans the specified member, optional `purge` parameter to clear the users past 7 days messages', '`ban(b|rm) <[user]> <purge|[reason]> <[reason]>`')
 
     @help.command()
     async def mute(self, ctx):
@@ -132,7 +132,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def status(self, ctx):
-        await help_embed(ctx, 'Status', 'Allows you to set the bot\'s status', '`status(s) <default(d)|[presence]>`')
+        await help_embed(ctx, 'Status', 'Allows you to set the bot\'s status', '`status(s) <default(d)|[type(1=\'Watching\', 2=\'Playing\', 3=\'Listening to\', 4=\'Competing in\')]> <[presence]>`')
 
     @help.command()
     async def cringe(self, ctx):
