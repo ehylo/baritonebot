@@ -2,6 +2,7 @@ import requests
 import re
 import mimetypes
 import asyncio
+import discord
 from const import *
 from datetime import datetime, timedelta
 from discord.ext import commands
@@ -13,7 +14,7 @@ exempt_channels = [str(item[0]) for item in cur.fetchall()]
 async def one_min_timer(self):
     while True:
         await asyncio.sleep(60)
-        channel = await self.bot.fetch_channel(logChannel)
+        channel = await self.bot.fetch_channel(modlogChannel)
         async for message in channel.history():
             if (message.created_at + timedelta(hours=24)) < datetime.utcnow():
                 await message.delete()
@@ -57,7 +58,8 @@ async def del_blacklist(message, b_guild):
                 logging.info(f'{message.author.id} tried to send an invite link but it was deleted')
             else:
                 cur.execute('SELECT blacklist_word FROM blacklist')
-                for line in [sub.replace('\n', '') for sub in [str(item[0]) for item in cur.fetchall()]]:
+                blacklist_list = cur.fetchall()
+                for line in [sub.replace('\n', '') for sub in [str(item[0]) for item in blacklist_list]]:
                     if line in (re.sub(r"[\n]", "", message.content)):
                         deleted_word = ''
                         try:
@@ -66,9 +68,22 @@ async def del_blacklist(message, b_guild):
                             del_message += 1
                         except discord.NotFound:
                             deleted_word += f'`, `{line}'
+                if del_message < 1:
+                    for x in range(1, (len(blacklist_list) + 1)):
+                        if re.search(blacklist_list[x - 1][0], message.content) is not None:
+                            deleted_word = ''
+                            try:
+                                await message.delete()
+                                first_deleted_word = f'{blacklist_list[x - 1][0]}'
+                                del_message += 1
+                            except discord.NotFound:
+                                deleted_word += f'`, `{blacklist_list[x - 1][0]}'
                 if del_message > 0:
-                    dchannel = await message.author.create_dm()
-                    await dm_embed('Message Deleted', f'Your message in {message.channel.mention} was deleted because `{first_deleted_word}{deleted_word}` is blacklisted', dchannel)
+                    try:
+                        dchannel = await message.author.create_dm()
+                        await dm_embed('Message Deleted', f'Your message in {message.channel.mention} was deleted because `{first_deleted_word}{deleted_word}` is blacklisted', dchannel)
+                    except discord.Forbidden:
+                        pass
                     logging.info(f'{message.author.id} sent a message but it was deleted because it has a word on the blacklist')
     if del_message == 0:
         await att_paste(message)
@@ -212,10 +227,10 @@ class Event(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        if isinstance(error, commands.BadArgument):
-            await error_embed(ctx, 'You need to give a **number**')
-        elif isinstance(error, commands.errors.MemberNotFound):
+        if isinstance(error, commands.errors.UserNotFound):
             await error_embed(ctx, 'That member is invalid')
+        elif isinstance(error, commands.BadArgument):
+            await error_embed(ctx, 'You need to give a **number**')
         elif isinstance(error, commands.errors.CommandNotFound):
             await error_embed(ctx, f'The command `{ctx.message.content}` was not found, do `help` to see command categories')
         elif not isinstance(error, commands.errors.CheckFailure):

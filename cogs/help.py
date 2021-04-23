@@ -19,7 +19,6 @@ class Help(commands.Cog):
     async def admin(self, ctx):
         field_value = '\
             \u2022 `extension(ext) <reload(r)|unload(u)|load(ld)|list(l)> <[extension]|all>` \
-            \n\u2022 `unban(ub) <[user]>` \
             \n\u2022 `embedcolor(ec) <default(d)|[hex color]>` \
             \n\u2022 `prefix(pf) <default(d)|[prefix]>` \
             \n\u2022 `<un>exempt(ex) <help|list(l)>` \
@@ -31,6 +30,7 @@ class Help(commands.Cog):
     async def mod(self, ctx):
         field_value = '\
             \u2022 `ban(b|rm) <[user]> <purge|[reason]> <[reason]>` \
+            \n\u2022 `unban(ub) <[user]>` \
             \n\u2022 `response(rp) <add(a)|remove(r)> <[regex]|[number]> <[title]> <[description]>` \
             \n\u2022 `blacklist(bl) <add(a)|remove(r)> <word]>` \
             \n\u2022 `cringe(c) <remove(r)>` \
