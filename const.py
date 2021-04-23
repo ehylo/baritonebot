@@ -20,20 +20,20 @@ timeDate = datetime.utcnow()
 coolEmbedColor = int(values[1], 16)
 
 botID = 823620099054239744  # not adding these to values.json that way its easier to add more later on
-helperRole = 826950651698610200  # currently set to my test server aswell, will need to change when bot gets added
-devRole = 826950651711979530
-bypassRole = 826950651711979531
-moderatorRole = 826950651698610201
-adminRole = 826950651698610204
-ignoreRole = 826954212059381810
-muteRole = 826950651690745885
-releasesRole = 829556104274509875
-voiceRole = 826954171961704458
-leaveChannel = 826950652516106242
-logChannel = 826950652516106245
-dmChannel = 834986986556882994
-modlogChannel = 826950652160114716
-baritoneDiscord = 826950651690745876
+helperRole = 822012171785338900
+devRole = 822012309698379807
+bypassRole = 822012884841791489
+moderatorRole = 822012512723009536
+adminRole = 822011290502823950
+ignoreRole = 835028767620857907
+muteRole = 822028372242333696
+releasesRole = 834720502551543850
+voiceRole = 835028715901419550
+leaveChannel = 822014611884081212
+logChannel = 822017074125078528
+dmChannel = 835198939652554802
+modlogChannel = 822178586487422996
+baritoneDiscord = 822011099561197579
 
 logging.basicConfig(filename='console.log', level=logging.INFO, format='[%(asctime)s %(levelname)s] %(message)s', datefmt='%m-%d-%Y %H:%M:%S')
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))

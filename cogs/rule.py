@@ -1,8 +1,6 @@
-import discord
-import logging
 from cogs.help import Help
 from discord.ext import commands
-from const import channel_embed, error_embed, fault_footer, coolEmbedColor, timeDate, admin_group, help_embed, cur, db
+from const import *
 
 
 class Rule(commands.Cog):
@@ -63,6 +61,7 @@ class Rule(commands.Cog):
                 await error_embed(ctx, 'That rule already exists')
 
     @commands.command()
+    @commands.check(helper_group)
     async def rules(self, ctx):
         em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title='Rules')
         em_v.set_footer(text=fault_footer)
