@@ -16,7 +16,6 @@ cur.execute(f'SELECT * FROM settings')
 values = cur.fetchone()
 
 fault_footer = u'\U0001f916' 'Baritone Bot' u'\U0001f916'
-timeDate = datetime.utcnow()
 coolEmbedColor = int(values[1], 16)
 
 botID = 823620099054239744  # not adding these to values.json that way its easier to add more later on
@@ -76,7 +75,7 @@ async def helper_group(ctx):
 
 
 async def error_embed(ctx, desc=None, error=None):
-    em_v = discord.Embed(color=16711680, timestamp=timeDate, title='Error')
+    em_v = discord.Embed(color=16711680, timestamp=datetime.utcnow(), title='Error')
     if desc is None:
         desc = f'An unhandled error occured (probably bad): \n```{error}```'
     em_v.description = desc
@@ -87,7 +86,7 @@ async def error_embed(ctx, desc=None, error=None):
 async def log_embed(ctx=None, title=None, desc=None, channel=None, member=None):
     if title is None:
         title = ''
-    em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title=title)
+    em_v = discord.Embed(color=coolEmbedColor, timestamp=datetime.utcnow(), title=title)
     em_v.description = desc
     if member is None:
         em_v.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
@@ -99,7 +98,7 @@ async def log_embed(ctx=None, title=None, desc=None, channel=None, member=None):
 
 
 async def channel_embed(ctx, title=None, desc=None, thumbnail=None, replyorsend=None):
-    em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title=title)
+    em_v = discord.Embed(color=coolEmbedColor, timestamp=datetime.utcnow(), title=title)
     if desc is not None:
         em_v.description = desc
     em_v.set_footer(text=fault_footer)
@@ -113,7 +112,7 @@ async def channel_embed(ctx, title=None, desc=None, thumbnail=None, replyorsend=
 
 
 async def help_embed(ctx, title, desc=None, field_value=None, field_name=None, image=None):
-    em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title=title, description=desc)
+    em_v = discord.Embed(color=coolEmbedColor, timestamp=datetime.utcnow(), title=title, description=desc)
     if image is not None:
         em_v.set_image(url=image)
     if field_name is None:
@@ -124,6 +123,6 @@ async def help_embed(ctx, title, desc=None, field_value=None, field_name=None, i
 
 
 async def dm_embed(dtitle, ddesc, dchannel):
-    em_v = discord.Embed(color=coolEmbedColor, timestamp=timeDate, title=dtitle, description=ddesc)
+    em_v = discord.Embed(color=coolEmbedColor, timestamp=datetime.utcnow(), title=dtitle, description=ddesc)
     em_v.set_footer(text=fault_footer)
     await dchannel.send(embed=em_v)
