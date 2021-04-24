@@ -16,15 +16,15 @@ async def one_min_timer(self):
     if ran_once_yes is False:
         ran_once_yes = True
         while True:
-            await asyncio.sleep(60)
+            await asyncio.sleep(30)
             log_channel = await self.bot.fetch_channel(logChannel)
-            modlog_channel = await self.bot.fetch_channel(modlogChannel)
-            async for message in log_channel.history():
+            async for message in log_channel.history(limit=1000):
                 if (message.created_at + timedelta(hours=24)) < datetime.utcnow():
                     await message.delete()
                     logging.info('cleared logs older then 24 hours in the logs channel')
             cur.execute('SELECT * FROM punish')
             muted = cur.fetchall()
+            modlog_channel = await self.bot.fetch_channel(modlogChannel)
             for i in muted:
                 b_guild = self.bot.get_guild(baritoneDiscord)
                 date_muted = datetime(i[4], i[5], i[6], i[7], i[8])
@@ -126,6 +126,10 @@ class Event(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
+    async def on_ready(self):
+        await one_min_timer(self)
+
+    @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.author.id != botID and str(message.channel.id) not in exempt_channels:
             channel = await self.bot.fetch_channel(logChannel)
@@ -186,7 +190,6 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         await del_blacklist(message, b_guild=self.bot.get_guild(baritoneDiscord))
-        await one_min_timer(self)
     # await self.bot.process_commands(message)  # commenting this out because it didn't work at one point without it but now if enabled it sends 2 messages idfk just leave it why not
 
     @commands.Cog.listener()
