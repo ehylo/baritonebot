@@ -8,40 +8,44 @@ from discord.ext import commands
 
 cur.execute('SELECT channel_id FROM ex_channels')
 exempt_channels = [str(item[0]) for item in cur.fetchall()]
+ran_once_yes = False
 
 
 async def one_min_timer(self):
-    while True:
-        await asyncio.sleep(60)
-        log_channel = await self.bot.fetch_channel(logChannel)
-        modlog_channel = await self.bot.fetch_channel(modlogChannel)
-        async for message in log_channel.history():
-            if (message.created_at + timedelta(hours=24)) < datetime.utcnow():
-                await message.delete()
-                logging.info('cleared logs older then 24 hours in the logs channel')
-        cur.execute('SELECT * FROM punish')
-        muted = cur.fetchall()
-        for i in muted:
-            b_guild = self.bot.get_guild(baritoneDiscord)
-            date_muted = datetime(i[4], i[5], i[6], i[7], i[8])
+    global ran_once_yes
+    if ran_once_yes is False:
+        ran_once_yes = True
+        while True:
+            await asyncio.sleep(60)
+            log_channel = await self.bot.fetch_channel(logChannel)
+            modlog_channel = await self.bot.fetch_channel(modlogChannel)
+            async for message in log_channel.history():
+                if (message.created_at + timedelta(hours=24)) < datetime.utcnow():
+                    await message.delete()
+                    logging.info('cleared logs older then 24 hours in the logs channel')
+            cur.execute('SELECT * FROM punish')
+            muted = cur.fetchall()
+            for i in muted:
+                b_guild = self.bot.get_guild(baritoneDiscord)
+                date_muted = datetime(i[4], i[5], i[6], i[7], i[8])
 
-            async def unmute_embeds():
-                dm_channel = await b_guild.get_member(i[0]).create_dm()
-                logging.info(f'{i[0]} was unmuted automatically')
-                await log_embed(None, 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted', modlog_channel, b_guild.get_member(i[0]))
-                await dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
-                await b_guild.get_member(i[0]).remove_roles(b_guild.get_role(muteRole))
-                cur.execute(f'DELETE FROM punish WHERE user_id = {i[0]}')
-                db.commit()
-            if i[2].lower() == 'm':
-                if (date_muted + timedelta(minutes=i[1])) <= datetime.utcnow():
-                    await unmute_embeds()
-            elif i[2].lower() == 'h':
-                if (date_muted + timedelta(hours=i[1])) <= datetime.utcnow():
-                    await unmute_embeds()
-            elif i[2].lower() == 'd':
-                if (date_muted + timedelta(days=i[1])) <= datetime.utcnow():
-                    await unmute_embeds()
+                async def unmute_embeds():
+                    dm_channel = await b_guild.get_member(i[0]).create_dm()
+                    logging.info(f'{i[0]} was unmuted automatically')
+                    await log_embed(None, 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted', modlog_channel, b_guild.get_member(i[0]))
+                    await dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
+                    await b_guild.get_member(i[0]).remove_roles(b_guild.get_role(muteRole))
+                    cur.execute(f'DELETE FROM punish WHERE user_id = {i[0]}')
+                    db.commit()
+                if i[2].lower() == 'm':
+                    if (date_muted + timedelta(minutes=i[1])) <= datetime.utcnow():
+                        await unmute_embeds()
+                elif i[2].lower() == 'h':
+                    if (date_muted + timedelta(hours=i[1])) <= datetime.utcnow():
+                        await unmute_embeds()
+                elif i[2].lower() == 'd':
+                    if (date_muted + timedelta(days=i[1])) <= datetime.utcnow():
+                        await unmute_embeds()
 
 
 async def del_blacklist(message, b_guild):
@@ -50,8 +54,6 @@ async def del_blacklist(message, b_guild):
         if (not message.content.startswith(values[0]) and                     # don't delete commands
                 message.guild is not None and                                 # don't try to delete dm messages
                 message.author.id is not botID and                            # don't delete messages from itself
-                b_guild.get_role(bypassRole) not in message.author.roles and  # don't delete messages from bypassed people
-                b_guild.get_role(devRole) not in message.author.roles and     # don't delete messages from developers
                 str(message.channel.id) not in exempt_channels):              # don't delete messages in exempted channels
             if re.search(r'(https?://)?(www.)?(discord.(gg|io|me|li)|discordapp.com/invite)/[^\s/]+?(?=\b)', message.content) is not None:
                 await message.delete()
@@ -124,13 +126,6 @@ class Event(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_ready(self):
-        started_loop = 0
-        if started_loop == 0:  # this is to prevent reconnects from messing with the loop
-            await one_min_timer(self)
-            started_loop += 1
-
-    @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.author.id != botID and str(message.channel.id) not in exempt_channels:
             channel = await self.bot.fetch_channel(logChannel)
@@ -191,6 +186,7 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         await del_blacklist(message, b_guild=self.bot.get_guild(baritoneDiscord))
+        await one_min_timer(self)
     # await self.bot.process_commands(message)  # commenting this out because it didn't work at one point without it but now if enabled it sends 2 messages idfk just leave it why not
 
     @commands.Cog.listener()
