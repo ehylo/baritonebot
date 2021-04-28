@@ -16,7 +16,7 @@ cur.execute('SELECT * FROM settings')
 values = cur.fetchone()
 db.close()
 
-bot = commands.Bot(command_prefix=values[0], intents=discord.Intents.all())
+bot = commands.Bot(command_prefix=(values[0], values[0].upper()), case_insensitive=True, intents=discord.Intents.all())
 bot.remove_command('help')
 
 for filename in os.listdir('./cogs'):
