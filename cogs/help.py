@@ -14,7 +14,7 @@ class Help(commands.Cog):
             \n\u2022 `help helper` - Helper commands \
             \n\u2022 `help everyone` - Commands available to everyone'
         await channel_embed(ctx, 'List of help categories:', desc)
-        
+
     @help.command(aliases=['a'])
     async def admin(self, ctx):
         field_value = '\

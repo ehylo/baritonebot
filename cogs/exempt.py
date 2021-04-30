@@ -45,7 +45,7 @@ class Exempt(commands.Cog):
             if cur.fetchone() is not None:
                 cur.execute('DELETE FROM ex_channels WHERE channel_id=%s', (ctx.channel.id,))
                 db.commit()
-                self.bot.reload_extension(f'cogs.event')
+                self.bot.reload_extension('cogs.event')
                 await channel_embed(ctx, 'Un-exempted', f'The channel {ctx.channel.mention} is no longer exempted from the blacklist and regex responses')
                 logging.info(f'{ctx.author.id} removed a channel ({ctx.channel.id}) from the exemptchannels')
             else:

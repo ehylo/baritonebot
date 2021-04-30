@@ -50,13 +50,13 @@ async def perms_check(ctx, required_role):
             if ctx.bot.get_guild(baritoneDiscord).get_role(x) in ctx.bot.get_guild(baritoneDiscord).get_member(ctx.author.id).roles:
                 return True
         else:
-            await error_embed(ctx, f'You need to be an Moderator to use the command `{ctx.command}`')
+            await error_embed(ctx, f'You need to be a Moderator to use the command `{ctx.command}`')
     if required_role == 'helper':
         for x in [helperRole, moderatorRole, adminRole, devRole, bypassRole]:
             if ctx.bot.get_guild(baritoneDiscord).get_role(x) in ctx.bot.get_guild(baritoneDiscord).get_member(ctx.author.id).roles:
                 return True
         else:
-            await error_embed(ctx, f'You need to be an Helper to use the command `{ctx.command}`')
+            await error_embed(ctx, f'You need to be a Helper to use the command `{ctx.command}`')
 
 
 async def admin_group(ctx):

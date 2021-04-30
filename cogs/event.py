@@ -90,7 +90,7 @@ async def del_blacklist(message, b_guild):
 async def dm_log(message, b_guild):
     if (message.guild is None) and (message.author.id != const.botID):
         channel = b_guild.get_channel(const.dmChannel)
-        await const.log_embed(message, f'I have recieved a DM', message.content, channel, None)
+        await const.log_embed(message, 'I have recieved a DM', message.content, channel, None)
         logging.info(f'{message.author.id} dmed me \"{message.content}\"')
 
 

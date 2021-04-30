@@ -18,7 +18,7 @@ class Blacklist(commands.Cog):
     async def list(self, ctx):
         cur.execute('SELECT blacklist_word FROM blacklist')
         await channel_embed(ctx, 'Blacklisted Words', '```\n'+'\n'.join([item[0] for item in cur.fetchall()])+'```')
-    
+
     @blacklist.command(aliases=['a'])
     @commands.check(mod_group)
     async def add(self, ctx, word=None):

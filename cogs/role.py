@@ -21,7 +21,7 @@ class Role(commands.Cog):
                 await error_embed(ctx, 'You already have the Ignored role!')
             else:
                 await member_check.add_roles(b_role)
-                await channel_embed(ctx, f'Ignored role obtained', 'Your messages will not trigger the response regexes unless you ping me')
+                await channel_embed(ctx, 'Ignored role obtained', 'Your messages will not trigger the response regexes unless you ping me')
                 logging.info(f'{ctx.author.id} gave themselfs ignore role')
 
     @commands.command()
@@ -36,7 +36,7 @@ class Role(commands.Cog):
                 await error_embed(ctx, 'You don\'t have the Ignored role!')
             else:
                 await member_check.remove_roles(b_role)
-                await channel_embed(ctx, f'Ignored role removed', 'Your messages will now trigger the response regexes.')
+                await channel_embed(ctx, 'Ignored role removed', 'Your messages will now trigger the response regexes.')
                 logging.info(f'{ctx.author.id} removed ignore role')
 
     @commands.command()
