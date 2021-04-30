@@ -1,6 +1,9 @@
+import discord
+import logging
+import const
+from datetime import datetime
 from cogs.help import Help
 from discord.ext import commands
-from const import *
 
 
 class Bkm(commands.Cog):
@@ -8,13 +11,13 @@ class Bkm(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=['ub'])
-    @commands.check(mod_group)
+    @commands.check(const.mod_group)
     async def unban(self, ctx, user=None):
         try:
             user_men = str(ctx.message.raw_mentions[0])
         except IndexError:
             user_men = ''
-        b_guild = self.bot.get_guild(baritoneDiscord)
+        b_guild = self.bot.get_guild(const.baritoneDiscord)
         if user is None:
             await Help.unban(self, ctx)
         else:
@@ -25,68 +28,68 @@ class Bkm(commands.Cog):
             else:
                 unban_user = None
             if unban_user is None:
-                await error_embed(ctx, 'The user you gave is invalid')
+                await const.error_embed(ctx, 'The user you gave is invalid')
             else:
                 try:
                     user = await self.bot.fetch_user(user)
                     await b_guild.unban(unban_user)
-                    channel = await self.bot.fetch_channel(modlogChannel)
+                    channel = await self.bot.fetch_channel(const.modlogChannel)
                     logging.info(f'{ctx.author.id} unbanned {user.id}')
-                    await channel_embed(ctx, 'User Unbanned', f'{user.name}#{user.discriminator} has been unbanned!')
-                    await log_embed(ctx, 'User Unbanned', f'{user.name}#{user.discriminator} has been unbanned!', channel)
+                    await const.channel_embed(ctx, 'User Unbanned', f'{user.name}#{user.discriminator} has been unbanned!')
+                    await const.log_embed(ctx, 'User Unbanned', f'{user.name}#{user.discriminator} has been unbanned!', channel)
                 except discord.NotFound:
-                    await error_embed(ctx, 'That user is not banned')
+                    await const.error_embed(ctx, 'That user is not banned')
 
     @commands.command(aliases=['um'])
-    @commands.check(mod_group)
+    @commands.check(const.mod_group)
     async def unmute(self, ctx, user: discord.User = None):
-        b_guild = self.bot.get_guild(baritoneDiscord)
+        b_guild = self.bot.get_guild(const.baritoneDiscord)
         member = await b_guild.fetch_member(user.id)
         author_member = await b_guild.fetch_member(ctx.author.id)
         if member is None:
             await Help.unmute(self, ctx)
         elif member.top_role == author_member.top_role:
-            await error_embed(ctx, f'You don\'t outrank {member.mention}')
+            await const.error_embed(ctx, f'You don\'t outrank {member.mention}')
         else:
-            if b_guild.get_role(muteRole) not in member.roles:
-                await error_embed(ctx, 'That member is not muted')
+            if b_guild.get_role(const.muteRole) not in member.roles:
+                await const.error_embed(ctx, 'That member is not muted')
             else:
                 try:
                     dm_channel = await member.create_dm()
-                    await dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
+                    await const.dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
                 except discord.Forbidden:
                     pass
-                channel = await self.bot.fetch_channel(modlogChannel)
+                channel = await self.bot.fetch_channel(const.modlogChannel)
                 logging.info(f'{ctx.author.id} unmuted {member.id}')
-                await channel_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted')
-                await log_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted', channel)
-                await member.remove_roles(b_guild.get_role(muteRole))
-                cur.execute(f'DELETE FROM punish WHERE user_id = {user.id}')
-                db.commit()
+                await const.channel_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted')
+                await const.log_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted', channel)
+                await member.remove_roles(b_guild.get_role(const.muteRole))
+                const.cur.execute('DELETE FROM punish WHERE user_id=%s', (user.id,))
+                const.db.commit()
 
     @commands.command(aliases=['b', 'rm'])
-    @commands.check(mod_group)
+    @commands.check(const.mod_group)
     async def ban(self, ctx, user: discord.User = None, purge=None, *, reason=None):
-        b_guild = self.bot.get_guild(baritoneDiscord)
+        b_guild = self.bot.get_guild(const.baritoneDiscord)
         member = await b_guild.fetch_member(user.id)
         author_member = await b_guild.fetch_member(ctx.author.id)
         if member is None:
             await Help.ban(self, ctx)
         elif member.top_role == author_member.top_role:
-            await error_embed(ctx, f'You don\'t outrank {member.mention}')
+            await const.error_embed(ctx, f'You don\'t outrank {member.mention}')
         elif purge is None:
-            await error_embed(ctx, 'You need to give a reason')
+            await const.error_embed(ctx, 'You need to give a reason')
         else:
             async def ban_embeds(reasons):
                 try:
                     dm_channel = await member.create_dm()
-                    await dm_embed('Banned', f'You have been banned from the baritone discord for reason: \n```{reasons}```', dm_channel)
+                    await const.dm_embed('Banned', f'You have been banned from the baritone discord for reason: \n```{reasons}```', dm_channel)
                 except discord.Forbidden:
                     pass
-                channel = await self.bot.fetch_channel(modlogChannel)
+                channel = await self.bot.fetch_channel(const.modlogChannel)
                 logging.info(f'{ctx.author.id} banned {member.id} for reason: {reasons}')
-                await channel_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reasons}```')
-                await log_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reasons}```', channel)
+                await const.channel_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reasons}```')
+                await const.log_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reasons}```', channel)
             if purge.lower() == 'purge':
                 await ban_embeds(reason)
                 await member.ban(reason=reason, delete_message_days=7)
@@ -95,75 +98,77 @@ class Bkm(commands.Cog):
                 await member.ban(reason=reason, delete_message_days=0)
 
     @commands.command(aliases=['m'])
-    @commands.check(helper_group)
+    @commands.check(const.helper_group)
     async def mute(self, ctx, user: discord.User = None, time=None, *, reason=None):
-        b_guild = self.bot.get_guild(baritoneDiscord)
+        b_guild = self.bot.get_guild(const.baritoneDiscord)
         member = await b_guild.fetch_member(user.id)
         author_member = await b_guild.fetch_member(ctx.author.id)
         if member is None:
             await Help.mute(self, ctx)
         elif member.top_role == author_member.top_role:
-            await error_embed(ctx, f'You don\'t outrank {member.mention}')
+            await const.error_embed(ctx, f'You don\'t outrank {member.mention}')
         elif time is None:
-            await error_embed(ctx, 'You need to give a reason or amount of time to mute')
+            await const.error_embed(ctx, 'You need to give a reason or amount of time to mute')
         elif reason is None:
-            await error_embed(ctx, 'You need to give a reason')
+            await const.error_embed(ctx, 'You need to give a reason')
         else:
-            if b_guild.get_role(muteRole) in member.roles:
-                await error_embed(ctx, 'That member is already muted')
+            if b_guild.get_role(const.muteRole) in member.roles:
+                await const.error_embed(ctx, 'That member is already muted')
             else:
                 async def mute_embeds(time_muted):
                     try:
                         dm_channel = await member.create_dm()
-                        await dm_embed('Muted', f'You have been muted in the baritone discord {time_muted}, reason: \n```{reason}```', dm_channel)
+                        await const.dm_embed('Muted', f'You have been muted in the baritone discord {time_muted}, reason: \n```{reason}```', dm_channel)
                     except discord.Forbidden:
                         pass
-                    channel = await self.bot.fetch_channel(modlogChannel)
+                    channel = await self.bot.fetch_channel(const.modlogChannel)
                     logging.info(f'{ctx.author.id} muted {member.id} {time_muted}, reason: {reason}')
-                    await channel_embed(ctx, 'User Muted', f'{member.mention} has been muted {time_muted}, reason: \n```{reason}```')
-                    await log_embed(ctx, 'User Muted', f'{member.mention} has been muted {time_muted}, reason: \n```{reason}```', channel)
-                    await member.add_roles(b_guild.get_role(muteRole))
+                    await const.channel_embed(ctx, 'User Muted', f'{member.mention} has been muted {time_muted}, reason: \n```{reason}```')
+                    await const.log_embed(ctx, 'User Muted', f'{member.mention} has been muted {time_muted}, reason: \n```{reason}```', channel)
+                    await member.add_roles(b_guild.get_role(const.muteRole))
                 x = datetime.utcnow()
                 if time[0].isdigit():
                     multiply = ''.join(i for i in time if not i.isdigit())
                     amount = ''.join(i for i in time if i.isdigit())
                     if len(multiply) > 1:
-                        await error_embed(ctx, 'Only use \'m\'(minutes), \'h\'(hours), or \'d\'(days).')
+                        await const.error_embed(ctx, 'Only use \'m\'(minutes), \'h\'(hours), or \'d\'(days).')
                     else:
-                        cur.execute(f'INSERT INTO punish(user_id, amount_time, what_time, against, year, month, day, hour, minute) '
-                                    f'VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                                    (user.id, amount, multiply, 'muted', x.year, x.month, x.day, x.hour, x.minute))
-                        db.commit()
+                        const.cur.execute(
+                            "INSERT INTO punish(user_id, amount_time, what_time, against, year, month, day, hour, minute) "
+                            "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                            (user.id, amount, multiply, 'muted', x.year, x.month, x.day, x.hour, x.minute))
+                        const.db.commit()
                         await mute_embeds(f'for {time}')
                 else:
-                    cur.execute(f'INSERT INTO punish(user_id, amount_time, what_time, against, year, month, day, hour, minute) '
-                                f'VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                                (user.id, '0', 'f', 'muted', x.year, x.month, x.day, x.hour, x.minute))
-                    db.commit()
+                    const.cur.execute(
+                        "INSERT INTO punish (user_id, amount_time, what_time, against, year, month, day, hour, minute)"
+                        "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                        (user.id, '0', 'f', 'muted', x.year, x.month, x.day, x.hour, x.minute))
+                    const.db.commit()
                     await mute_embeds('indefinitely')
 
     @commands.command(aliases=['k'])
-    @commands.check(mod_group)
+    @commands.check(const.mod_group)
     async def kick(self, ctx, user: discord.User = None, *, reason=None):
-        b_guild = self.bot.get_guild(baritoneDiscord)
+        b_guild = self.bot.get_guild(const.baritoneDiscord)
         member = await b_guild.fetch_member(user.id)
         author_member = await b_guild.fetch_member(ctx.author.id)
         if member is None:
             await Help.kick(self, ctx)
         elif member.top_role == author_member.top_role:
-            await error_embed(ctx, f'You don\'t outrank {member.mention}')
+            await const.error_embed(ctx, f'You don\'t outrank {member.mention}')
         elif reason is None:
-            await error_embed(ctx, 'You need to give a reason')
+            await const.error_embed(ctx, 'You need to give a reason')
         else:
             try:
                 dm_channel = await member.create_dm()
-                await dm_embed('Kicked', f'You have been kicked from the baritone discord for reason: \n```{reason}```', dm_channel)
+                await const.dm_embed('Kicked', f'You have been kicked from the baritone discord for reason: \n```{reason}```', dm_channel)
             except discord.Forbidden:
                 pass
-            channel = await self.bot.fetch_channel(modlogChannel)
+            channel = await self.bot.fetch_channel(const.modlogChannel)
             logging.info(f'{ctx.author.id} kicked {member.id} for reason: {reason}')
-            await channel_embed(ctx, 'User Kicked', f'{member.mention} has been kicked for reason: \n```{reason}```')
-            await log_embed(ctx, 'User Kicked', f'{member.mention} has been kicked for reason: \n```{reason}```', channel)
+            await const.channel_embed(ctx, 'User Kicked', f'{member.mention} has been kicked for reason: \n```{reason}```')
+            await const.log_embed(ctx, 'User Kicked', f'{member.mention} has been kicked for reason: \n```{reason}```', channel)
             await member.kick(reason=reason)
 
 

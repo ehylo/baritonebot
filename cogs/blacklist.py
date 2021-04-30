@@ -27,9 +27,9 @@ class Blacklist(commands.Cog):
         elif ' ' in word:
             await error_embed(ctx, 'Do not add a space')
         else:
-            cur.execute(f"SELECT blacklist_word FROM blacklist WHERE blacklist_word='{word}'")
+            cur.execute('SELECT blacklist_word FROM blacklist WHERE blacklist_word=%s', (word,))
             if cur.fetchone() is None:
-                cur.execute(f'INSERT INTO blacklist(blacklist_word) VALUES(%s)', (word,))
+                cur.execute('INSERT INTO blacklist(blacklist_word) VALUES(%s)', (word,))
                 db.commit()
                 await channel_embed(ctx, 'Added', f'The word `{word}` has been added to the blacklist')
                 logging.info(f'{ctx.author.id} added a word to the blacklist')
@@ -42,7 +42,7 @@ class Blacklist(commands.Cog):
         if word is None:
             await error_embed(ctx, 'You need to give a word to remove')
         else:
-            cur.execute(f"SELECT blacklist_word FROM blacklist WHERE blacklist_word = '{word}'")
+            cur.execute('SELECT blacklist_word FROM blacklist WHERE blacklist_word=%s', (word,))
             if cur.fetchone() is not None:
                 cur.execute('DELETE FROM blacklist WHERE blacklist_word=%s', (word,))
                 db.commit()

@@ -27,7 +27,7 @@ class Cringe(commands.Cog):
         if url is None:
             await error_embed(ctx, 'You need to give a url to remove')
         else:
-            cur.execute(f"SELECT cringe_link FROM cringe WHERE cringe_link = '{url}'")
+            cur.execute('SELECT cringe_link FROM cringe WHERE cringe_link=%s', (url,))
             if cur.fetchone() is not None:
                 cur.execute('DELETE FROM cringe WHERE cringe_link=%s', (url,))
                 db.commit()
@@ -43,9 +43,9 @@ class Cringe(commands.Cog):
             await error_embed(ctx, 'You need to give a url or attachment to add cringe')
         else:
             async def cringe_add(aurl):
-                cur.execute(f"SELECT cringe_link FROM cringe WHERE cringe_link = '{aurl}'")
+                cur.execute('SELECT cringe_link FROM cringe WHERE cringe_link=%s', (aurl,))
                 if cur.fetchone() is None:
-                    cur.execute(f'INSERT INTO cringe(cringe_link) VALUES(%s)', (aurl,))
+                    cur.execute('INSERT INTO cringe(cringe_link) VALUES(%s)', (aurl,))
                     db.commit()
                     await channel_embed(ctx, 'Added', 'Very cringe')
                     logging.info(f'{ctx.author.id} added a cringe')

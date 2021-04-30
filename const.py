@@ -12,7 +12,7 @@ pasteToken = os.getenv('paste_token')
 
 db = psycopg2.connect(DATABASE_URL, sslmode='require')
 cur = db.cursor()
-cur.execute(f'SELECT * FROM settings')
+cur.execute('SELECT * FROM settings')
 values = cur.fetchone()
 
 fault_footer = u'\U0001f916' 'Baritone Bot' u'\U0001f916'
