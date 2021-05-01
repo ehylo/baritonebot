@@ -42,8 +42,7 @@ async def role_check(ctx, roles, name):
     for x in roles:
         if ctx.bot.get_guild(baritoneDiscord).get_role(x) in ctx.bot.get_guild(baritoneDiscord).get_member(ctx.author.id).roles:
             return True
-    else:
-        await error_embed(ctx, f'You need to be {name} to use the command `{ctx.command}`')
+    await error_embed(ctx, f'You need to be {name} to use the command `{ctx.command}`')
 
 
 async def admin_group(ctx):

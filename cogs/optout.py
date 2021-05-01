@@ -8,7 +8,6 @@ from cogs.help import Help
 class Optout(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    """Optout command to ban people if they want to be banned, might move to bkm"""
 
     @commands.command()
     async def optout(self, ctx, *, arg=None):

@@ -13,7 +13,6 @@ async def member_check(self, ctx, user):
 
 
 class Bkm(commands.Cog):
-    """All the punishment commands"""
     def __init__(self, bot):
         self.bot = bot
 

@@ -14,9 +14,6 @@ async def help_checker(self, ctx, arg=None):
 
 
 class Exempt(commands.Cog):
-    """
-    Exempt and Unexempt commands
-    """
     def __init__(self, bot):
         self.bot = bot
 

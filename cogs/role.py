@@ -25,9 +25,6 @@ async def role_add(self, ctx, arg, role, role_words, action):
 class Role(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    """
-    Commands for anyone to add/remove roles
-    """
 
     @commands.command()
     async def ignore(self, ctx, arg=None):

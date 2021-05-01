@@ -130,7 +130,6 @@ async def gexre(message, b_guild):
 
 
 class Event(commands.Cog):
-    """Anything that isn't a command basically"""
     def __init__(self, bot):
         self.bot = bot
 
