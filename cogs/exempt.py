@@ -4,23 +4,29 @@ from discord.ext import commands
 from const import error_embed, admin_group, channel_embed, baritoneDiscord, cur, db
 
 
+async def help_checker(self, ctx, arg=None):
+    if (arg is not None) and (arg.lower() == 'help'):
+        await Help.exempt(self, ctx)
+    elif ctx.guild is None:
+        await error_embed(ctx, 'You cannot use this command in DMs')
+    else:
+        return True
+
+
 class Exempt(commands.Cog):
+    """Exempt and Unexempt commands"""
     def __init__(self, bot):
         self.bot = bot
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ex'])
     @commands.check(admin_group)
     async def exempt(self, ctx, arg=None):
-        if (arg is not None) and (arg.lower() == 'help'):
-            await Help.exempt(self, ctx)
-        elif ctx.guild is None:
-            await error_embed(ctx, 'You cannot use this command in DMs')
-        else:
+        if await help_checker(self, ctx, arg) is True:
             cur.execute('SELECT channel_id FROM ex_channels WHERE channel_id=%s', (ctx.channel.id,))
             if cur.fetchone() is None:
                 cur.execute('INSERT INTO ex_channels(channel_id) VALUES(%s)', (ctx.channel.id,))
                 db.commit()
-                self.bot.reload_extension(f'cogs.event')
+                self.bot.reload_extension('cogs.event')
                 await channel_embed(ctx, 'Exempted', f'The channel {ctx.channel.mention} is now exempted from the blacklist, regex responses, and message logging')
                 logging.info(f'{ctx.author.id} added a channel ({ctx.channel.id}) to the exemptchannels')
             else:
@@ -36,11 +42,7 @@ class Exempt(commands.Cog):
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['unex'])
     @commands.check(admin_group)
     async def unexempt(self, ctx, arg=None):
-        if (arg is not None) and (arg.lower() == 'help'):
-            await Help.exempt(self, ctx)
-        elif ctx.guild is None:
-            await error_embed(ctx, 'You cannot use this command in DMs')
-        else:
+        if await help_checker(self, ctx, arg) is True:
             cur.execute('SELECT channel_id FROM ex_channels WHERE channel_id=%s', (ctx.channel.id,))
             if cur.fetchone() is not None:
                 cur.execute('DELETE FROM ex_channels WHERE channel_id=%s', (ctx.channel.id,))

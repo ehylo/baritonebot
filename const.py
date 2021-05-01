@@ -38,39 +38,26 @@ logging.basicConfig(filename='console.log', level=logging.INFO, format='[%(ascti
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 
-async def perms_check(ctx, required_role):
-    if required_role == 'admin':
-        for x in [adminRole, devRole, bypassRole]:
-            if ctx.bot.get_guild(baritoneDiscord).get_role(x) in ctx.bot.get_guild(baritoneDiscord).get_member(ctx.author.id).roles:
-                return True
-        else:
-            await error_embed(ctx, f'You need to be an Admin to use the command `{ctx.command}`')
-    if required_role == 'mod':
-        for x in [moderatorRole, adminRole, devRole, bypassRole]:
-            if ctx.bot.get_guild(baritoneDiscord).get_role(x) in ctx.bot.get_guild(baritoneDiscord).get_member(ctx.author.id).roles:
-                return True
-        else:
-            await error_embed(ctx, f'You need to be a Moderator to use the command `{ctx.command}`')
-    if required_role == 'helper':
-        for x in [helperRole, moderatorRole, adminRole, devRole, bypassRole]:
-            if ctx.bot.get_guild(baritoneDiscord).get_role(x) in ctx.bot.get_guild(baritoneDiscord).get_member(ctx.author.id).roles:
-                return True
-        else:
-            await error_embed(ctx, f'You need to be a Helper to use the command `{ctx.command}`')
+async def role_check(ctx, roles, name):
+    for x in roles:
+        if ctx.bot.get_guild(baritoneDiscord).get_role(x) in ctx.bot.get_guild(baritoneDiscord).get_member(ctx.author.id).roles:
+            return True
+    else:
+        await error_embed(ctx, f'You need to be {name} to use the command `{ctx.command}`')
 
 
 async def admin_group(ctx):
-    if await perms_check(ctx, 'admin'):
+    if await role_check(ctx, [bypassRole, adminRole, devRole], 'an Admin'):
         return True
 
 
 async def mod_group(ctx):
-    if await perms_check(ctx, 'mod'):
+    if await role_check(ctx, [bypassRole, adminRole, devRole, moderatorRole], 'a Moderator'):
         return True
 
 
 async def helper_group(ctx):
-    if await perms_check(ctx, 'helper'):
+    if await role_check(ctx, [bypassRole, adminRole, devRole, moderatorRole, helperRole], 'a Helper'):
         return True
 
 

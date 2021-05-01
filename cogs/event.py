@@ -32,10 +32,13 @@ async def one_min_timer(self):
                 date_muted = datetime(i[4], i[5], i[6], i[7], i[8])
 
                 async def unmute_embeds():
-                    dm_channel = await b_guild.get_member(i[0]).create_dm()
+                    try:
+                        dm_channel = await b_guild.get_member(i[0]).create_dm()
+                        await const.dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
+                    except (discord.Forbidden, discord.errors.HTTPException):
+                        pass
                     logging.info(f'{i[0]} was unmuted automatically')
                     await const.log_embed(None, 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted', modlog_channel, b_guild.get_member(i[0]))
-                    await const.dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
                     await b_guild.get_member(i[0]).remove_roles(b_guild.get_role(const.muteRole))
                     const.cur.execute('DELETE FROM punish WHERE user_id=%s', (i[0],))
                     const.db.commit()
@@ -53,14 +56,17 @@ async def one_min_timer(self):
 async def del_blacklist(message, b_guild):
     del_message = 0
     if del_message == 0:
-        if (not message.content.startswith(const.values[0]) and                     # don't delete commands
-                message.guild is not None and                                 # don't try to delete dm messages
-                message.author.id is not const.botID and                            # don't delete messages from itself
-                str(message.channel.id) not in exempt_channels):              # don't delete messages in exempted channels
+        if (not message.content.startswith(const.values[0]) and           # don't delete commands
+                message.guild is not None and                             # don't try to delete dm messages
+                message.author.id is not const.botID and                  # don't delete messages from itself
+                str(message.channel.id) not in exempt_channels):          # don't delete messages in exempted channels
             if re.search(r'(https?://)?(www.)?(discord.(gg|io|me|li)|discordapp.com/invite)/[^\s/]+?(?=\b)', message.content) is not None:
                 await message.delete()
-                dchannel = await message.author.create_dm()
-                await const.dm_embed('Message Deleted', f'Your message in {message.channel.mention} was deleted because sending invite links is against the rules', dchannel)
+                try:
+                    dchannel = await message.author.create_dm()
+                    await const.dm_embed('Message Deleted', f'Your message in {message.channel.mention} was deleted because sending invite links is against the rules', dchannel)
+                except (discord.Forbidden, discord.errors.HTTPException):
+                    pass
                 logging.info(f'{message.author.id} tried to send an invite link but it was deleted')
             else:
                 const.cur.execute('SELECT blacklist_word FROM blacklist')
@@ -78,7 +84,7 @@ async def del_blacklist(message, b_guild):
                     try:
                         dchannel = await message.author.create_dm()
                         await const.dm_embed('Message Deleted', f'Your message in {message.channel.mention} was deleted because `{first_deleted_word}{deleted_word}` is blacklisted', dchannel)
-                    except discord.Forbidden:
+                    except (discord.Forbidden, discord.errors.HTTPException):
                         pass
                     logging.info(f'{message.author.id} sent a message but it was deleted because it has a word on the blacklist')
     if del_message == 0:
@@ -124,6 +130,7 @@ async def gexre(message, b_guild):
 
 
 class Event(commands.Cog):
+    """Anything that isn't a command basically"""
     def __init__(self, bot):
         self.bot = bot
 

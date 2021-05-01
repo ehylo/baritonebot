@@ -1,3 +1,4 @@
+import discord
 import const
 import logging
 from discord.ext import commands
@@ -5,6 +6,7 @@ from cogs.help import Help
 
 
 class Optout(commands.Cog):
+    """Optout command to ban people if they want to be banned, might move to bkm"""
     def __init__(self, bot):
         self.bot = bot
 
@@ -15,9 +17,12 @@ class Optout(commands.Cog):
             await Help.optout(self, ctx)
         elif arg.lower() == 'I am sure':
             channel = await self.bot.fetch_channel(const.modlogChannel)
-            dchannel = await ctx.author.create_dm()
+            try:
+                dchannel = await ctx.author.create_dm()
+                await const.dm_embed('Opted out', 'We appreciate you opting out. You have been banned from the server to prevent bypassing our moderation system.', dchannel)
+            except (discord.Forbidden, discord.errors.HTTPException):
+                pass
             logging.info(f'{ctx.author.id} has been banned for reason: Opted out')
-            await const.dm_embed('Opted out', 'We appreciate you opting out. You have been banned from the server to prevent bypassing our moderation system.', dchannel)
             await const.channel_embed(ctx, 'User Banned', f'{ctx.author.mention} has been banned for reason: \n```User {ctx.author} has opted out```')
             await const.log_embed(ctx, 'User Banned', f'{ctx.author.mention} has been banned for reason: \n```User {ctx.author} has opted out```', channel)
             await b_guild.ban(user=ctx.author, reason='Opted out and banned', delete_message_days=7)
