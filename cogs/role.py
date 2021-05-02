@@ -16,9 +16,9 @@ async def role_add(self, ctx, arg, role, role_words, action):
             await error_embed(ctx, role_words)
         else:
             if action == 'remove':
-                await member_check.remove_roles(role)
+                await member_check.remove_roles(b_role)
             elif action == 'add':
-                await member_check.add_roles(role)
+                await member_check.add_roles(b_role)
             return True
 
 
