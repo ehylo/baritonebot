@@ -32,14 +32,15 @@ async def one_min_timer(self):
                 date_muted = datetime(i[4], i[5], i[6], i[7], i[8])
 
                 async def unmute_embeds():
-                    try:
-                        dm_channel = await b_guild.get_member(i[0]).create_dm()
-                        await const.dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
-                    except (discord.Forbidden, discord.errors.HTTPException):
-                        pass
+                    if b_guild.get_member(i[0]) is not None:
+                        try:
+                            dm_channel = await b_guild.get_member(i[0]).create_dm()
+                            await const.dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
+                        except (discord.Forbidden, discord.errors.HTTPException):
+                            pass
+                        await const.log_embed(None, 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted', modlog_channel, b_guild.get_member(i[0]))
+                        await b_guild.get_member(i[0]).remove_roles(b_guild.get_role(const.muteRole))
                     logging.info(f'{i[0]} was unmuted automatically')
-                    await const.log_embed(None, 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted', modlog_channel, b_guild.get_member(i[0]))
-                    await b_guild.get_member(i[0]).remove_roles(b_guild.get_role(const.muteRole))
                     const.cur.execute('DELETE FROM punish WHERE user_id=%s', (i[0],))
                     const.db.commit()
                 if i[2].lower() == 'm':
@@ -123,7 +124,7 @@ async def gexre(message, b_guild):
                 if (b_guild.get_member(const.botID) in message.mentions) or (message.content.startswith('!')):  # this is seperate from the elif so there is no trash reaction to delete a pinged/command response, and also the bot won't reply
                     await const.channel_embed(message.channel, (response_list[x-1][1]), (response_list[x-1][2]))
                     logging.info(f'{message.author.id} manually triggered response number {x}')
-                    # await message.delete()  # might add this, need to ask people first
+                    await message.delete()
                 elif (b_guild.get_role(const.ignoreRole) not in member.roles) and (str(message.channel.id) not in exempt_channels):
                     await const.channel_embed(message, (response_list[x-1][1]), (response_list[x-1][2]), None, 'Reply')
                     logging.info(f'{message.author.id} sent a message and triggered response number {x}')
@@ -180,7 +181,12 @@ class Event(commands.Cog):
             logging.info(f'{member.id} joined with a name that puts them to the top of the list, so z was added infront')
         channel = await self.bot.fetch_channel(const.leaveChannel)
         await const.log_embed(None, 'User Joined', None, channel, member)
-        logging.info(f'{member.id} joined the server')
+        const.cur.execute('SELECT user_id FROM punish WHERE user_id=%s', (member.id,))
+        if const.cur.fetchone() is not None:
+            await member.add_roles(self.bot.get_guild(const.baritoneDiscord).get_role(const.muteRole))
+            logging.info(f'{member.id} joined the server and was given the mute role because they are still muted')
+        else:
+            logging.info(f'{member.id} joined the server')
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):

@@ -58,6 +58,7 @@ class Bkm(commands.Cog):
             if self.bot.get_guild(const.baritoneDiscord).get_role(const.muteRole) not in member.roles:
                 await const.error_embed(ctx, 'That member is not muted')
             else:
+                await member.remove_roles(self.bot.get_guild(const.baritoneDiscord).get_role(const.muteRole))
                 try:
                     dm_channel = await member.create_dm()
                     await const.dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
@@ -67,7 +68,6 @@ class Bkm(commands.Cog):
                 logging.info(f'{ctx.author.id} unmuted {member.id}')
                 await const.channel_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted')
                 await const.log_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted', channel)
-                await member.remove_roles(self.bot.get_guild(const.baritoneDiscord).get_role(const.muteRole))
                 const.cur.execute('DELETE FROM punish WHERE user_id=%s', (user.id,))
                 const.db.commit()
 
@@ -109,13 +109,14 @@ class Bkm(commands.Cog):
             await const.error_embed(ctx, f'You don\'t outrank {member.mention}')
         elif time is None:
             await const.error_embed(ctx, 'You need to give a reason or amount of time to mute')
-        elif reason is None:
+        elif (time[0].isdigit()) and (reason is None):
             await const.error_embed(ctx, 'You need to give a reason')
         else:
             if self.bot.get_guild(const.baritoneDiscord).get_role(const.muteRole) in member.roles:
                 await const.error_embed(ctx, 'That member is already muted')
             else:
-                async def mute_embeds(time_muted):
+                async def mute_embeds(time_muted, usert, amountt, multiplyt, year, month, day, hour, minute):
+                    await member.add_roles(self.bot.get_guild(const.baritoneDiscord).get_role(const.muteRole))
                     try:
                         dm_channel = await member.create_dm()
                         await const.dm_embed('Muted', f'You have been muted in the baritone discord {time_muted}, reason: \n```{reason}```', dm_channel)
@@ -125,7 +126,11 @@ class Bkm(commands.Cog):
                     logging.info(f'{ctx.author.id} muted {member.id} {time_muted}, reason: {reason}')
                     await const.channel_embed(ctx, 'User Muted', f'{member.mention} has been muted {time_muted}, reason: \n```{reason}```')
                     await const.log_embed(ctx, 'User Muted', f'{member.mention} has been muted {time_muted}, reason: \n```{reason}```', channel)
-                    await member.add_roles(self.bot.get_guild(const.baritoneDiscord).get_role(const.muteRole))
+                    const.cur.execute(
+                        "INSERT INTO punish(user_id, amount_time, what_time, against, year, month, day, hour, minute) "
+                        "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                        (usert, amountt, multiplyt, 'muted', year, month, day, hour, minute))
+                    const.db.commit()
                 x = datetime.utcnow()
                 if time[0].isdigit():
                     multiply = ''.join(i for i in time if not i.isdigit())
@@ -133,19 +138,9 @@ class Bkm(commands.Cog):
                     if len(multiply) > 1:
                         await const.error_embed(ctx, 'Only use \'m\'(minutes), \'h\'(hours), or \'d\'(days).')
                     else:
-                        const.cur.execute(
-                            "INSERT INTO punish(user_id, amount_time, what_time, against, year, month, day, hour, minute) "
-                            "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                            (user.id, amount, multiply, 'muted', x.year, x.month, x.day, x.hour, x.minute))
-                        const.db.commit()
-                        await mute_embeds(f'for {time}')
+                        await mute_embeds(f'for {time}', user.id, amount, multiply, x.year, x.month, x.day, x.hour, x.minute)
                 else:
-                    const.cur.execute(
-                        "INSERT INTO punish (user_id, amount_time, what_time, against, year, month, day, hour, minute)"
-                        "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                        (user.id, '0', 'f', 'muted', x.year, x.month, x.day, x.hour, x.minute))
-                    const.db.commit()
-                    await mute_embeds('indefinitely')
+                    await mute_embeds('indefinitely', user.id, '0', 'f', x.year, x.month, x.day, x.hour, x.minute)
 
     @commands.command(aliases=['k'])
     @commands.check(const.mod_group)
