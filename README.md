@@ -22,5 +22,5 @@ Open terminal/cmd, and do the following commands:
 ```bash
 git clone https://github.com/Flurrrr/baritonebot.git
 cd baritonebot
-python bot.py
+python main.py
 ```

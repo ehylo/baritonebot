@@ -1,7 +1,5 @@
 import const
 import discord
-import logging
-from datetime import datetime
 from cogs.help import Help
 from discord.ext import commands
 
@@ -36,7 +34,7 @@ class Rule(commands.Cog):
             rule = const.cur.fetchone()
             if rule is not None:
                 await const.channel_embed(ctx, f'Removed rule #{num}:', rule[1])
-                logging.info(f'{ctx.author.id} removed rule #{num}, \"{rule[1]}\"')
+                print(f'{ctx.author.id} removed rule #{num}, \"{rule[1]}\"')
                 const.cur.execute('DELETE FROM rules WHERE rules_number=%s', (num,))
                 const.db.commit()
             else:
@@ -59,15 +57,15 @@ class Rule(commands.Cog):
                 const.cur.execute('INSERT INTO rules(rules_number, rules_title, rules_description) VALUES(%s, %s, %s)', (anum, dtitle, ddesc))
                 const.db.commit()
                 await const.help_embed(ctx, 'New rule:', f'{ctx.author.mention} added rule {anum}', ddesc, dtitle)
-                logging.info(f'{ctx.author.id} added rule with title: {dtitle}')
+                print(f'{ctx.author.id} added rule with title: {dtitle}')
             else:
                 await const.error_embed(ctx, 'That rule already exists')
 
     @commands.command()
     @commands.check(const.helper_group)
     async def rules(self, ctx):
-        em_v = discord.Embed(color=const.coolEmbedColor, timestamp=datetime.utcnow(), title='Rules')
-        em_v.set_footer(text=const.fault_footer)
+        em_v = discord.Embed(color=const.coolEmbedColor, title='Rules')
+        em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
         em_v.set_thumbnail(url='https://bigrat.monster/media/noanime.gif')
         const.cur.execute('SELECT ROW_NUMBER () OVER ( ORDER BY rules_number ) rowNum, rules_number, rules_title, rules_description FROM rules')
         const.db.commit()

@@ -1,5 +1,3 @@
-import logging
-
 import discord
 from discord.ext import commands
 from cogs.help import Help
@@ -27,8 +25,8 @@ class Clear(commands.Cog):
                 if int_num > 0:
                     await ctx.channel.purge(limit=int_num)
                     channel = await self.bot.fetch_channel(logChannel)
-                    await log_embed(ctx, 'Bulk messages deleted', f'{ctx.author.mention} cleared {int_num} messages in {ctx.channel.mention}', channel)
-                    logging.info(f'{ctx.author.id} cleared {int_num} messages in {ctx.channel}')
+                    await log_embed(None, 'Bulk messages deleted', f'{ctx.author.mention} cleared {int_num} messages in {ctx.channel.mention}', channel, ctx.author)
+                    print(f'{ctx.author.id} cleared {int_num} messages in {ctx.channel}')
                 else:
                     await error_embed(ctx, 'You need to give a positive non zero number')
             else:
@@ -60,8 +58,8 @@ class Clear(commands.Cog):
                         except discord.NotFound:  # ignore error if it was already deleted
                             pass
                         channel = await self.bot.fetch_channel(logChannel)
-                        await log_embed(ctx, 'Bulk messages deleted', f'{ctx.message.author.mention} cleared {num2} messages in {ctx.channel.mention} from {clear_member.mention}', channel)
-                        logging.info(f'{ctx.author.id} cleared {num2} messages in {ctx.channel.id} from {clear_member.id}')
+                        await log_embed(ctx, 'Bulk messages deleted', f'{ctx.author.mention} cleared {num2} messages in {ctx.channel.mention} from {clear_member.mention}', channel, clear_member)
+                        print(f'{ctx.author.id} cleared {num2} messages in {ctx.channel.id} from {clear_member.id}')
                 else:
                     await error_embed(ctx, 'You need to give a positive non zero number')
 

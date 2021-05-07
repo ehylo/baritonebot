@@ -1,12 +1,11 @@
 import discord
-import datetime
 from discord.ext import commands
 from cogs.help import Help
 from const import baritoneDiscord, coolEmbedColor, error_embed
 
 
 async def info_embed(ctx, member, title, field1, field2, field3, value):
-    em_v = discord.Embed(color=coolEmbedColor, timestamp=datetime.datetime.utcnow(), title=title)
+    em_v = discord.Embed(color=coolEmbedColor,  title=title)
     em_v.add_field(name='Mention:', value=member.mention, inline=True)
     em_v.add_field(name='Status:', value=field1, inline=True)
     em_v.add_field(name='Created:', value=member.created_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " "), inline=False)
@@ -70,7 +69,7 @@ class Info(commands.Cog):
             await Help.serverinfo(self, ctx)
         else:
             b_guild = self.bot.get_guild(baritoneDiscord)
-            em_v = discord.Embed(color=coolEmbedColor, timestamp=datetime.datetime.utcnow(), title=f'Server Information: {b_guild.name}')
+            em_v = discord.Embed(color=coolEmbedColor,  title=f'Server Information: {b_guild.name}')
             em_v.add_field(name='Owner:', value=f'{b_guild.owner} (ID: {b_guild.owner_id})', inline=False)
             em_v.add_field(name='Description:', value=b_guild.description, inline=False)
             em_v.add_field(name='Created:', value=b_guild.created_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " "), inline=False)

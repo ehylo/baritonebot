@@ -1,4 +1,3 @@
-import logging
 import discord
 from discord.ext import commands
 from const import mod_group, channel_embed, error_embed
@@ -25,7 +24,7 @@ class Embed(commands.Cog):
                     int(send_channel)
                     channel = await self.bot.fetch_channel(send_channel)
                     await channel_embed(channel, etitle, edesc)
-                    logging.info(f'{ctx.author.id} sent a custom embed to a channel')
+                    print(f'{ctx.author.id} sent a custom embed to a channel')
                 except ValueError:
                     await error_embed(ctx, 'That is not a valid ID (use **numbers**)')
                 except discord.NotFound:
@@ -37,7 +36,7 @@ class Embed(commands.Cog):
                     channel_id = int(channel_str)
                     channel = await self.bot.fetch_channel(channel_id)
                     await channel_embed(channel, etitle, edesc)
-                    logging.info(f'{ctx.author.id} sent a custom embed to a channel')
+                    print(f'{ctx.author.id} sent a custom embed to a channel')
                 except discord.Forbidden:
                     await error_embed(ctx, 'I do not have access to that channel')
 
@@ -49,8 +48,8 @@ class Embed(commands.Cog):
         elif edesc is None:
             await error_embed(ctx, 'You need to give a description')
         else:
-            await channel_embed(ctx, etitle, edesc)
-            logging.info(f'{ctx.author.id} sent a custom embed to a channel')
+            await channel_embed(ctx.channel, etitle, edesc)
+            print(f'{ctx.author.id} sent a custom embed to a channel')
 
 
 def setup(bot):

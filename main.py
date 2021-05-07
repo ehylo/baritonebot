@@ -1,6 +1,5 @@
 import discord
 import os
-import logging
 import psycopg2
 from dotenv import load_dotenv
 from discord.ext import commands
@@ -22,7 +21,7 @@ bot.remove_command('help')
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
         bot.load_extension(f'cogs.{filename[:-3]}')
-logging.info('[STARTUP] loaded all extensions')
+print('[STARTUP] loaded all extensions')
 
 
 @bot.event
@@ -36,6 +35,6 @@ async def on_ready():
     else:
         atype = discord.ActivityType.competing
     await bot.change_presence(activity=discord.Activity(type=atype, name=values[3]))
-    logging.info('[STARTUP] Successfully started baritoe bot and set the presence and prefix to the default')
+    print('[STARTUP] Successfully started baritoe bot and set the presence and prefix to the default')
 
 bot.run(token)

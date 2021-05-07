@@ -1,9 +1,7 @@
 import discord
-import logging
 from discord.ext import commands
 from cogs.help import Help
-from datetime import datetime
-from const import mod_group, channel_embed, error_embed, helper_group, fault_footer, coolEmbedColor, cur, db
+from const import mod_group, channel_embed, error_embed, helper_group, coolEmbedColor, cur, db
 
 
 class Cringe(commands.Cog):
@@ -16,9 +14,9 @@ class Cringe(commands.Cog):
             await Help.cringe(self, ctx)
         else:
             cur.execute('SELECT cringe_link FROM cringe ORDER BY RANDOM() LIMIT 1')
-            em_v = discord.Embed(color=coolEmbedColor, timestamp=datetime.utcnow(), title=':camera_with_flash:')
+            em_v = discord.Embed(color=coolEmbedColor, title=':camera_with_flash:')
             em_v.set_image(url=str(str(cur.fetchone())[2:-3]))
-            em_v.set_footer(text=fault_footer)
+            em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
             await ctx.send(embed=em_v)
 
     @cringe.command(aliases=['r'])
@@ -32,7 +30,7 @@ class Cringe(commands.Cog):
                 cur.execute('DELETE FROM cringe WHERE cringe_link=%s', (url,))
                 db.commit()
                 await channel_embed(ctx, 'Removed', 'I guess that wasn\'nt cringe enough')
-                logging.info(f'{ctx.author.id} removed a cringe')
+                print(f'{ctx.author.id} removed a cringe')
             else:
                 await error_embed(ctx, 'That url does not exist in the cringe db')
 
@@ -48,7 +46,7 @@ class Cringe(commands.Cog):
                     cur.execute('INSERT INTO cringe(cringe_link) VALUES(%s)', (aurl,))
                     db.commit()
                     await channel_embed(ctx, 'Added', 'Very cringe')
-                    logging.info(f'{ctx.author.id} added a cringe')
+                    print(f'{ctx.author.id} added a cringe')
                 else:
                     await error_embed(ctx, 'That cringe already exists')
             if len(ctx.message.attachments) > 0:

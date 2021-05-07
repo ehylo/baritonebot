@@ -1,5 +1,4 @@
 import discord
-import logging
 import const
 from datetime import datetime
 from cogs.help import Help
@@ -40,9 +39,9 @@ class Bkm(commands.Cog):
                     user = await self.bot.fetch_user(user)
                     await b_guild.unban(unban_user)
                     channel = await self.bot.fetch_channel(const.modlogChannel)
-                    logging.info(f'{ctx.author.id} unbanned {user.id}')
+                    print(f'{ctx.author.id} unbanned {user.id}')
                     await const.channel_embed(ctx, 'User Unbanned', f'{user.name}#{user.discriminator} has been unbanned!')
-                    await const.log_embed(ctx, 'User Unbanned', f'{user.name}#{user.discriminator} has been unbanned!', channel)
+                    await const.log_embed(None, 'User Unbanned', f'{user.name}#{user.discriminator} has been unbanned!', channel, ctx.author)
                 except discord.NotFound:
                     await const.error_embed(ctx, 'That user is not banned')
 
@@ -65,9 +64,9 @@ class Bkm(commands.Cog):
                 except (discord.Forbidden, discord.errors.HTTPException):
                     pass
                 channel = await self.bot.fetch_channel(const.modlogChannel)
-                logging.info(f'{ctx.author.id} unmuted {member.id}')
+                print(f'{ctx.author.id} unmuted {member.id}')
                 await const.channel_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted')
-                await const.log_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted', channel)
+                await const.log_embed(ctx, 'User Unmuted', f'{member.mention} has been unmuted', channel, member)
                 const.cur.execute('DELETE FROM punish WHERE user_id=%s', (user.id,))
                 const.db.commit()
 
@@ -89,9 +88,9 @@ class Bkm(commands.Cog):
                 except (discord.Forbidden, discord.errors.HTTPException):
                     pass
                 channel = await self.bot.fetch_channel(const.modlogChannel)
-                logging.info(f'{ctx.author.id} banned {member.id} for reason: {reasons}')
+                print(f'{ctx.author.id} banned {member.id} for reason: {reasons}')
                 await const.channel_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reasons}```')
-                await const.log_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reasons}```', channel)
+                await const.log_embed(ctx, 'User Banned', f'{member.mention} has been banned for reason: \n```{reasons}```', channel, member)
             if purge.lower() == 'purge':
                 await ban_embeds(reason)
                 await member.ban(reason=reason, delete_message_days=7)
@@ -123,9 +122,9 @@ class Bkm(commands.Cog):
                     except (discord.Forbidden, discord.errors.HTTPException):
                         pass
                     channel = await self.bot.fetch_channel(const.modlogChannel)
-                    logging.info(f'{ctx.author.id} muted {member.id} {time_muted}, reason: {reason}')
+                    print(f'{ctx.author.id} muted {member.id} {time_muted}, reason: {reason}')
                     await const.channel_embed(ctx, 'User Muted', f'{member.mention} has been muted {time_muted}, reason: \n```{reason}```')
-                    await const.log_embed(ctx, 'User Muted', f'{member.mention} has been muted {time_muted}, reason: \n```{reason}```', channel)
+                    await const.log_embed(ctx, 'User Muted', f'{member.mention} has been muted {time_muted}, reason: \n```{reason}```', channel, member)
                     const.cur.execute(
                         "INSERT INTO punish(user_id, amount_time, what_time, against, year, month, day, hour, minute) "
                         "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)",
@@ -159,9 +158,9 @@ class Bkm(commands.Cog):
             except (discord.Forbidden, discord.errors.HTTPException):
                 pass
             channel = await self.bot.fetch_channel(const.modlogChannel)
-            logging.info(f'{ctx.author.id} kicked {member.id} for reason: {reason}')
+            print(f'{ctx.author.id} kicked {member.id} for reason: {reason}')
             await const.channel_embed(ctx, 'User Kicked', f'{member.mention} has been kicked for reason: \n```{reason}```')
-            await const.log_embed(ctx, 'User Kicked', f'{member.mention} has been kicked for reason: \n```{reason}```', channel)
+            await const.log_embed(ctx, 'User Kicked', f'{member.mention} has been kicked for reason: \n```{reason}```', channel, member)
             await member.kick(reason=reason)
 
 
