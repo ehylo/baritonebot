@@ -1,7 +1,7 @@
 import random
 from discord.ext import commands
 from cogs.help import Help
-from const import channel_embed
+from main import channel_embed
 
 
 rock_img = 'https://cdn.discordapp.com/attachments/819449117561585704/833146899216334850/rock.png'

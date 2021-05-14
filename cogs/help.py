@@ -1,5 +1,5 @@
 from discord.ext import commands
-from const import channel_embed, help_embed
+from main import channel_embed, help_embed
 
 
 class Help(commands.Cog):

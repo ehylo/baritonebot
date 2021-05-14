@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from const import mod_group, channel_embed, error_embed
+from main import mod_group, channel_embed, error_embed
 from cogs.help import Help
 
 

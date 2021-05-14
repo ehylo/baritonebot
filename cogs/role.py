@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from cogs.help import Help
-from const import ignoreRole, releasesRole, channel_embed, error_embed, baritoneDiscord
+from main import ignoreRole, releasesRole, channel_embed, error_embed, baritoneDiscord
 
 
 async def role_add(self, ctx, arg, role, role_words, action):

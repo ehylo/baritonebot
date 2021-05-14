@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from cogs.help import Help
-from const import baritoneDiscord, coolEmbedColor, error_embed
+from main import baritoneDiscord, coolEmbedColor, error_embed
 
 
 async def info_embed(ctx, member, title, field1, field2, field3, value):

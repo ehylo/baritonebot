@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from cogs.help import Help
-from const import mod_group, channel_embed, error_embed, helper_group, coolEmbedColor, cur, db
+from main import mod_group, channel_embed, error_embed, helper_group, coolEmbedColor, cur, db
 
 
 class Cringe(commands.Cog):

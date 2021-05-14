@@ -1,7 +1,7 @@
 import logging
 from cogs.help import Help
 from discord.ext import commands
-from const import error_embed, admin_group, channel_embed, baritoneDiscord, cur, db
+from main import error_embed, admin_group, channel_embed, baritoneDiscord, cur, db
 
 
 async def help_checker(self, ctx, arg=None):

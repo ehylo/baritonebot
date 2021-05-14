@@ -2,7 +2,7 @@ import logging
 import os
 from discord.ext import commands
 from cogs.help import Help
-from const import admin_group, channel_embed, error_embed
+from main import admin_group, channel_embed, error_embed
 
 
 class Extension(commands.Cog):

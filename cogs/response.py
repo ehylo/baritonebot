@@ -1,7 +1,7 @@
 import logging
 from discord.ext import commands
 from cogs.help import Help
-from const import error_embed, channel_embed, helper_group, mod_group, help_embed, cur, db
+from main import error_embed, channel_embed, helper_group, mod_group, help_embed, cur, db
 
 
 class Response(commands.Cog):

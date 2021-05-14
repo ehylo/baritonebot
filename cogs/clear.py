@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from cogs.help import Help
-from const import logChannel, log_embed, mod_group, error_embed
+from main import logChannel, log_embed, mod_group, error_embed
 
 
 class Clear(commands.Cog):
