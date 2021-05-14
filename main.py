@@ -15,7 +15,6 @@ cur.execute('SELECT * FROM settings')
 values = cur.fetchone()
 cur.execute("SELECT id FROM ids WHERE guild='baritone' ORDER BY order_by")
 ids = [int(item[0]) for item in cur.fetchall()]
-print(ids[1])
 coolEmbedColor = int(values[1], 16)
 
 bot = commands.Bot(command_prefix=(values[0], values[0].upper()), case_insensitive=True, intents=discord.Intents.all())
