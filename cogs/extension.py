@@ -1,8 +1,8 @@
 import logging
 import os
+import main
 from discord.ext import commands
 from cogs.help import Help
-from main import admin_group, channel_embed, error_embed
 
 
 class Extension(commands.Cog):
@@ -10,15 +10,15 @@ class Extension(commands.Cog):
         self.bot = bot
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ext'])
-    @commands.check(admin_group)
+    @commands.check(main.admin_group)
     async def extension(self, ctx):
         await Help.extension(self, ctx)
 
     @extension.command(aliases=['ld'])
-    @commands.check(admin_group)
+    @commands.check(main.admin_group)
     async def load(self, ctx, extension=None):
         if extension is None:
-            await error_embed(ctx, 'You need to give an extenstion to load (do `extension list` for a list of extensions')
+            await main.error_embed(ctx, 'You need to give an extenstion to load (do `extension list` for a list of extensions')
         else:
             if extension == 'all':
                 for filename in os.listdir('./cogs'):
@@ -27,18 +27,18 @@ class Extension(commands.Cog):
             else:
                 try:
                     self.bot.load_extension(f'cogs.{extension}')
-                    await channel_embed(ctx, 'Loaded Extension', f'The extension {extension} has been loaded')
+                    await main.channel_embed(ctx, 'Loaded Extension', f'The extension {extension} has been loaded')
                     logging.info(f'{ctx.author.id} loaded the extension {extension}')
                 except commands.ExtensionNotFound:
-                    await error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
+                    await main.error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
                 except commands.ExtensionAlreadyLoaded:
-                    await error_embed(ctx, 'That extension is already loaded')
+                    await main.error_embed(ctx, 'That extension is already loaded')
 
     @extension.command(aliases=['u'])
-    @commands.check(admin_group)
+    @commands.check(main.admin_group)
     async def unload(self, ctx, extension=None):
         if extension is None:
-            await error_embed(ctx, 'You need to give an extenstion to unload (do `extension list` for a list of extensions')
+            await main.error_embed(ctx, 'You need to give an extenstion to unload (do `extension list` for a list of extensions')
         else:
             if extension == 'all':
                 for filename in os.listdir('./cogs'):
@@ -47,18 +47,18 @@ class Extension(commands.Cog):
             else:
                 try:
                     self.bot.unload_extension(f'cogs.{extension}')
-                    await channel_embed(ctx, 'Unloaded Extension', f'The extension {extension} has been unloaded')
+                    await main.channel_embed(ctx, 'Unloaded Extension', f'The extension {extension} has been unloaded')
                     logging.info(f'{ctx.author.id} unloaded the extension {extension}')
                 except commands.ExtensionNotFound:
-                    await error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
+                    await main.error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
                 except commands.ExtensionNotLoaded:
-                    await error_embed(ctx, 'That extension is already unloaded')
+                    await main.error_embed(ctx, 'That extension is already unloaded')
 
     @extension.command(aliases=['r'])
-    @commands.check(admin_group)
+    @commands.check(main.admin_group)
     async def reload(self, ctx, extension=None):
         if extension is None:
-            await error_embed(ctx, 'You need to give an extenstion to reload (do `extension list` for a list of extensions')
+            await main.error_embed(ctx, 'You need to give an extenstion to reload (do `extension list` for a list of extensions')
         else:
             if extension == 'all':
                 for filename in os.listdir('./cogs'):
@@ -67,13 +67,13 @@ class Extension(commands.Cog):
             else:
                 try:
                     self.bot.reload_extension(f'cogs.{extension}')
-                    await channel_embed(ctx, 'Reloaded Extension', f'The extension {extension} has been reloaded')
+                    await main.channel_embed(ctx, 'Reloaded Extension', f'The extension {extension} has been reloaded')
                     logging.info(f'{ctx.author.id} reloaded the extension {extension}')
                 except commands.ExtensionNotFound:
-                    await error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
+                    await main.error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
 
     @extension.command(aliases=['l'])
-    @commands.check(admin_group)
+    @commands.check(main.admin_group)
     async def list(self, ctx):
         desc = '\
             \u2022 **`event`** - blacklist, regex responses, paste upload, dm log, invite delete, nick changer, 24h log clear, message edit/delete, member join/leave, join/leave voice, and error handler \
@@ -92,7 +92,7 @@ class Extension(commands.Cog):
             \n\u2022 **`emote`** - command \
             \n\u2022 **`exempt`** - command \
             \n\u2022 **`help`** - commands'
-        await channel_embed(ctx, 'All Extensions:', desc)
+        await main.channel_embed(ctx, 'All Extensions:', desc)
 
 
 def setup(bot):
