@@ -1,5 +1,4 @@
 import requests
-import logging
 import discord
 import main
 from PIL import Image
@@ -17,7 +16,7 @@ async def create_emote(ctx, name, img_url, b_guild):
         image = b.getvalue()
         await b_guild.create_custom_emoji(name=name, image=image)
         await main.channel_embed(ctx, 'Created', f'Emote `{name}` was created')
-        logging.info(f'{ctx.author.id} created an emote')
+        print(f'{ctx.author.id} created an emote')
     except discord.HTTPException:
         await main.error_embed(ctx, 'Emote cannot be larger than 256kb')
 

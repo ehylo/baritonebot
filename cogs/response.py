@@ -1,4 +1,3 @@
-import logging
 import main
 from discord.ext import commands
 from cogs.help import Help
@@ -50,7 +49,7 @@ class Response(commands.Cog):
             response = main.cur.fetchone()
             if response is not None:
                 await main.channel_embed(ctx, f'Removed response #{rnum}:', response[1])
-                logging.info(f'{ctx.author.id} removed response #{rnum}, \"{response[1]}\"')
+                print(f'{ctx.author.id} removed response #{rnum}, \"{response[1]}\"')
                 main.cur.execute('DELETE FROM responses WHERE response_num=%s', (rnum,))
                 main.db.commit()
             else:
@@ -71,7 +70,7 @@ class Response(commands.Cog):
             main.cur.execute('INSERT INTO responses(response_regex, response_title, response_description, response_num) VALUES(%s, %s, %s, %s)', (eregex, etitle, edesc, number))
             main.db.commit()
             await main.help_embed(ctx, 'New response:', f'`{eregex}`', edesc, etitle)
-            logging.info(f'{ctx.author.id} added response with title: {etitle}')
+            print(f'{ctx.author.id} added response with title: {etitle}')
 
 
 def setup(bot):

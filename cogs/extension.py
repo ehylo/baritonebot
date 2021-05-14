@@ -1,4 +1,3 @@
-import logging
 import os
 import main
 from discord.ext import commands
@@ -28,7 +27,7 @@ class Extension(commands.Cog):
                 try:
                     self.bot.load_extension(f'cogs.{extension}')
                     await main.channel_embed(ctx, 'Loaded Extension', f'The extension {extension} has been loaded')
-                    logging.info(f'{ctx.author.id} loaded the extension {extension}')
+                    print(f'{ctx.author.id} loaded the extension {extension}')
                 except commands.ExtensionNotFound:
                     await main.error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
                 except commands.ExtensionAlreadyLoaded:
@@ -48,7 +47,7 @@ class Extension(commands.Cog):
                 try:
                     self.bot.unload_extension(f'cogs.{extension}')
                     await main.channel_embed(ctx, 'Unloaded Extension', f'The extension {extension} has been unloaded')
-                    logging.info(f'{ctx.author.id} unloaded the extension {extension}')
+                    print(f'{ctx.author.id} unloaded the extension {extension}')
                 except commands.ExtensionNotFound:
                     await main.error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
                 except commands.ExtensionNotLoaded:
@@ -68,7 +67,7 @@ class Extension(commands.Cog):
                 try:
                     self.bot.reload_extension(f'cogs.{extension}')
                     await main.channel_embed(ctx, 'Reloaded Extension', f'The extension {extension} has been reloaded')
-                    logging.info(f'{ctx.author.id} reloaded the extension {extension}')
+                    print(f'{ctx.author.id} reloaded the extension {extension}')
                 except commands.ExtensionNotFound:
                     await main.error_embed(ctx, 'That is not a valid extension, use `extension list` to see all available extensions')
 

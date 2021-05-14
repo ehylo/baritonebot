@@ -1,4 +1,3 @@
-import logging
 import main
 from cogs.help import Help
 from discord.ext import commands
@@ -27,7 +26,7 @@ class Exempt(commands.Cog):
                 main.db.commit()
                 self.bot.reload_extension('cogs.event')
                 await main.channel_embed(ctx, 'Exempted', f'The channel {ctx.channel.mention} is now exempted from the blacklist, regex responses, and message logging')
-                logging.info(f'{ctx.author.id} added a channel ({ctx.channel.id}) to the exemptchannels')
+                print(f'{ctx.author.id} added a channel ({ctx.channel.id}) to the exemptchannels')
             else:
                 await main.error_embed(ctx, 'This channel is already on the exempt list')
 
@@ -48,7 +47,7 @@ class Exempt(commands.Cog):
                 main.db.commit()
                 self.bot.reload_extension('cogs.event')
                 await main.channel_embed(ctx, 'Un-exempted', f'The channel {ctx.channel.mention} is no longer exempted from the blacklist and regex responses')
-                logging.info(f'{ctx.author.id} removed a channel ({ctx.channel.id}) from the exemptchannels')
+                print(f'{ctx.author.id} removed a channel ({ctx.channel.id}) from the exemptchannels')
             else:
                 await main.error_embed(ctx, 'This channel is not exempted')
 

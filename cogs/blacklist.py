@@ -1,4 +1,3 @@
-import logging
 import main
 from cogs.help import Help
 from discord.ext import commands
@@ -32,7 +31,7 @@ class Blacklist(commands.Cog):
                 main.cur.execute('INSERT INTO blacklist(blacklist_word) VALUES(%s)', (word,))
                 main.db.commit()
                 await main.channel_embed(ctx, 'Added', f'The word `{word}` has been added to the blacklist')
-                logging.info(f'{ctx.author.id} added a word to the blacklist')
+                print(f'{ctx.author.id} added a word to the blacklist')
             else:
                 await main.error_embed(ctx, 'That word already exists on the blacklist')
 
@@ -47,7 +46,7 @@ class Blacklist(commands.Cog):
                 main.cur.execute('DELETE FROM blacklist WHERE blacklist_word=%s', (word,))
                 main.db.commit()
                 await main.channel_embed(ctx, 'Removed', f'The word `{word}` has been removed from the blacklist')
-                logging.info(f'{ctx.author.id} removed a word from the blacklist')
+                print(f'{ctx.author.id} removed a word from the blacklist')
             else:
                 await main.error_embed(ctx, 'That word is not in the blacklist')
 

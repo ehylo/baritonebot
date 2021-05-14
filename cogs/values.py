@@ -1,5 +1,4 @@
 import main
-import logging
 import discord
 from discord.ext import commands
 from cogs.help import Help
@@ -18,7 +17,7 @@ class Prefix(commands.Cog):
             main.cur.execute('UPDATE settings SET prefix=%s', (fixpre,))
             main.db.commit()
             await main.channel_embed(ctx, 'Prefix set', f'Set the prefix to {fixpre}, please restart the bot for the changes to take affect')
-            logging.info(f'{ctx.author.id} set the prefix to {fixpre}')
+            print(f'{ctx.author.id} set the prefix to {fixpre}')
 
     @prefix.command(aliases=['d'])
     @commands.check(main.admin_group)
@@ -26,7 +25,7 @@ class Prefix(commands.Cog):
         main.cur.execute("UPDATE settings SET prefix='b?'")
         main.db.commit()
         await main.channel_embed(ctx, 'Prefix set', 'Set the prefix to the default (b?), please restart the bot for the changes to take affect')
-        logging.info(f'{ctx.author.id} set the prefix to default')
+        print(f'{ctx.author.id} set the prefix to default')
 
 
 class EmbedColor(commands.Cog):
@@ -42,7 +41,7 @@ class EmbedColor(commands.Cog):
             main.cur.execute('UPDATE settings SET embedcolor=%s', (color,))
             main.db.commit()
             await main.channel_embed(ctx, 'Embedcolor set', f'Set the embed color to {color}, please restart the bot for the changes to take affect')
-            logging.info(f'{ctx.author.id} set the embedcolor to {color}')
+            print(f'{ctx.author.id} set the embedcolor to {color}')
 
     @embedcolor.command(aliases=['d'])
     @commands.check(main.admin_group)
@@ -50,7 +49,7 @@ class EmbedColor(commands.Cog):
         main.cur.execute("UPDATE settings SET embedcolor='81C3FF'")
         main.db.commit()
         await main.channel_embed(ctx, 'Embedcolor set', 'Set the embed color to the default (81C3FF), please restart the bot for the changes to take affect')
-        logging.info(f'{ctx.author.id} set the embedcolor to default')
+        print(f'{ctx.author.id} set the embedcolor to default')
 
 
 class Nick(commands.Cog):
@@ -66,7 +65,7 @@ class Nick(commands.Cog):
         else:
             await b_guild.me.edit(nick=name)
             await main.channel_embed(ctx, 'Nick set', f'Set the bot\'s nickname in this server to `{name}`')
-            logging.info(f'{ctx.author.id} set the nick to {name}')
+            print(f'{ctx.author.id} set the nick to {name}')
 
     @nick.command(aliases=['d'])
     @commands.check(main.mod_group)
@@ -74,7 +73,7 @@ class Nick(commands.Cog):
         b_guild = self.bot.get_guild(main.baritoneDiscord)
         await b_guild.me.edit(nick='Franky')
         await main.channel_embed(ctx, 'Nick set', 'Set the bot\'s nickname in this server to the default (Franky)')
-        logging.info(f'{ctx.author.id} set the nick to default')
+        print(f'{ctx.author.id} set the nick to default')
 
     @nick.command(aliases=['r'])
     @commands.check(main.mod_group)
@@ -82,7 +81,7 @@ class Nick(commands.Cog):
         b_guild = self.bot.get_guild(main.baritoneDiscord)
         await b_guild.me.edit(nick=None)
         await main.channel_embed(ctx, 'Nick removed', 'Removed the bot\'s nick in this server')
-        logging.info(f'{ctx.author.id} removed the nick')
+        print(f'{ctx.author.id} removed the nick')
 
 
 class Status(commands.Cog):
@@ -115,7 +114,7 @@ class Status(commands.Cog):
                 main.db.commit()
                 await self.bot.change_presence(activity=discord.Activity(type=atype, name=presence))
                 await main.channel_embed(ctx, 'Presence set', f'Set the presence to `{dtype} {presence}`.')
-                logging.info(f'{ctx.author.id} set the status to {dtype} {presence}')
+                print(f'{ctx.author.id} set the status to {dtype} {presence}')
 
     @status.command(aliases=['d'])
     @commands.check(main.mod_group)
@@ -125,7 +124,7 @@ class Status(commands.Cog):
         main.db.commit()
         await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name='humans interact'))
         await main.channel_embed(ctx, 'Presence set', 'Set the presence to the default (`Watching humans interact`).')
-        logging.info(f'{ctx.author.id} set the presence to default')
+        print(f'{ctx.author.id} set the presence to default')
 
 
 def setup(bot):
