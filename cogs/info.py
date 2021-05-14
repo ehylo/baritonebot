@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from cogs.help import Help
-from main import baritoneDiscord, coolEmbedColor, error_embed
+from main import ids, coolEmbedColor, error_embed
 
 
 async def info_embed(ctx, member, title, field1, field2, field3, value):
@@ -30,7 +30,7 @@ class Info(commands.Cog):
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ui'])
     async def userinfo(self, ctx, user_id=None):
-        b_guild = self.bot.get_guild(baritoneDiscord)
+        b_guild = self.bot.get_guild(ids[1])
         try:
             user_men = str(ctx.message.raw_mentions[0])
         except IndexError:
@@ -56,7 +56,7 @@ class Info(commands.Cog):
 
     @userinfo.command()
     async def me(self, ctx):
-        b_guild = self.bot.get_guild(baritoneDiscord)
+        b_guild = self.bot.get_guild(ids[1])
         member_check = b_guild.get_member(ctx.author.id)
         if member_check is not None:
             await varistuff(ctx, member_check, ismember=True)
@@ -68,7 +68,7 @@ class Info(commands.Cog):
         if (arg is not None) and (arg.lower() == 'help'):
             await Help.serverinfo(self, ctx)
         else:
-            b_guild = self.bot.get_guild(baritoneDiscord)
+            b_guild = self.bot.get_guild(ids[1])
             em_v = discord.Embed(color=coolEmbedColor,  title=f'Server Information: {b_guild.name}')
             em_v.add_field(name='Owner:', value=f'{b_guild.owner} (ID: {b_guild.owner_id})', inline=False)
             em_v.add_field(name='Description:', value=b_guild.description, inline=False)

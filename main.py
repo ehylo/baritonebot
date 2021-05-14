@@ -13,47 +13,34 @@ db = psycopg2.connect(DATABASE_URL, sslmode='require')
 cur = db.cursor()
 cur.execute('SELECT * FROM settings')
 values = cur.fetchone()
+cur.execute("SELECT id FROM ids WHERE guild='baritone' ORDER BY order_by")
+ids = [int(item[0]) for item in cur.fetchall()]
+print(ids[1])
 coolEmbedColor = int(values[1], 16)
 
 bot = commands.Bot(command_prefix=(values[0], values[0].upper()), case_insensitive=True, intents=discord.Intents.all())
 bot.remove_command('help')
 
-botID = 823620099054239744
-helperRole = 822012171785338900
-devRole = 822012309698379807
-bypassRole = 822012884841791489
-moderatorRole = 822012512723009536
-adminRole = 822011290502823950
-ignoreRole = 835028767620857907
-muteRole = 822028372242333696
-releasesRole = 834720502551543850
-voiceRole = 835028715901419550
-leaveChannel = 822014611884081212
-logChannel = 822017074125078528
-dmChannel = 835198939652554802
-modlogChannel = 822178586487422996
-baritoneDiscord = 822011099561197579
-
 
 async def role_check(ctx, roles, name):
     for x in roles:
-        if ctx.bot.get_guild(baritoneDiscord).get_role(x) in ctx.bot.get_guild(baritoneDiscord).get_member(ctx.author.id).roles:
+        if ctx.bot.get_guild(ids[1]).get_role(x) in ctx.bot.get_guild(ids[1]).get_member(ctx.author.id).roles:
             return True
     await error_embed(ctx, f'You need to be {name} to use the command `{ctx.command}`')
 
 
 async def admin_group(ctx):
-    if await role_check(ctx, [bypassRole, adminRole, devRole], 'an Admin'):
+    if await role_check(ctx, [ids[8], ids[10], ids[7]], 'an Admin'):
         return True
 
 
 async def mod_group(ctx):
-    if await role_check(ctx, [bypassRole, adminRole, devRole, moderatorRole], 'a Moderator'):
+    if await role_check(ctx, [ids[8], ids[10], ids[7], ids[9]], 'a Moderator'):
         return True
 
 
 async def helper_group(ctx):
-    if await role_check(ctx, [bypassRole, adminRole, devRole, moderatorRole, helperRole], 'a Helper'):
+    if await role_check(ctx, [ids[8], ids[10], ids[7], ids[9], ids[6]], 'a Helper'):
         return True
 
 

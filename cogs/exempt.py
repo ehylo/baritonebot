@@ -56,7 +56,7 @@ class Exempt(commands.Cog):
     async def list(self, ctx):
         main.cur.execute('SELECT channel_id FROM ex_channels')  # don't look at the lines below
         slist = [self.bot.get_channel(int(line)) for line in [str(item[0]) for item in main.cur.fetchall()]]
-        klist = [(str(channel.id)) for channel in [x for x in self.bot.get_guild(main.baritoneDiscord).text_channels if x not in slist]]
+        klist = [(str(channel.id)) for channel in [x for x in self.bot.get_guild(main.ids[1]).text_channels if x not in slist]]
         await main.channel_embed(ctx, f'Unexempted Channels ({len(klist)})', f'<#{(">, <#".join(klist))}>')
 
 

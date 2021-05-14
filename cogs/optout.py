@@ -10,11 +10,11 @@ class Optout(commands.Cog):
 
     @commands.command()
     async def optout(self, ctx, *, arg=None):
-        b_guild = self.bot.get_guild(main.baritoneDiscord)
+        b_guild = self.bot.get_guild(main.ids[1])
         if arg is None:
             await Help.optout(self, ctx)
         elif arg.lower() == 'I am sure':
-            channel = await self.bot.fetch_channel(main.modlogChannel)
+            channel = await self.bot.fetch_channel(main.ids[5])
             try:
                 dchannel = await ctx.author.create_dm()
                 await main.dm_embed('Opted out', 'We appreciate you opting out. You have been banned from the server to prevent bypassing our moderation system.', dchannel)

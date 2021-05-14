@@ -15,7 +15,7 @@ async def del_blacklist(message, b_guild, is_edited=None):
     if del_message == 0:
         if (not message.content.startswith(main.values[0]) and           # don't delete commands
                 message.guild is not None and                             # don't try to delete dm messages
-                message.author.id is not main.botID and                  # don't delete messages from itself
+                message.author.id is not main.ids[0] and                  # don't delete messages from itself
                 str(message.channel.id) not in exempt_channels):          # don't delete messages in exempted channels
             if re.search(r'(https?://)?(www.)?(discord.(gg|io|me|li)|discordapp.com/invite)/[^\s/]+?(?=\b)', message.content) is not None:
                 await message.delete()
@@ -51,8 +51,8 @@ async def del_blacklist(message, b_guild, is_edited=None):
 
 
 async def dm_log(message, b_guild):
-    if (message.guild is None) and (message.author.id != main.botID):
-        channel = b_guild.get_channel(main.dmChannel)
+    if (message.guild is None) and (message.author.id != main.ids[0]):
+        channel = b_guild.get_channel(main.ids[4])
         await main.log_embed(None, 'I have recieved a DM', message.content, channel, message.author)
         print(f'{message.author.id} dmed me \"{message.content}\"')
 
@@ -71,17 +71,17 @@ async def att_paste(message):
 
 
 async def gexre(message, b_guild):
-    if (not message.content.startswith(main.values[0])) and (message.author.id != main.botID):
+    if (not message.content.startswith(main.values[0])) and (message.author.id != main.ids[0]):
         main.cur.execute('SELECT * FROM responses')
         response_list = main.cur.fetchall()
         for x in range(1, (len(response_list) + 1)):
             if re.search(response_list[x-1][0], message.content) is not None:
                 member = await b_guild.fetch_member(message.author.id)
-                if (b_guild.get_member(main.botID) in message.mentions) or (message.content.startswith('!')):  # this is seperate from the elif so there is no trash reaction to delete a pinged/command response, and also the bot won't reply
+                if (b_guild.get_member(main.ids[0]) in message.mentions) or (message.content.startswith('!')):  # this is seperate from the elif so there is no trash reaction to delete a pinged/command response, and also the bot won't reply
                     await main.channel_embed(message.channel, (response_list[x-1][1]), (response_list[x-1][2]))
                     print(f'{message.author.id} manually triggered response number {x}')
                     await message.delete()
-                elif (b_guild.get_role(main.ignoreRole) not in member.roles) and (str(message.channel.id) not in exempt_channels):
+                elif (b_guild.get_role(main.ids[11]) not in member.roles) and (str(message.channel.id) not in exempt_channels):
                     await main.channel_embed(message, (response_list[x-1][1]), (response_list[x-1][2]), None, 'Reply')
                     print(f'{message.author.id} sent a message and triggered response number {x}')
 
@@ -96,8 +96,8 @@ class Event(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if message.author.id != main.botID and str(message.channel.id) not in exempt_channels:
-            channel = await self.bot.fetch_channel(main.logChannel)
+        if message.author.id != main.ids[0] and str(message.channel.id) not in exempt_channels:
+            channel = await self.bot.fetch_channel(main.ids[3])
             if message.guild is None:
                 del_channel = 'DMs'
             else:
@@ -107,7 +107,7 @@ class Event(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
-        if message_before.author.id != main.botID:
+        if message_before.author.id != main.ids[0]:
             if str(message_before.channel.id) not in exempt_channels:
                 if message_after.content != message_before.content:  # prevent logging embeds loading
                     if message_before.guild is None:
@@ -118,14 +118,14 @@ class Event(commands.Cog):
                     em_v.add_field(name='Befored Edit:', value=message_before.content, inline=False)
                     em_v.add_field(name='After Edit:', value=message_after.content, inline=False)
                     em_v.set_footer(text=f'{message_after.author.name} | ID: {message_after.author.id}', icon_url=message_after.author.avatar_url)
-                    channel = await self.bot.fetch_channel(main.logChannel)
+                    channel = await self.bot.fetch_channel(main.ids[3])
                     await channel.send(embed=em_v)
                     print(f'{message_after.author.id} edited a message, Before: \"{message_before.content}\" After: \"{message_after.content}\"')
-        await del_blacklist(message_after, self.bot.get_guild(main.baritoneDiscord), 'edit')
+        await del_blacklist(message_after, self.bot.get_guild(main.ids[1]), 'edit')
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        channel = await self.bot.fetch_channel(main.leaveChannel)
+        channel = await self.bot.fetch_channel(main.ids[2])
         await main.log_embed(None, 'User Left', None, channel, member)
         print(f'{member.id} left the server')
 
@@ -134,11 +134,11 @@ class Event(commands.Cog):
         if member.name.startswith(('!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/')):
             await member.edit(nick=f'z{member.name}')
             print(f'{member.id} joined with a name that puts them to the top of the list, so z was added infront')
-        channel = await self.bot.fetch_channel(main.leaveChannel)
+        channel = await self.bot.fetch_channel(main.ids[2])
         await main.log_embed(None, 'User Joined', None, channel, member)
         main.cur.execute('SELECT user_id FROM punish WHERE user_id=%s', (member.id,))
         if main.cur.fetchone() is not None:
-            await member.add_roles(self.bot.get_guild(main.baritoneDiscord).get_role(main.muteRole))
+            await member.add_roles(self.bot.get_guild(main.ids[1]).get_role(main.ids[12]))
             print(f'{member.id} joined the server and was given the mute role because they are still muted')
         else:
             print(f'{member.id} joined the server')
@@ -158,17 +158,17 @@ class Event(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        await del_blacklist(message, b_guild=self.bot.get_guild(main.baritoneDiscord))
+        await del_blacklist(message, b_guild=self.bot.get_guild(main.ids[1]))
     # await self.bot.process_commands(message)  # commenting this out because it didn't work at one point without it but now if enabled it sends 2 messages idfk just leave it why not
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         if before.channel is None:  # only reason its 'before' and 'is' is so that before is used and pycharm stops yelling at me
-            b_role = discord.utils.get(member.guild.roles, id=main.voiceRole)
+            b_role = discord.utils.get(member.guild.roles, id=main.ids[14])
             await member.add_roles(b_role)
             print(f'{member.id} joined a voice channel and got the voice role')
         elif after.channel is None:
-            b_role = discord.utils.get(member.guild.roles, id=main.voiceRole)
+            b_role = discord.utils.get(member.guild.roles, id=main.ids[14])
             await member.remove_roles(b_role)
             print(f'{member.id} left a voice channel and the voice role was removed')
 
@@ -176,8 +176,8 @@ class Event(commands.Cog):
     async def on_reaction_add(self, reaction, user):
         message = reaction.message
         if reaction.emoji == '🗑️':  # make sure the reaction is the wastebasket
-            if (message.author.id == main.botID) and (user.id != main.botID):  # make sure the bot sent the message and it wasn't the one who reacted
-                helper_role = self.bot.get_guild(main.baritoneDiscord).get_role(main.helperRole)
+            if (message.author.id == main.ids[0]) and (user.id != main.ids[0]):  # make sure the bot sent the message and it wasn't the one who reacted
+                helper_role = self.bot.get_guild(main.ids[1]).get_role(main.ids[6])
                 try:
                     reaction_trigger = await message.channel.fetch_message(message.reference.message_id)
                     if (user.id == reaction_trigger.author.id) or (helper_role in user.roles):  # delete if the person is a helper or they were the ones who triggered it
@@ -189,6 +189,8 @@ class Event(commands.Cog):
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.errors.UserNotFound):
             await main.error_embed(ctx, 'That member is invalid')
+        elif isinstance(error, commands.errors.ChannelNotFound):
+            await main.error_embed(ctx, 'That is not a valid channel')
         elif isinstance(error, commands.BadArgument):
             await main.error_embed(ctx, 'You need to give a **number**')
         elif isinstance(error, commands.errors.CommandNotFound):
@@ -199,9 +201,9 @@ class Event(commands.Cog):
 
     @tasks.loop(seconds=5)
     async def loops(self):
-        b_guild = self.bot.get_guild(main.baritoneDiscord)
-        log_channel = await self.bot.fetch_channel(main.logChannel)
-        modlog_channel = await self.bot.fetch_channel(main.modlogChannel)
+        b_guild = self.bot.get_guild(main.ids[1])
+        log_channel = await self.bot.fetch_channel(main.ids[3])
+        modlog_channel = await self.bot.fetch_channel(main.ids[5])
         async for message in log_channel.history(limit=1000):
             if (message.created_at + timedelta(hours=24)) < datetime.utcnow():
                 await message.delete()
@@ -218,9 +220,8 @@ class Event(commands.Cog):
                         await main.dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
                     except (discord.Forbidden, discord.errors.HTTPException):
                         pass
-                    await main.log_embed(None, 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted',
-                                          modlog_channel, b_guild.get_member(i[0]))
-                    await b_guild.get_member(i[0]).remove_roles(b_guild.get_role(main.muteRole))
+                    await main.log_embed(None, 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted', modlog_channel, b_guild.get_member(i[0]))
+                    await b_guild.get_member(i[0]).remove_roles(b_guild.get_role(main.ids[12]))
                 print(f'{i[0]} was unmuted automatically')
                 main.cur.execute('DELETE FROM punish WHERE user_id=%s', (i[0],))
                 main.db.commit()
