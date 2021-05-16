@@ -4,7 +4,7 @@ from discord.ext import commands
 from cogs.help import Help
 
 
-class Prefix(commands.Cog):
+class Values(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -16,21 +16,16 @@ class Prefix(commands.Cog):
         else:
             main.cur.execute("UPDATE settings SET prefix = %s WHERE yes='yes'", (fixpre,))
             main.db.commit()
-            await main.channel_embed(ctx, 'Prefix set', f'Set the prefix to {fixpre}, please restart the bot for the changes to take affect')
+            await main.channel_embed(ctx, 'Prefix set', f'Set the prefix to {fixpre}')
             print(f'{ctx.author.id} set the prefix to {fixpre}')
 
-    @prefix.command(aliases=['d'])
+    @prefix.command(aliases=['d', 'default'])
     @commands.check(main.admin_group)
-    async def default(self, ctx):
+    async def defaultp(self, ctx):
         main.cur.execute("UPDATE settings SET prefix='b?' WHERE yes='yes'")
         main.db.commit()
-        await main.channel_embed(ctx, 'Prefix set', 'Set the prefix to the default (b?), please restart the bot for the changes to take affect')
+        await main.channel_embed(ctx, 'Prefix set', 'Set the prefix to the default (b?)')
         print(f'{ctx.author.id} set the prefix to default')
-
-
-class EmbedColor(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ec'])
     @commands.check(main.admin_group)
@@ -40,26 +35,21 @@ class EmbedColor(commands.Cog):
         else:
             main.cur.execute("UPDATE settings SET embedcolor = %s WHERE yes='yes'", (color,))
             main.db.commit()
-            await main.channel_embed(ctx, 'Embedcolor set', f'Set the embed color to {color}, please restart the bot for the changes to take affect')
+            await main.channel_embed(ctx, 'Embedcolor set', f'Set the embed color to {color}')
             print(f'{ctx.author.id} set the embedcolor to {color}')
 
     @embedcolor.command(aliases=['d'])
     @commands.check(main.admin_group)
-    async def default(self, ctx):
+    async def defaulte(self, ctx):
         main.cur.execute("UPDATE settings SET embedcolor='81C3FF' WHERE yes='yes'")
         main.db.commit()
-        await main.channel_embed(ctx, 'Embedcolor set', 'Set the embed color to the default (81C3FF), please restart the bot for the changes to take affect')
+        await main.channel_embed(ctx, 'Embedcolor set', 'Set the embed color to the default (81C3FF)')
         print(f'{ctx.author.id} set the embedcolor to default')
-
-
-class Nick(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['n'])
     @commands.check(main.mod_group)
     async def nick(self, ctx, *, name=None):
-        b_guild = self.bot.get_guild(main.ids[1])
+        b_guild = self.bot.get_guild(main.ids(1))
         if name is None:
             await Help.nick(self, ctx)
         else:
@@ -69,8 +59,8 @@ class Nick(commands.Cog):
 
     @nick.command(aliases=['d'])
     @commands.check(main.mod_group)
-    async def default(self, ctx):
-        b_guild = self.bot.get_guild(main.ids[1])
+    async def defaultn(self, ctx):
+        b_guild = self.bot.get_guild(main.ids(1))
         await b_guild.me.edit(nick='Franky')
         await main.channel_embed(ctx, 'Nick set', 'Set the bot\'s nickname in this server to the default (Franky)')
         print(f'{ctx.author.id} set the nick to default')
@@ -78,15 +68,10 @@ class Nick(commands.Cog):
     @nick.command(aliases=['r'])
     @commands.check(main.mod_group)
     async def remove(self, ctx):
-        b_guild = self.bot.get_guild(main.ids[1])
+        b_guild = self.bot.get_guild(main.ids(1))
         await b_guild.me.edit(nick=None)
         await main.channel_embed(ctx, 'Nick removed', 'Removed the bot\'s nick in this server')
         print(f'{ctx.author.id} removed the nick')
-
-
-class Status(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['s'])
     @commands.check(main.mod_group)
@@ -118,7 +103,7 @@ class Status(commands.Cog):
 
     @status.command(aliases=['d'])
     @commands.check(main.mod_group)
-    async def default(self, ctx):
+    async def defaultn(self, ctx):
         main.cur.execute("UPDATE settings SET presence='humans interact' WHERE yes='yes'")
         main.cur.execute("UPDATE settings SET presencetype='Watching' WHERE yes='yes'")
         main.db.commit()
@@ -128,7 +113,4 @@ class Status(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Prefix(bot))
-    bot.add_cog(EmbedColor(bot))
-    bot.add_cog(Nick(bot))
-    bot.add_cog(Status(bot))
+    bot.add_cog(Values(bot))

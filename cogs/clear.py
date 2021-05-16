@@ -24,7 +24,7 @@ class Clear(commands.Cog):
                 int_num = int(num)
                 if int_num > 0:
                     await ctx.channel.purge(limit=int_num)
-                    channel = await self.bot.fetch_channel(main.ids[3])
+                    channel = await self.bot.fetch_channel(main.ids(3))
                     await main.log_embed(None, 'Bulk messages deleted', f'{ctx.author.mention} cleared {int_num} messages in {ctx.channel.mention}', channel, ctx.author)
                     print(f'{ctx.author.id} cleared {int_num} messages in {ctx.channel}')
                 else:
@@ -57,7 +57,7 @@ class Clear(commands.Cog):
                             await ctx.message.delete()  # delete the command
                         except discord.NotFound:  # ignore error if it was already deleted
                             pass
-                        channel = await self.bot.fetch_channel(main.ids[3])
+                        channel = await self.bot.fetch_channel(main.ids(3))
                         await main.log_embed(ctx, 'Bulk messages deleted', f'{ctx.author.mention} cleared {num2} messages in {ctx.channel.mention} from {clear_member.mention}', channel, clear_member)
                         print(f'{ctx.author.id} cleared {num2} messages in {ctx.channel.id} from {clear_member.id}')
                 else:

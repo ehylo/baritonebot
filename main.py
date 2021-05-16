@@ -11,35 +11,47 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 
 db = psycopg2.connect(DATABASE_URL, sslmode='require')
 cur = db.cursor()
-cur.execute('SELECT * FROM settings')
-values = cur.fetchone()
-cur.execute("SELECT id FROM ids WHERE guild='baritone' ORDER BY order_by")
-ids = [int(item[0]) for item in cur.fetchall()]
-coolEmbedColor = int(values[1], 16)
 
-bot = commands.Bot(command_prefix=(values[0], values[0].upper()), case_insensitive=True, intents=discord.Intents.all())
+
+def ids(num):
+    cur.execute("SELECT id FROM ids WHERE guild='baritone' ORDER BY order_by")
+    actual = [int(item[0]) for item in cur.fetchall()]
+    return actual[num]
+
+
+def values(num):
+    cur.execute('SELECT * FROM settings')
+    actual = cur.fetchone()
+    return actual[num]
+
+
+def cool_embed_color():
+    return int(values(1), 16)
+
+
+bot = commands.Bot(command_prefix=(values(0), values(0).upper()), case_insensitive=True, intents=discord.Intents.all())
 bot.remove_command('help')
 
 
 async def role_check(ctx, roles, name):
     for x in roles:
-        if ctx.bot.get_guild(ids[1]).get_role(x) in ctx.bot.get_guild(ids[1]).get_member(ctx.author.id).roles:
+        if ctx.bot.get_guild(ids(1)).get_role(x) in ctx.bot.get_guild(ids(1)).get_member(ctx.author.id).roles:
             return True
     await error_embed(ctx, f'You need to be {name} to use the command `{ctx.command}`')
 
 
 async def admin_group(ctx):
-    if await role_check(ctx, [ids[8], ids[10], ids[7]], 'an Admin'):
+    if await role_check(ctx, [ids(8), ids(10), ids(7)], 'an Admin'):
         return True
 
 
 async def mod_group(ctx):
-    if await role_check(ctx, [ids[8], ids[10], ids[7], ids[9]], 'a Moderator'):
+    if await role_check(ctx, [ids(8), ids(10), ids(7), ids(9)], 'a Moderator'):
         return True
 
 
 async def helper_group(ctx):
-    if await role_check(ctx, [ids[8], ids[10], ids[7], ids[9], ids[6]], 'a Helper'):
+    if await role_check(ctx, [ids(8), ids(10), ids(7), ids(9), ids(6)], 'a Helper'):
         return True
 
 
@@ -55,7 +67,7 @@ async def error_embed(ctx, desc=None, error=None):
 async def log_embed(ctx=None, title=None, desc=None, channel=None, member=None):
     if title is None:
         title = ''
-    em_v = discord.Embed(color=coolEmbedColor, title=title)
+    em_v = discord.Embed(color=cool_embed_color(), title=title)
     em_v.description = desc
     if ctx is None:
         ctx = member
@@ -67,7 +79,7 @@ async def log_embed(ctx=None, title=None, desc=None, channel=None, member=None):
 
 
 async def channel_embed(ctx, title=None, desc=None, thumbnail=None, replyorsend=None):
-    em_v = discord.Embed(color=coolEmbedColor, title=title)
+    em_v = discord.Embed(color=cool_embed_color(), title=title)
     if desc is not None:
         em_v.description = desc
     if thumbnail is not None:
@@ -86,7 +98,7 @@ async def channel_embed(ctx, title=None, desc=None, thumbnail=None, replyorsend=
 
 
 async def help_embed(ctx, title, desc=None, field_value=None, field_name=None, image=None):
-    em_v = discord.Embed(color=coolEmbedColor, title=title, description=desc)
+    em_v = discord.Embed(color=cool_embed_color(), title=title, description=desc)
     if image is not None:
         em_v.set_image(url=image)
     if field_name is None:
@@ -97,7 +109,7 @@ async def help_embed(ctx, title, desc=None, field_value=None, field_name=None, i
 
 
 async def dm_embed(dtitle, ddesc, dchannel):
-    em_v = discord.Embed(color=coolEmbedColor, title=dtitle, description=ddesc)
+    em_v = discord.Embed(color=cool_embed_color(), title=dtitle, description=ddesc)
     await dchannel.send(embed=em_v)
 
 for filename in os.listdir('./cogs'):
@@ -108,15 +120,15 @@ print('[STARTUP] loaded all extensions')
 
 @bot.event
 async def on_ready():
-    if values[2] == 'Watching':
+    if values(2) == 'Watching':
         atype = discord.ActivityType.watching
-    elif values[2] == 'Playing':
+    elif values(2) == 'Playing':
         atype = discord.ActivityType.playing
-    elif values[2] == 'Listening to':
+    elif values(2) == 'Listening to':
         atype = discord.ActivityType.listening
     else:
         atype = discord.ActivityType.competing
-    await bot.change_presence(activity=discord.Activity(type=atype, name=values[3]))
+    await bot.change_presence(activity=discord.Activity(type=atype, name=values(3)))
     print('[STARTUP] Successfully started baritoe bot and set the presence and prefix to the default')
 
 bot.run(token)

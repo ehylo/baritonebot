@@ -14,7 +14,7 @@ class Cringe(commands.Cog):
             await Help.cringe(self, ctx)
         else:
             main.cur.execute('SELECT cringe_link FROM cringe ORDER BY RANDOM() LIMIT 1')
-            em_v = discord.Embed(color=main.coolEmbedColor, title=':camera_with_flash:')
+            em_v = discord.Embed(color=main.cool_embed_color(), title=':camera_with_flash:')
             em_v.set_image(url=str(str(main.cur.fetchone())[2:-3]))
             em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
             await ctx.send(embed=em_v)

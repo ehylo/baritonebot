@@ -28,7 +28,7 @@ class Emote(commands.Cog):
     @commands.command(invoke_without_command=True, aliases=['em'])
     @commands.check(main.mod_group)
     async def emote(self, ctx, name=None, url=None):
-        b_guild = self.bot.get_guild(main.ids[1])
+        b_guild = self.bot.get_guild(main.ids(1))
         if name is None:
             await Help.emote(self, ctx)
         elif len(ctx.message.attachments) > 0:

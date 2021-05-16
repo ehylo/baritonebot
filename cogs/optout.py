@@ -10,11 +10,11 @@ class Optout(commands.Cog):
 
     @commands.command()
     async def optout(self, ctx, *, arg=None):
-        b_guild = self.bot.get_guild(main.ids[1])
+        b_guild = self.bot.get_guild(main.ids(1))
         if arg is None:
             await Help.optout(self, ctx)
         elif arg.lower() == 'I am sure':
-            channel = await self.bot.fetch_channel(main.ids[5])
+            channel = await self.bot.fetch_channel(main.ids(5))
             try:
                 dchannel = await ctx.author.create_dm()
                 await main.dm_embed('Opted out', 'We appreciate you opting out. You have been banned from the server to prevent bypassing our moderation system.', dchannel)
@@ -25,7 +25,7 @@ class Optout(commands.Cog):
             await main.log_embed(ctx, 'User Banned', f'{ctx.author.mention} has been banned for reason: \n```User {ctx.author} has opted out```', channel, ctx.author)
             await b_guild.ban(user=ctx.author, reason='Opted out and banned', delete_message_days=7)
         else:
-            await main.channel_embed(ctx, 'Opt-Out', f'You will be **banned from this server** and **lose all your roles** by continuing. Are you sure you want to opt out? if yes, type `{main.values[0]}optout I am sure`')
+            await main.channel_embed(ctx, 'Opt-Out', f'You will be **banned from this server** and **lose all your roles** by continuing. Are you sure you want to opt out? if yes, type `{main.values(0)}optout I am sure`')
 
 
 def setup(bot):
