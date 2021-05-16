@@ -3,6 +3,7 @@ import re
 import mimetypes
 import main
 import discord
+from time import time
 from datetime import datetime, timedelta
 from discord.ext import commands, tasks
 
@@ -91,9 +92,6 @@ class Event(commands.Cog):
         self.bot = bot
         self.loops.start()
 
-    def cog_unload(self):
-        self.loops.cancel()
-
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.author.id != main.ids(0) and str(message.channel.id) not in exempt_channels:
@@ -114,7 +112,7 @@ class Event(commands.Cog):
                         jump = 'DMs**'
                     else:
                         jump = f'{message_after.channel.mention}** [(jump)](https://discord.com/channels/{message_after.guild.id}/{message_after.channel.id}/{message_after.id})'
-                    em_v = discord.Embed(color=main.cool_embed_color(), description=f'**Message edited in {jump}')
+                    em_v = discord.Embed(color=int(main.values(1), 16), description=f'**Message edited in {jump}')
                     em_v.add_field(name='Befored Edit:', value=message_before.content, inline=False)
                     em_v.add_field(name='After Edit:', value=message_after.content, inline=False)
                     em_v.set_footer(text=f'{message_after.author.name} | ID: {message_after.author.id}', icon_url=message_after.author.avatar_url)
@@ -199,7 +197,7 @@ class Event(commands.Cog):
             await main.error_embed(ctx, None, error)
             print(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
 
-    @tasks.loop(seconds=5)
+    @tasks.loop(seconds=1)
     async def loops(self):
         b_guild = self.bot.get_guild(main.ids(1))
         log_channel = await self.bot.fetch_channel(main.ids(3))
@@ -208,10 +206,10 @@ class Event(commands.Cog):
             if (message.created_at + timedelta(hours=24)) < datetime.utcnow():
                 await message.delete()
                 print('cleared logs older then 24 hours in the logs channel')
-        main.cur.execute('SELECT * FROM punish')
-        muted = main.cur.fetchall()
-        for i in muted:
-            date_muted = datetime(i[4], i[5], i[6], i[7], i[8])
+        main.cur.execute('SELECT * FROM rekt')
+        now = int(time())
+        for i in main.cur.fetchall():
+            expiry = i[2]
 
             async def unmute_embeds():
                 if b_guild.get_member(i[0]) is not None:
@@ -223,23 +221,10 @@ class Event(commands.Cog):
                     await main.log_embed(None, 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted', modlog_channel, b_guild.get_member(i[0]))
                     await b_guild.get_member(i[0]).remove_roles(b_guild.get_role(main.ids(12)))
                 print(f'{i[0]} was unmuted automatically')
-                main.cur.execute('DELETE FROM punish WHERE user_id=%s', (i[0],))
+                main.cur.execute('DELETE FROM rekt WHERE user_id=%s', (i[0],))
                 main.db.commit()
-
-            if i[2].lower() == 'm':
-                if (date_muted + timedelta(minutes=i[1])) <= datetime.utcnow():
-                    await unmute_embeds()
-            elif i[2].lower() == 'h':
-                if (date_muted + timedelta(hours=i[1])) <= datetime.utcnow():
-                    await unmute_embeds()
-            elif i[2].lower() == 'd':
-                if (date_muted + timedelta(days=i[1])) <= datetime.utcnow():
-                    await unmute_embeds()
-
-    @loops.before_loop
-    async def before_loops(self):
-        print('[STARTUP] waiting to start loops...')
-        await self.bot.wait_until_ready()
+            if expiry - now == 0:
+                await unmute_embeds()
 
 
 def setup(bot):

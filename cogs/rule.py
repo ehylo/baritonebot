@@ -64,7 +64,7 @@ class Rule(commands.Cog):
     @commands.command()
     @commands.check(main.helper_group)
     async def rules(self, ctx):
-        em_v = discord.Embed(color=main.cool_embed_color(), title='Rules')
+        em_v = discord.Embed(color=int(main.values(1), 16), title='Rules')
         em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
         em_v.set_thumbnail(url='https://bigrat.monster/media/noanime.gif')
         main.cur.execute('SELECT ROW_NUMBER () OVER ( ORDER BY rules_number ) rowNum, rules_number, rules_title, rules_description FROM rules')

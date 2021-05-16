@@ -25,10 +25,6 @@ def values(num):
     return actual[num]
 
 
-def cool_embed_color():
-    return int(values(1), 16)
-
-
 bot = commands.Bot(command_prefix=(values(0), values(0).upper()), case_insensitive=True, intents=discord.Intents.all())
 bot.remove_command('help')
 
@@ -67,7 +63,7 @@ async def error_embed(ctx, desc=None, error=None):
 async def log_embed(ctx=None, title=None, desc=None, channel=None, member=None):
     if title is None:
         title = ''
-    em_v = discord.Embed(color=cool_embed_color(), title=title)
+    em_v = discord.Embed(color=int(values(1), 16), title=title)
     em_v.description = desc
     if ctx is None:
         ctx = member
@@ -79,7 +75,7 @@ async def log_embed(ctx=None, title=None, desc=None, channel=None, member=None):
 
 
 async def channel_embed(ctx, title=None, desc=None, thumbnail=None, replyorsend=None):
-    em_v = discord.Embed(color=cool_embed_color(), title=title)
+    em_v = discord.Embed(color=int(values(1), 16), title=title)
     if desc is not None:
         em_v.description = desc
     if thumbnail is not None:
@@ -98,7 +94,7 @@ async def channel_embed(ctx, title=None, desc=None, thumbnail=None, replyorsend=
 
 
 async def help_embed(ctx, title, desc=None, field_value=None, field_name=None, image=None):
-    em_v = discord.Embed(color=cool_embed_color(), title=title, description=desc)
+    em_v = discord.Embed(color=int(values(1), 16), title=title, description=desc)
     if image is not None:
         em_v.set_image(url=image)
     if field_name is None:
@@ -109,7 +105,7 @@ async def help_embed(ctx, title, desc=None, field_value=None, field_name=None, i
 
 
 async def dm_embed(dtitle, ddesc, dchannel):
-    em_v = discord.Embed(color=cool_embed_color(), title=dtitle, description=ddesc)
+    em_v = discord.Embed(color=int(values(1), 16), title=dtitle, description=ddesc)
     await dchannel.send(embed=em_v)
 
 for filename in os.listdir('./cogs'):
