@@ -134,7 +134,7 @@ class Event(commands.Cog):
             print(f'{member.id} joined with a name that puts them to the top of the list, so z was added infront')
         channel = await self.bot.fetch_channel(main.ids(2))
         await main.log_embed(None, 'User Joined', None, channel, member)
-        main.cur.execute('SELECT user_id FROM punish WHERE user_id=%s', (member.id,))
+        main.cur.execute('SELECT user_id FROM rekt WHERE user_id=%s', (member.id,))
         if main.cur.fetchone() is not None:
             await member.add_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(12)))
             print(f'{member.id} joined the server and was given the mute role because they are still muted')

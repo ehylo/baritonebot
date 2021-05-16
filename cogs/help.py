@@ -47,7 +47,7 @@ class Help(commands.Cog):
     @help.command(aliases=['h'])
     async def helper(self, ctx):
         field_value = '\
-            \u2022 `mute(m) <[user]> <[time(d=days, h=hours, m=minutes)]|[reason]> <[reason]>` \
+            \u2022 `mute(m) <[user]> <[time(d=days, h=hours, m=minutes)]|[reason]|list(l)> <[reason]>` \
             \n\u2022 `response(rp) <details(d)|list(l)> <[number]>` \
             \n\u2022 `blacklist(bl) <list(l)>` \
             \n\u2022 `cringe(c) <add(a)> <[image url]|[image attachment]>` \
@@ -84,7 +84,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def mute(self, ctx):
-        await help_embed(ctx, 'Mute', 'Mutes the specified member indefinitely or for the specified amount of time', '`mute(m) <[user]> <[time(d=days, h=hours, m=minutes)]|[reason]> <[reason]>`')
+        await help_embed(ctx, 'Mute', 'Mutes the specified member indefinitely or for the specified amount of time', '`mute(m) <[user]> <[time(d=days, h=hours, m=minutes)]|[reason]|list(l)> <[reason]>`')
 
     @help.command()
     async def kick(self, ctx):

@@ -103,7 +103,7 @@ class Values(commands.Cog):
 
     @status.command(aliases=['d'])
     @commands.check(main.mod_group)
-    async def defaultn(self, ctx):
+    async def defaults(self, ctx):
         main.cur.execute("UPDATE settings SET presence='humans interact' WHERE yes='yes'")
         main.cur.execute("UPDATE settings SET presencetype='Watching' WHERE yes='yes'")
         main.db.commit()

@@ -15,9 +15,7 @@ Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Bari
 *   Add more options to the embed command (field, footer, author, image, etc) also be able to edit it
 *   Add a polls command
 *   Some sort of lockdown command where you can lock down specific channels or all of them or a specific category
-*   Add a word whitelist which overrides blacklist if the amount of whitelisted words is equal or greater than blacklisted words
-*   Be able to blacklist people from dm logging to prevent people abusing it
-*   Command to see a list of currently muted people and how long is left
+*   Add time to ban, and also ban list
 *   Add some commands to change the roles/channels, preped for this by storing the ids in a db instead of hard coded
 ## How to run
 [requirements are here](requirements.txt)
