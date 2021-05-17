@@ -223,7 +223,7 @@ class Event(commands.Cog):
                 print(f'{i[0]} was unmuted automatically')
                 main.cur.execute('DELETE FROM rekt WHERE user_id=%s', (i[0],))
                 main.db.commit()
-            if expiry - now == 0:
+            if expiry - now <= 0:
                 await unmute_embeds()
 
 
