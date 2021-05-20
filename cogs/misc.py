@@ -1,4 +1,4 @@
-import random
+from random import SystemRandom
 from discord.ext import commands
 from cogs.help import Help
 from main import channel_embed
@@ -14,7 +14,7 @@ scissors_paper = 'Scissors cuts Paper'
 
 
 async def computer_rps(ctx, choice_num, choice, image):
-    comp_choice = random.randint(1, 3)
+    comp_choice = [SystemRandom().randrange(3)][0]+1
     if comp_choice == 1:
         str_compchoice = 'Rock'
     elif comp_choice == 2:
@@ -45,6 +45,7 @@ async def computer_rps(ctx, choice_num, choice, image):
 
 class Misc(commands.Cog):
     def __init__(self, bot):
+        """Returns if the user won or other emebeds for the commands."""
         self.bot = bot
 
     @commands.command(aliases=['p'])
@@ -59,7 +60,7 @@ class Misc(commands.Cog):
         if (arg is not None) and (arg.lower() == 'help'):
             await Help.flip(self, ctx)
         else:
-            c = random.randint(1, 2)
+            c = [SystemRandom().randrange(2)][0]+1
             if c == 1:
                 await channel_embed(ctx, '🗣 Heads! 🗣')
             else:
@@ -110,7 +111,7 @@ class Misc(commands.Cog):
             else:
                 user_choice = 5
                 image = spock_img
-            comp_choice = random.randint(1, 5)
+            comp_choice = [SystemRandom().randrange(5)][0]+1
             if user_choice == 1 and comp_choice == 2:
                 title = 'You lost :('
                 action = paper_rock

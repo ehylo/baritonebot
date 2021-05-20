@@ -1,100 +1,31 @@
-import requests
-import re
-import mimetypes
 import main
 import discord
 from time import time
 from datetime import datetime, timedelta
 from discord.ext import commands, tasks
 
-main.cur.execute('SELECT channel_id FROM ex_channels')
+main.cur.execute("SELECT ids FROM exempted WHERE type='channel'")
 exempt_channels = [str(item[0]) for item in main.cur.fetchall()]
-
-
-async def del_blacklist(message, b_guild, is_edited=None):
-    del_message = 0
-    if del_message == 0:
-        if (not message.content.startswith(main.values(0)) and           # don't delete commands
-                message.guild is not None and                             # don't try to delete dm messages
-                message.author.id is not main.ids(0) and                  # don't delete messages from itself
-                str(message.channel.id) not in exempt_channels):          # don't delete messages in exempted channels
-            if re.search(r'(https?://)?(www.)?(discord.(gg|io|me|li)|discordapp.com/invite)/[^\s/]+?(?=\b)', message.content) is not None:
-                await message.delete()
-                try:
-                    dchannel = await message.author.create_dm()
-                    await main.dm_embed('Message Deleted', f'Your message in {message.channel.mention} was deleted because sending invite links is against the rules', dchannel)
-                except (discord.Forbidden, discord.errors.HTTPException):
-                    pass
-                print(f'{message.author.id} tried to send an invite link but it was deleted')
-            else:
-                main.cur.execute('SELECT blacklist_word FROM blacklist')
-                blacklist_list = main.cur.fetchall()
-                for x in range(1, (len(blacklist_list) + 1)):
-                    if re.search(blacklist_list[x - 1][0], message.content) is not None:
-                        deleted_word = ''
-                        try:
-                            await message.delete()
-                            first_deleted_word = f'{blacklist_list[x - 1][0]}'
-                            del_message += 1
-                        except discord.NotFound:
-                            deleted_word += f'`, `{blacklist_list[x - 1][0]}'
-                if del_message > 0:
-                    try:
-                        dchannel = await message.author.create_dm()
-                        await main.dm_embed('Message Deleted', f'Your message in {message.channel.mention} was deleted because `{first_deleted_word}{deleted_word}` is blacklisted', dchannel)
-                    except (discord.Forbidden, discord.errors.HTTPException):
-                        pass
-                    print(f'{message.author.id} sent a message but it was deleted because it has a word on the blacklist')
-    if (del_message == 0) and (is_edited is None):
-        await att_paste(message)
-        await dm_log(message, b_guild)
-        await gexre(message, b_guild)
-
-
-async def dm_log(message, b_guild):
-    if (message.guild is None) and (message.author.id != main.ids(0)):
-        channel = b_guild.get_channel(main.ids(4))
-        await main.log_embed(None, 'I have recieved a DM', message.content, channel, message.author)
-        print(f'{message.author.id} dmed me \"{message.content}\"')
-
-
-async def att_paste(message):
-    if len(message.attachments) > 0:
-        file_type = mimetypes.guess_type(message.attachments[0].url)
-        if file_type[0] is not None:
-            file_type = file_type[0].split('/')[0]
-        if message.attachments[0].url.lower().endswith(('.log', '.json5', '.json', '.py', '.sh', '.config', '.properties', '.toml', '.bat', '.cfg')) or file_type == 'text':
-            text = await discord.Attachment.read(message.attachments[0], use_cached=False)
-            paste_response = requests.post(url='https://api.paste.ee/v1/pastes', json={'sections': [{'name': "Paste from " + str(message.author), 'contents': ("\n".join((text.decode('UTF-8')).splitlines()))}]}, headers={'X-Auth-Token': main.pasteToken})
-            actual_link = paste_response.json()
-            await main.channel_embed(message, 'Contents uploaded to paste.ee', (actual_link["link"]))
-            print(f'{message.author.id} uploaded a paste to {(actual_link["link"])}')
-
-
-async def gexre(message, b_guild):
-    if (not message.content.startswith(main.values(0))) and (message.author.id != main.ids(0)):
-        main.cur.execute('SELECT * FROM responses')
-        response_list = main.cur.fetchall()
-        for x in range(1, (len(response_list) + 1)):
-            if re.search(response_list[x-1][0], message.content) is not None:
-                member = await b_guild.fetch_member(message.author.id)
-                if (b_guild.get_member(main.ids(0)) in message.mentions) or (message.content.startswith('!')):  # this is seperate from the elif so there is no trash reaction to delete a pinged/command response, and also the bot won't reply
-                    await main.channel_embed(message.channel, (response_list[x-1][1]), (response_list[x-1][2]))
-                    print(f'{message.author.id} manually triggered response number {x}')
-                    await message.delete()
-                elif (b_guild.get_role(main.ids(11)) not in member.roles) and (str(message.channel.id) not in exempt_channels):
-                    await main.channel_embed(message, (response_list[x-1][1]), (response_list[x-1][2]), None, 'Reply')
-                    print(f'{message.author.id} sent a message and triggered response number {x}')
+main.cur.execute("SELECT ids FROM exempted WHERE type='user'")
+exempt_users = [str(item[0]) for item in main.cur.fetchall()]
 
 
 class Event(commands.Cog):
     def __init__(self, bot):
+        """Returns all of the specific emebeds for even related actions."""
         self.bot = bot
         self.loops.start()
 
     @commands.Cog.listener()
+    async def on_message(self, message):
+        if (message.guild is None) and (message.author.id != main.ids(0)) and (str(message.author.id) not in exempt_users):
+            channel = self.bot.get_guild(main.ids(1)).get_channel(main.ids(4))
+            await main.log_embed(None, 'I have recieved a DM', message.content, channel, message.author)
+            print(f'{message.author.id} dmed me \"{message.content}\"')
+
+    @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if message.author.id != main.ids(0) and str(message.channel.id) not in exempt_channels:
+        if (message.author.id != main.ids(0)) and (str(message.channel.id) not in exempt_channels) and (str(message.author.id) not in exempt_users):
             channel = await self.bot.fetch_channel(main.ids(3))
             if message.guild is None:
                 del_channel = 'DMs'
@@ -106,7 +37,7 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
         if message_before.author.id != main.ids(0):
-            if str(message_before.channel.id) not in exempt_channels:
+            if (str(message_before.channel.id) not in exempt_channels) and (str(message_after.author.id) not in exempt_users):
                 if message_after.content != message_before.content:  # prevent logging embeds loading
                     if message_before.guild is None:
                         jump = 'DMs**'
@@ -119,7 +50,6 @@ class Event(commands.Cog):
                     channel = await self.bot.fetch_channel(main.ids(3))
                     await channel.send(embed=em_v)
                     print(f'{message_after.author.id} edited a message, Before: \"{message_before.content}\" After: \"{message_after.content}\"')
-        await del_blacklist(message_after, self.bot.get_guild(main.ids(1)), 'edit')
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
@@ -155,11 +85,6 @@ class Event(commands.Cog):
             print(f'{before.id} set a top of the list nick and the bot is missing permissions to change it')
 
     @commands.Cog.listener()
-    async def on_message(self, message):
-        await del_blacklist(message, b_guild=self.bot.get_guild(main.ids(1)))
-    # await self.bot.process_commands(message)  # commenting this out because it didn't work at one point without it but now if enabled it sends 2 messages idfk just leave it why not
-
-    @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         if before.channel is None:  # only reason its 'before' and 'is' is so that before is used and pycharm stops yelling at me
             b_role = discord.utils.get(member.guild.roles, id=main.ids(14))
@@ -169,19 +94,6 @@ class Event(commands.Cog):
             b_role = discord.utils.get(member.guild.roles, id=main.ids(14))
             await member.remove_roles(b_role)
             print(f'{member.id} left a voice channel and the voice role was removed')
-
-    @commands.Cog.listener()
-    async def on_reaction_add(self, reaction, user):
-        message = reaction.message
-        if reaction.emoji == '🗑️':  # make sure the reaction is the wastebasket
-            if (message.author.id == main.ids(0)) and (user.id != main.ids(0)):  # make sure the bot sent the message and it wasn't the one who reacted
-                helper_role = self.bot.get_guild(main.ids(1)).get_role(main.ids(6))
-                try:
-                    reaction_trigger = await message.channel.fetch_message(message.reference.message_id)
-                    if (user.id == reaction_trigger.author.id) or (helper_role in user.roles):  # delete if the person is a helper or they were the ones who triggered it
-                        await message.delete()
-                except AttributeError:  # to stop errors if people use this in dms
-                    pass
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):

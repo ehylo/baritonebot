@@ -4,6 +4,7 @@ from main import channel_embed, help_embed
 
 class Help(commands.Cog):
     def __init__(self, bot):
+        """Returns information about the specified commands."""
         self.bot = bot
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['h'])
@@ -21,7 +22,7 @@ class Help(commands.Cog):
             \u2022 `extension(ext) <reload(r)|unload(u)|load(ld)|list(l)> <[extension]|all>` \
             \n\u2022 `embedcolor(ec) <default(d)|[hex color]>` \
             \n\u2022 `prefix(pf) <default(d)|[prefix]>` \
-            \n\u2022 `<un>exempt(ex) <help|list(l)>` \
+            \n\u2022 `<un>exempt(ex) <channel(c)|user(u)|list(l)> <[channel]|[user]>` \
             \n\u2022 `rule(r) <add(a)|remove(r)> <[number]> <[title]> <[description]>` \
             \n*+ all lower commands*'
         await help_embed(ctx, 'Admin', '`help <command>` to get command info or give no arguments if it does not have `<help>`', field_value, 'Commands:')
@@ -31,8 +32,7 @@ class Help(commands.Cog):
         field_value = '\
             \u2022 `ban(b|rm) <[user]> <purge|[reason]> <[reason]>` \
             \n\u2022 `unban(ub) <[user]>` \
-            \n\u2022 `response(rp) <add(a)|remove(r)> <[regex]|[number]> <[title]> <[description]>` \
-            \n\u2022 `blacklist(bl) <add(a)|remove(r)> <word]>` \
+            \n\u2022 `response(rp) <remove(r)|edit(e)|new(n)> <[number]>` \
             \n\u2022 `cringe(c) <remove(r)>` \
             \n\u2022 `kick(k) <[user]> <[reason]>` \
             \n\u2022 `clear(cl|pg|purge) <[number]|[user]> <[number]>` \
@@ -49,7 +49,6 @@ class Help(commands.Cog):
         field_value = '\
             \u2022 `mute(m) <[user]> <[time(d=days, h=hours, m=minutes)]|[reason]|list(l)> <[reason]>` \
             \n\u2022 `response(rp) <details(d)|list(l)> <[number]>` \
-            \n\u2022 `blacklist(bl) <list(l)>` \
             \n\u2022 `cringe(c) <add(a)> <[image url]|[image attachment]>` \
             \n*+ all lower commands*'
         await help_embed(ctx, 'Helper', '`help <command>` to get command info or give no arguments if it does not have `<help>`', field_value, 'Commands:')
@@ -91,10 +90,6 @@ class Help(commands.Cog):
         await help_embed(ctx, 'Kick', 'Kicks the specified member', '`kick(k) <[user]> <[reason]>`')
 
     @help.command()
-    async def blacklist(self, ctx):
-        await help_embed(ctx, 'Blacklist', 'Command to add/remove a word on the blacklist or show a list of all of the blacklisted words', '`blacklist(bl) <add(a)|remove(r)|list(l)> <[word]>`')
-
-    @help.command()
     async def embed(self, ctx):
         await help_embed(ctx, 'Embed', 'Sends an embed to the specified channel with the specified title/description', '`embed(eb) <[channel]|here(h)> <[title]> <[description]>`')
 
@@ -112,7 +107,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def response(self, ctx):
-        await help_embed(ctx, 'Response', 'Command to control responses, can add/remove them or list/get details of them \n*use [this](https://regexr.com/) website to make the regex*', '`response(rp) <add(a)|remove(r)|details(d)|list(l)> <[regex]|[number]> <[title]> <[description]>`')
+        await help_embed(ctx, 'Response', 'Command to control responses, can create a new one/edit existing/remove one or list/get details of one \n*use [this](https://regexr.com/) website to make the regex*', '`response(rp) <edit(e)|remove(r)|details(d)|new(n)|list(l)> <[number]>`')
 
     @help.command()
     async def rule(self, ctx):
@@ -176,7 +171,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def exempt(self, ctx):
-        await help_embed(ctx, 'Exempt', 'Allows you to make the current channel exempted from the blacklist and regex responses, or list the current channels exempted', '`<un>exempt(ex) <help|list(l)>`')
+        await help_embed(ctx, 'Exempt', 'Allows you to set a channel or user to be exempted from the message edit/delete logging or dm logging, if you don\'t give a user or channel it will set it as the current', '`<un>exempt(ex) <channel(c)|user(u)|list(l)> <[channel]|[user]>`')
 
 
 def setup(bot):

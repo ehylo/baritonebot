@@ -51,11 +51,14 @@ async def helper_group(ctx):
         return True
 
 
-async def error_embed(ctx, desc=None, error=None):
-    em_v = discord.Embed(color=16711680, title='Error')
+async def error_embed(ctx, desc=None, error=None, title=None):
+    if title is None:
+        title = 'Error'
+    em_v = discord.Embed(color=16711680, title=title)
     if desc is None:
         desc = f'An unhandled error occured (probably bad): \n```{error}```'
-    em_v.description = desc
+    if desc != 'no':
+        em_v.description = desc
     em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=em_v)
 
