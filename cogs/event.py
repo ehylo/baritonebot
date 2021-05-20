@@ -4,6 +4,20 @@ from time import time
 from datetime import datetime, timedelta
 from discord.ext import commands, tasks
 
+
+async def unmute_embeds(b_guild, modlog_channel, i):
+    if b_guild.get_member(i[0]) is not None:
+        try:
+            dm_channel = await b_guild.get_member(i[0]).create_dm()
+            await main.dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
+        except (discord.Forbidden, discord.errors.HTTPException):
+            pass
+        await main.log_embed(None, 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted', modlog_channel, b_guild.get_member(i[0]))
+        await b_guild.get_member(i[0]).remove_roles(b_guild.get_role(main.ids(12)))
+    print(f'{i[0]} was unmuted automatically')
+    main.cur.execute('DELETE FROM rekt WHERE user_id=%s', (i[0],))
+    main.db.commit()
+
 main.cur.execute("SELECT ids FROM exempted WHERE type='channel'")
 exempt_channels = [str(item[0]) for item in main.cur.fetchall()]
 main.cur.execute("SELECT ids FROM exempted WHERE type='user'")
@@ -112,8 +126,8 @@ class Event(commands.Cog):
     @tasks.loop(seconds=1)
     async def loops(self):
         b_guild = self.bot.get_guild(main.ids(1))
-        log_channel = await self.bot.fetch_channel(main.ids(3))
         modlog_channel = await self.bot.fetch_channel(main.ids(5))
+        log_channel = await self.bot.fetch_channel(main.ids(3))
         async for message in log_channel.history(limit=1000):
             if (message.created_at + timedelta(hours=24)) < datetime.utcnow():
                 await message.delete()
@@ -122,21 +136,8 @@ class Event(commands.Cog):
         now = int(time())
         for i in main.cur.fetchall():
             expiry = i[2]
-
-            async def unmute_embeds():
-                if b_guild.get_member(i[0]) is not None:
-                    try:
-                        dm_channel = await b_guild.get_member(i[0]).create_dm()
-                        await main.dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
-                    except (discord.Forbidden, discord.errors.HTTPException):
-                        pass
-                    await main.log_embed(None, 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted', modlog_channel, b_guild.get_member(i[0]))
-                    await b_guild.get_member(i[0]).remove_roles(b_guild.get_role(main.ids(12)))
-                print(f'{i[0]} was unmuted automatically')
-                main.cur.execute('DELETE FROM rekt WHERE user_id=%s', (i[0],))
-                main.db.commit()
             if expiry - now <= 0:
-                await unmute_embeds()
+                await unmute_embeds(b_guild, modlog_channel, i)
 
 
 def setup(bot):

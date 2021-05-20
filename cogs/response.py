@@ -14,6 +14,12 @@ def staffr_check(self, mmember):
             return True
 
 
+def role_check(self, member, ig_roles):
+    for y in ig_roles.strip('}{').split(','):
+        if self.bot.get_guild(main.ids(1)).get_role(int(y)) in member.roles:
+            return True
+
+
 async def regex_delete(self, message):
     if (not message.content.lower().startswith(main.values(0)) and
             message.author.id != main.ids(0) and
@@ -39,16 +45,11 @@ async def regex_respond(self, message):
         for x in match_regex:
             if re.search(x[0], message.content) is not None:
                 member = b_guild.get_member(message.author.id)
-
-                def role_check(ig_roles):
-                    for y in ig_roles.strip('}{').split(','):
-                        if self.bot.get_guild(main.ids(1)).get_role(int(y)) in member.roles:
-                            return True
                 if (b_guild.get_member(main.ids(0)) in message.mentions) or (message.content.startswith('!')):
                     await main.channel_embed(message.channel, (x[1]), (x[2]))
                     print(f'{message.author.id} manually triggered response #{x[5]}')
                     await message.delete()
-                elif role_check(x[4]) is not True:
+                elif role_check(self, member, x[4]) is not True:
                     print(f'{message.author.id} triggered response #{x[5]}')
                     em_v = discord.Embed(color=int(main.values(1), 16), title=x[1], description=x[2])
                     em_v.set_footer(text=f'{message.author.name} | ID: {message.author.id}', icon_url=message.author.avatar_url)
@@ -112,7 +113,12 @@ async def ig_what(ctx, message, arep_num, dontdelete):
 
 async def text_what(ctx, message, what, arep_num, dontdelete):
     if message.content != 'cancel':
-        main.cur.execute(f'UPDATE response SET %s = %s WHERE rep_number=%s', (what, message.content, arep_num))
+        if what == 'title':
+            main.cur.execute('UPDATE response SET title = %s WHERE rep_number=%s', (message.content, arep_num))
+        elif what == 'description':
+            main.cur.execute('UPDATE response SET description = %s WHERE rep_number=%s', (message.content, arep_num))
+        elif what == 'regex':
+            main.cur.execute('UPDATE response SET regex = %s WHERE rep_number=%s', (message.content, arep_num))
         main.db.commit()
         await message.add_reaction('✅')
         return True
