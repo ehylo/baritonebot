@@ -58,7 +58,7 @@ async def regex_respond(self, message):
 
                     def check(dreaction, duser):
                         try:
-                            return auto_response == dreaction.message and (duser.id == message.author.id or staffr_check(self, duser.id) is True)
+                            return (auto_response == dreaction.message) and (duser.id == message.author.id or staffr_check(self, duser.id) is True)
                         except AttributeError:
                             pass
 
@@ -257,7 +257,7 @@ class Response(commands.Cog):
 
             while True:
                 try:
-                    reaction, user = await self.bot.wait_for('reaction_add', timeout=300, check=check)
+                    reaction = await self.bot.wait_for('reaction_add', timeout=300, check=check)
                 except asyncio.TimeoutError:
                     return await main.error_embed(ctx, '', num, 'don\'t delete')
                 else:
