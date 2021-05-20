@@ -6,6 +6,7 @@ from cogs.help import Help
 
 class Values(commands.Cog):
     def __init__(self, bot):
+        """Returns embeds for all the values commands."""
         self.bot = bot
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['pf'])

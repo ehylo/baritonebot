@@ -17,6 +17,7 @@ async def output(member, action, channel, time_muted, ctx, reason, log_e=None):
 
 class Bkm(commands.Cog):
     def __init__(self, bot):
+        """Returns embeds for all the punishment commands."""
         self.bot = bot
 
     @commands.command(aliases=['ub'])

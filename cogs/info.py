@@ -26,6 +26,7 @@ async def varistuff(ctx, member, ismember):
 
 class Info(commands.Cog):
     def __init__(self, bot):
+        """Returns embeds for all the info commands."""
         self.bot = bot
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ui'])

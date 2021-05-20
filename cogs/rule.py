@@ -6,6 +6,7 @@ from discord.ext import commands
 
 class Rule(commands.Cog):
     def __init__(self, bot):
+        """Returns embeds for the rule command."""
         self.bot = bot
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['r'])

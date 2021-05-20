@@ -6,6 +6,7 @@ from cogs.help import Help
 
 class Embed(commands.Cog):
     def __init__(self, bot):
+        """Returns embeds for the embed command."""
         self.bot = bot
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['eb'])

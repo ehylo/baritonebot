@@ -6,6 +6,7 @@ from cogs.help import Help
 
 class Clear(commands.Cog):
     def __init__(self, bot):
+        """Returns embeds for the clear command."""
         self.bot = bot
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['cl', 'pg', 'purge'])

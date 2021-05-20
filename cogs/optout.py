@@ -6,6 +6,7 @@ from cogs.help import Help
 
 class Optout(commands.Cog):
     def __init__(self, bot):
+        """Returns embeds for the optout command."""
         self.bot = bot
 
     @commands.command()

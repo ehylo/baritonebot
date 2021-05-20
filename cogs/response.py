@@ -107,18 +107,16 @@ async def ig_what(ctx, message, arep_num, dontdelete):
         main.db.commit()
         await message.add_reaction('✅')
         return True
-    else:
-        await cancel_new(ctx, 'no', arep_num, dontdelete)
+    await cancel_new(ctx, 'no', arep_num, dontdelete)
 
 
 async def text_what(ctx, message, what, arep_num, dontdelete):
     if message.content != 'cancel':
-        main.cur.execute(f'UPDATE response SET {what}=%s WHERE rep_number=%s', (message.content, arep_num))
+        main.cur.execute(f'UPDATE response SET %s = %s WHERE rep_number=%s', (what, message.content, arep_num))
         main.db.commit()
         await message.add_reaction('✅')
         return True
-    else:
-        await cancel_new(ctx, 'no', arep_num, dontdelete)
+    await cancel_new(ctx, 'no', arep_num, dontdelete)
 
 
 async def what_text(self, ctx, what, arep_num, desc, dontdelete=None):
@@ -140,13 +138,11 @@ async def what_text(self, ctx, what, arep_num, desc, dontdelete=None):
             if 'none' in desc:
                 if await ig_what(ctx, message, arep_num, dontdelete) is True:
                     return True
-                else:
-                    break
+                break
             else:
                 if await text_what(ctx, message, what, arep_num, dontdelete) is True:
                     return True
-                else:
-                    break
+                break
 
 
 async def do_delete(self, ctx, arep_num, dontdelete=None):
@@ -157,7 +153,8 @@ async def do_delete(self, ctx, arep_num, dontdelete=None):
         \n\u2022 ❌ to cancel')
     em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
     bot_delete = await ctx.send(embed=em_v)
-    [await bot_delete.add_reaction(i) for i in ['🟢', '🔴', '❌']]
+    for i in ['🟢', '🔴', '❌']:
+        await bot_delete.add_reaction(i)
 
     def check(dreaction, duser):
         try:
@@ -166,7 +163,7 @@ async def do_delete(self, ctx, arep_num, dontdelete=None):
             pass
     while True:
         try:
-            reaction, user = await self.bot.wait_for('reaction_add', timeout=300, check=check)
+            reaction = await self.bot.wait_for('reaction_add', timeout=300, check=check)
         except asyncio.TimeoutError:
             return await cancel_new(ctx, 'The new response was deleted because 5 minutes has passed with no reaction', arep_num, dontdelete)
         else:
@@ -174,11 +171,11 @@ async def do_delete(self, ctx, arep_num, dontdelete=None):
                 main.cur.execute('UPDATE response SET delete=true WHERE rep_number=%s', (arep_num,))
                 main.db.commit()
                 return True
-            elif str(reaction) == '🔴':  # red circle emote
+            if str(reaction) == '🔴':  # red circle emote
                 main.cur.execute('UPDATE response SET delete=false WHERE rep_number=%s', (arep_num,))
                 main.db.commit()
                 return True
-            elif str(reaction) == '❌':
+            if str(reaction) == '❌':
                 await cancel_new(ctx, 'no', arep_num, dontdelete)
                 break
 
@@ -246,7 +243,8 @@ class Response(commands.Cog):
               \n\u2022 :five: Ignored roles')
             em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
             bot_edit = await ctx.send(embed=em_v)
-            [await bot_edit.add_reaction(i) for i in ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣']]
+            for i in ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣']:
+                await bot_edit.add_reaction(i)
 
             def check(ereaction, euser):
                 return bot_edit.id == ereaction.message.id and euser.id == ctx.author.id
@@ -259,13 +257,13 @@ class Response(commands.Cog):
                 else:
                     if str(reaction) == '1️⃣':
                         return await what_text(self, ctx, 'title', num, title_desc, 'don\'t delete')
-                    elif str(reaction) == '2️⃣':
+                    if str(reaction) == '2️⃣':
                         return await what_text(self, ctx, 'description', num, desc_desc, 'don\'t delete')
-                    elif str(reaction) == '3️⃣':
+                    if str(reaction) == '3️⃣':
                         return await what_text(self, ctx, 'regex', num, regex_desc, 'don\'t delete')
-                    elif str(reaction) == '4️⃣':
+                    if str(reaction) == '4️⃣':
                         return await do_delete(self, ctx, num, 'don\'t delete')
-                    elif str(reaction) == '5️⃣':
+                    if str(reaction) == '5️⃣':
                         return await what_text(self, ctx, 'ignore', num, ignorerole_desc, 'don\'t delete')
                     print(f'{ctx.author.id} edited response #{num}')
         else:

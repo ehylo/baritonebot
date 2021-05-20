@@ -23,6 +23,7 @@ async def create_emote(ctx, name, img_url, b_guild):
 
 class Emote(commands.Cog):
     def __init__(self, bot):
+        """Returns embeds for the emote command."""
         self.bot = bot
 
     @commands.command(invoke_without_command=True, aliases=['em'])

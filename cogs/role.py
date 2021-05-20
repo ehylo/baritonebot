@@ -27,6 +27,7 @@ async def role_add(self, ctx, arg, role, role_words, action):
 
 class Role(commands.Cog):
     def __init__(self, bot):
+        """Returns embeds for all the role commands."""
         self.bot = bot
 
     @commands.command()
