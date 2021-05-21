@@ -6,13 +6,15 @@ from discord.ext import commands, tasks
 
 
 async def unmute_embeds(b_guild, modlog_channel, i):
+    class RektAuthor:
+        author = b_guild.get_member(i[3])
     if b_guild.get_member(i[0]) is not None:
         try:
             dm_channel = await b_guild.get_member(i[0]).create_dm()
             await main.dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
         except (discord.Forbidden, discord.errors.HTTPException):
             pass
-        await main.log_embed(None, 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted', modlog_channel, b_guild.get_member(i[0]))
+        await main.log_embed(RektAuthor(), 'User Unmuted', f'{b_guild.get_member(i[0]).mention} has been unmuted', modlog_channel, b_guild.get_member(i[0]))
         await b_guild.get_member(i[0]).remove_roles(b_guild.get_role(main.ids(12)))
     print(f'{i[0]} was unmuted automatically')
     main.cur.execute('DELETE FROM rekt WHERE user_id=%s', (i[0],))
@@ -29,6 +31,9 @@ class Event(commands.Cog):
         """Returns all of the specific emebeds for even related actions."""
         self.bot = bot
         self.loops.start()
+
+    def cog_unload(self):
+        self.loops.cancel()
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -136,8 +141,13 @@ class Event(commands.Cog):
         now = int(time())
         for i in main.cur.fetchall():
             expiry = i[2]
-            if expiry - now <= 0:
+            if 0 <= (expiry-now)+4 <= 5:  # this gives it 5 seconds of variation for lag, if I make it without the +4/>0 and just <0 the perma mute wouldn't work
                 await unmute_embeds(b_guild, modlog_channel, i)
+
+    @loops.before_loop
+    async def before_loops(self):
+        print('[STARTUP] waiting to start loops...')
+        await self.bot.wait_until_ready()
 
 
 def setup(bot):

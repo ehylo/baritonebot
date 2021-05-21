@@ -46,19 +46,29 @@ async def regex_respond(self, message):
             if re.search(x[0], message.content) is not None:
                 member = b_guild.get_member(message.author.id)
                 if (b_guild.get_member(main.ids(0)) in message.mentions) or (message.content.startswith('!')):
-                    await main.channel_embed(message.channel, (x[1]), (x[2]))
+                    title, desc = x[1], x[2]
+                    if x[1] == 'none':
+                        title = ''
+                    if x[2] == 'none':
+                        desc = ''
+                    await main.channel_embed(message.channel, title, desc)
                     print(f'{message.author.id} manually triggered response #{x[5]}')
                     await message.delete()
                 elif role_check(self, member, x[4]) is not True:
+                    title, desc = x[1], x[2]
+                    if x[1] == 'none':
+                        title = ''
+                    if x[2] == 'none':
+                        desc = ''
                     print(f'{message.author.id} triggered response #{x[5]}')
-                    em_v = discord.Embed(color=int(main.values(1), 16), title=x[1], description=x[2])
+                    em_v = discord.Embed(color=int(main.values(1), 16), title=title, description=desc)
                     em_v.set_footer(text=f'{message.author.name} | ID: {message.author.id}', icon_url=message.author.avatar_url)
                     auto_response = await message.channel.send(embed=em_v)
                     await auto_response.add_reaction('🗑️')
 
                     def check(dreaction, duser):
                         try:
-                            return (auto_response == dreaction.message) and (duser.id == message.author.id or staffr_check(self, duser.id) is True)
+                            return (auto_response.id == dreaction.message.id) and (duser.id == message.author.id or staffr_check(self, duser.id) is True)
                         except AttributeError:
                             pass
 
@@ -141,7 +151,7 @@ async def what_text(self, ctx, what, arep_num, desc, dontdelete=None):
         except asyncio.TimeoutError:
             return await cancel_new(ctx, 'The new response was deleted because an hour has passed with no response', arep_num, dontdelete)
         else:
-            if 'none' in desc:
+            if 'ignored' in desc:
                 if await ig_what(ctx, message, arep_num, dontdelete) is True:
                     return True
                 break
@@ -173,20 +183,20 @@ async def do_delete(self, ctx, arep_num, dontdelete=None):
         except asyncio.TimeoutError:
             return await cancel_new(ctx, 'The new response was deleted because 5 minutes has passed with no reaction', arep_num, dontdelete)
         else:
-            if str(reaction) == '🟢':  # green circle emote
+            if str(reaction[0]) == '🟢':  # green circle emote
                 main.cur.execute('UPDATE response SET delete=true WHERE rep_number=%s', (arep_num,))
                 main.db.commit()
                 return True
-            if str(reaction) == '🔴':  # red circle emote
+            if str(reaction[0]) == '🔴':  # red circle emote
                 main.cur.execute('UPDATE response SET delete=false WHERE rep_number=%s', (arep_num,))
                 main.db.commit()
                 return True
-            if str(reaction) == '❌':
+            if str(reaction[0]) == '❌':
                 await cancel_new(ctx, 'no', arep_num, dontdelete)
                 break
 
-title_desc = 'Please reply to this message with the title for this response \n\u2022 reply with `cancel` to cancel'
-desc_desc = 'Please reply to this message with the description for this response \n\u2022 reply with `cancel` to cancel'
+title_desc = 'Please reply to this message with the title for this response \n\u2022 reply with `none` for no title \n\u2022 reply with `cancel` to cancel'
+desc_desc = 'Please reply to this message with the description for this response \n\u2022 reply with `none` for no description \n\u2022 reply with `cancel` to cancel'
 regex_desc = 'Please reply to this message with the regex for this response \n\u2022 reply with `cancel` to cancel'
 ignorerole_desc = 'Please reply with the ids of the roles to be ignored from this response, seperated by a space for muliple \n\u2022 reply with `none` for no ignored roles \n\u2022 reply with `cancel` to cancel'
 
@@ -198,9 +208,10 @@ class Response(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if await regex_delete(self, message) is not True:
-            await regex_respond(self, message)
-            await att_paste(message)
+        if message.author.discriminator != '0000':  # god damn webhooks breaking shit
+            if await regex_delete(self, message) is not True:
+                await regex_respond(self, message)
+                await att_paste(message)
 
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
@@ -261,15 +272,15 @@ class Response(commands.Cog):
                 except asyncio.TimeoutError:
                     return await main.error_embed(ctx, '', num, 'don\'t delete')
                 else:
-                    if str(reaction) == '1️⃣':
+                    if str(reaction[0]) == '1️⃣':
                         return await what_text(self, ctx, 'title', num, title_desc, 'don\'t delete')
-                    if str(reaction) == '2️⃣':
+                    if str(reaction[0]) == '2️⃣':
                         return await what_text(self, ctx, 'description', num, desc_desc, 'don\'t delete')
-                    if str(reaction) == '3️⃣':
+                    if str(reaction[0]) == '3️⃣':
                         return await what_text(self, ctx, 'regex', num, regex_desc, 'don\'t delete')
-                    if str(reaction) == '4️⃣':
+                    if str(reaction[0]) == '4️⃣':
                         return await do_delete(self, ctx, num, 'don\'t delete')
-                    if str(reaction) == '5️⃣':
+                    if str(reaction[0]) == '5️⃣':
                         return await what_text(self, ctx, 'ignore', num, ignorerole_desc, 'don\'t delete')
                     print(f'{ctx.author.id} edited response #{num}')
         else:
@@ -299,7 +310,7 @@ class Response(commands.Cog):
         responses = main.cur.fetchall()
         desc = ''
         for row in responses:
-            desc += f'**{row[6]}.** {row[2]}\n'
+            desc += f'**{row[6]}.** Title: {row[2]} \nRegex: `{row[1]}`\n'
         await main.channel_embed(ctx, f'Current Responses ({len(responses)}):', desc)
 
     @response.command(aliases=['d'])

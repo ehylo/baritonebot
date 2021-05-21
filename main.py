@@ -102,6 +102,10 @@ async def help_embed(ctx, title, desc=None, field_value=None, field_name=None, i
         em_v.set_image(url=image)
     if field_name is None:
         field_name = 'Usage:'
+    elif field_name == 'none':
+        field_name = '(there is no title)'
+    if field_value == 'none':
+        field_value = '(there is no description)'
     em_v.add_field(name=field_name, value=field_value, inline=False)
     em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=em_v)
