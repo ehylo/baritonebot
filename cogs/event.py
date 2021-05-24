@@ -44,7 +44,7 @@ class Event(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if (message.author.id != main.ids(0)) and (str(message.channel.id) not in exempt_channels) and (str(message.author.id) not in exempt_users):
+        if (message.author.id != main.ids(0)) and (str(message.channel.id) not in exempt_channels):
             channel = await self.bot.fetch_channel(main.ids(3))
             if message.guild is None:
                 del_channel = 'DMs'
@@ -56,7 +56,7 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
         if message_before.author.id != main.ids(0):
-            if (str(message_before.channel.id) not in exempt_channels) and (str(message_after.author.id) not in exempt_users):
+            if str(message_before.channel.id) not in exempt_channels:
                 if message_after.content != message_before.content:  # prevent logging embeds loading
                     if message_before.guild is None:
                         jump = 'DMs**'

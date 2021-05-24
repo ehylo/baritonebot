@@ -8,15 +8,15 @@ Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Bari
 ### look more into
 *   read [this](https://gist.github.com/InterStella0/b78488fb28cadf279dfd3164b9f0cf96) and see if it's better than current help command
 *   support gifs in emote command
-*   find a way to use the GitHub api and stuff to get info about the baritone repo
 ### can probably do
-*   Have a xp/rank system where it either tracks total messages, or you get random amount of xp (like 10-20) per message
-*   For the flip and rps commands, add db stats and stuff to that
+*   Completely track tons of stuff in the db to show interesting stuff and be able to display a leaderboard for it (messages sent, messages edited, tails/heads, rps(ls), responses triggered, maybe exp system with dailies and random xp per message?)
 *   Add more options to the embed command (field, footer, author, image, etc) also be able to edit it
-*   Add a polls command
-*   Some sort of lockdown command where you can lock down specific channels or all of them or a specific category
-*   Add time to ban, and also ban list
+*   Add time to ban, also add weeks, months, years, and seconds (maybe more like decades :p) to the time aswell
 *   Add some commands to change the roles/channels, preped for this by storing the ids in a db instead of hard coded
+*   Add subrules to the rule command (like b?rule 4a)
+*   Support multiple text attachments in the auto paste.ee upload
+*   Have a like baritone setting command to look up settings from the docs (`!yc class_2775` from the Linkie bot or `?rtfm Context.author` from the dpy bot)
+*   Commands to add: polls, uptime, more api stuff (GitHub, cats, dog, random facts, literally any cool api)
 ## How to run
 [requirements are here](requirements.txt)
 

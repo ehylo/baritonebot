@@ -16,17 +16,16 @@ def staffr_check(self, mmember):
 
 def role_check(self, member, ig_roles):
     for y in ig_roles.strip('}{').split(','):
-        if self.bot.get_guild(main.ids(1)).get_role(int(y)) in member.roles:
-            return True
+        if y != '':
+            if self.bot.get_guild(main.ids(1)).get_role(int(y)) in self.bot.get_guild(main.ids(1)).get_member(member).roles:
+                return True
 
 
 async def regex_delete(self, message):
-    if (not message.content.lower().startswith(main.values(0)) and
-            message.author.id != main.ids(0) and
-            staffr_check(self, message.author.id) is not True):
-        main.cur.execute('SELECT * FROM response WHERE delete=true')
-        match_regex = main.cur.fetchall()
-        for x in match_regex:
+    main.cur.execute('SELECT * FROM response WHERE delete=true')
+    match_regex = main.cur.fetchall()
+    for x in match_regex:
+        if role_check(self, message.author.id, x[4]) is not True:
             if re.search(x[0], message.content) is not None:
                 try:
                     await main.dm_embed(x[1], x[2], await message.author.create_dm())
@@ -39,51 +38,44 @@ async def regex_delete(self, message):
 
 async def regex_respond(self, message):
     b_guild = self.bot.get_guild(main.ids(1))
-    if not message.content.lower().startswith(main.values(0)) and message.author.id != main.ids(0):
-        main.cur.execute('SELECT * FROM response WHERE delete=false')
-        match_regex = main.cur.fetchall()
-        for x in match_regex:
-            if re.search(x[0], message.content) is not None:
-                member = b_guild.get_member(message.author.id)
-                if (b_guild.get_member(main.ids(0)) in message.mentions) or (message.content.startswith('!')):
-                    title, desc = x[1], x[2]
-                    if x[1] == 'none':
-                        title = ''
-                    if x[2] == 'none':
-                        desc = ''
-                    await main.channel_embed(message.channel, title, desc)
-                    print(f'{message.author.id} manually triggered response #{x[5]}')
+    main.cur.execute('SELECT * FROM response WHERE delete=false')
+    match_regex = main.cur.fetchall()
+    for x in match_regex:
+        if re.search(x[0], message.content) is not None:
+            if (b_guild.get_member(main.ids(0)) in message.mentions) or (message.content.startswith('!')):
+                title = '' if x[1].lower() == 'none' else x[1]
+                desc = '' if x[2].lower() == 'none' else x[2]
+                await main.channel_embed(message.channel, title, desc)
+                print(f'{message.author.id} manually triggered response #{x[5]}')
+                if message.guild is not None:
                     await message.delete()
-                elif role_check(self, member, x[4]) is not True:
-                    title, desc = x[1], x[2]
-                    if x[1] == 'none':
-                        title = ''
-                    if x[2] == 'none':
-                        desc = ''
-                    print(f'{message.author.id} triggered response #{x[5]}')
-                    em_v = discord.Embed(color=int(main.values(1), 16), title=title, description=desc)
-                    em_v.set_footer(text=f'{message.author.name} | ID: {message.author.id}', icon_url=message.author.avatar_url)
-                    auto_response = await message.channel.send(embed=em_v)
-                    await auto_response.add_reaction('🗑️')
+            elif role_check(self, message.author.id, x[4]) is not True:
+                title = '' if x[1].lower() == 'none' else x[1]
+                desc = '' if x[2].lower() == 'none' else x[2]
+                print(f'{message.author.id} triggered response #{x[5]}')
+                em_v = discord.Embed(color=int(main.values(1), 16), title=title, description=desc)
+                em_v.set_footer(text=f'{message.author.name} | ID: {message.author.id}', icon_url=message.author.avatar_url)
+                auto_response = await message.channel.send(embed=em_v)
+                await auto_response.add_reaction('🗑️')
 
-                    def check(dreaction, duser):
-                        try:
-                            return (auto_response.id == dreaction.message.id) and (duser.id == message.author.id or staffr_check(self, duser.id) is True)
-                        except AttributeError:
-                            pass
+                def check(dreaction, duser):
+                    try:
+                        return (auto_response.id == dreaction.message.id) and (duser.id == message.author.id or staffr_check(self, duser.id) is True)
+                    except AttributeError:
+                        pass
 
-                    while True:
-                        try:
-                            reaction, user = await self.bot.wait_for('reaction_add', timeout=1800, check=check)
-                        except asyncio.TimeoutError:
+                while True:
+                    try:
+                        reaction, user = await self.bot.wait_for('reaction_add', timeout=1800, check=check)
+                    except asyncio.TimeoutError:
+                        break
+                    else:
+                        if str(reaction) == '🗑️' and user.id != int(main.ids(0)):
+                            try:
+                                await auto_response.delete()
+                            except AttributeError:
+                                pass
                             break
-                        else:
-                            if str(reaction) == '🗑️' and user.id != int(main.ids(0)):
-                                try:
-                                    await auto_response.delete()
-                                except AttributeError:
-                                    pass
-                                break
 
 
 async def att_paste(message):
@@ -105,13 +97,13 @@ async def cancel_new(ctx, what, arep_num, dontdelete=None):
         main.db.commit()
         print(f'{ctx.author.id} canceled the new response #{arep_num}')
     else:
-        what = 'Edit was canceled because it has been an hour with no response'
+        what = 'Edit was canceled'
     await main.error_embed(ctx, what, None, 'Canceled')
 
 
 async def ig_what(ctx, message, arep_num, dontdelete):
-    if message.content != 'cancel':
-        if message.content != 'none':
+    if message.content.lower() != 'cancel':
+        if message.content.lower() != 'none':
             main.cur.execute('UPDATE response SET ig_roles = %s WHERE rep_number=%s', (list(message.content.split(" ")), arep_num))
         else:
             main.cur.execute("UPDATE response SET ig_roles='{}' WHERE rep_number=%s", (arep_num,))
@@ -122,7 +114,7 @@ async def ig_what(ctx, message, arep_num, dontdelete):
 
 
 async def text_what(ctx, message, what, arep_num, dontdelete):
-    if message.content != 'cancel':
+    if message.content.lower() != 'cancel':
         if what == 'title':
             main.cur.execute('UPDATE response SET title = %s WHERE rep_number=%s', (message.content, arep_num))
         elif what == 'description':
@@ -209,9 +201,10 @@ class Response(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.discriminator != '0000':  # god damn webhooks breaking shit
-            if await regex_delete(self, message) is not True:
-                await regex_respond(self, message)
-                await att_paste(message)
+            if not message.content.lower().startswith(main.values(0)) and message.author.id != main.ids(0):
+                if await regex_delete(self, message) is not True:
+                    await regex_respond(self, message)
+                    await att_paste(message)
 
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
