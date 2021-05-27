@@ -80,15 +80,16 @@ async def regex_respond(self, message):
 
 async def att_paste(message):
     if len(message.attachments) > 0:
-        file_type = mimetypes.guess_type(message.attachments[0].url)
-        if file_type[0] is not None:
-            file_type = file_type[0].split('/')[0]
-        if message.attachments[0].url.lower().endswith(('.log', '.json5', '.json', '.py', '.sh', '.config', '.properties', '.toml', '.bat', '.cfg')) or file_type == 'text':
-            text = await discord.Attachment.read(message.attachments[0], use_cached=False)
-            paste_response = requests.post(url='https://api.paste.ee/v1/pastes', json={'sections': [{'name': "Paste from " + str(message.author), 'contents': ("\n".join((text.decode('UTF-8')).splitlines()))}]}, headers={'X-Auth-Token': main.pasteToken})
-            actual_link = paste_response.json()
-            await main.channel_embed(message, 'Contents uploaded to paste.ee', (actual_link["link"]))
-            print(f'{message.author.id} uploaded a paste to {(actual_link["link"])}')
+        for i in message.attachments:  # just in case you will ever be able to upload more than one
+            file_type = mimetypes.guess_type(i.url)
+            if file_type[0] is not None:
+                file_type = file_type[0].split('/')[0]
+            if i.url.lower().endswith(('.log', '.json5', '.json', '.py', '.sh', '.config', '.properties', '.toml', '.bat', '.cfg')) or file_type == 'text':
+                text = await discord.Attachment.read(i, use_cached=False)
+                paste_response = requests.post(url='https://api.paste.ee/v1/pastes', json={'sections': [{'name': "Paste from " + str(message.author), 'contents': ("\n".join((text.decode('UTF-8')).splitlines()))}]}, headers={'X-Auth-Token': main.paste_token})
+                actual_link = paste_response.json()
+                await main.channel_embed(message, 'Contents uploaded to paste.ee', (actual_link["link"]))
+                print(f'{message.author.id} uploaded a paste to {(actual_link["link"])}')
 
 
 async def cancel_new(ctx, what, arep_num, dontdelete=None):

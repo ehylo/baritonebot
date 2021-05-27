@@ -155,20 +155,7 @@ class Bkm(commands.Cog):
         for row in muted_users:
             muted_user = self.bot.get_user(row[0])
             if row[1] != 0:
-                edesc = ''
-                expiry = new = (row[1] - int(time()))
-                if expiry / 86400 >= 1:
-                    edesc += f', {(expiry - (expiry % 86400)) // 86400} day(s)'
-                    new = expiry - ((expiry - (expiry % 86400)) // 86400 * 86400)
-                if new / 3600 >= 1:
-                    edesc += f', {(new - (new % 3600)) // 3600} hour(s)'
-                    new -= ((new - (new % 3600)) // 3600 * 3600)
-                if new / 60 >= 1:
-                    edesc += f', {(new - (new % 60)) // 60} minute(s)'
-                    new -= ((new - (new % 60)) // 60 * 60)
-                if new >= 1:
-                    edesc += f', {new} second(s)'
-                desc += f'**{muted_user.mention} ({muted_user}) Time remaining:** \n{edesc[2:]}\n'
+                desc += f'**{muted_user.mention} ({muted_user}) Time remaining:** \n{main.time_convert(row[1] - int(time()))}\n'
             else:
                 desc += f'**{muted_user.mention} ({muted_user}) Time remaining:** \nindefinite\n'
         await main.channel_embed(ctx, f'Muted Users ({len(muted_users)}):', desc)
@@ -192,6 +179,25 @@ class Bkm(commands.Cog):
             channel = await self.bot.fetch_channel(main.ids(5))
             await output(member, 'kicked', channel, '', ctx, f'for reason: \n```{reason}```', ctx)
             await member.kick(reason=reason)
+
+    @commands.command()
+    async def optout(self, ctx, *, arg=None):
+        b_guild = self.bot.get_guild(main.ids(1))
+        if arg is None:
+            await Help.optout(self, ctx)
+        elif arg.lower() == 'I am sure':
+            channel = await self.bot.fetch_channel(main.ids(5))
+            try:
+                dchannel = await ctx.author.create_dm()
+                await main.dm_embed('Opted out', 'We appreciate you opting out. You have been banned from the server to prevent bypassing our moderation system.', dchannel)
+            except (discord.Forbidden, discord.errors.HTTPException):
+                pass
+            print(f'{ctx.author.id} has been banned for reason: Opted out')
+            await main.channel_embed(ctx, 'User Banned', f'{ctx.author.mention} has been banned for reason: \n```User {ctx.author} has opted out```')
+            await main.log_embed(ctx, 'User Banned', f'{ctx.author.mention} has been banned for reason: \n```User {ctx.author} has opted out```', channel, ctx.author)
+            await b_guild.ban(user=ctx.author, reason='Opted out and banned', delete_message_days=7)
+        else:
+            await main.channel_embed(ctx, 'Opt-Out', f'You will be **banned from this server** and **lose all your roles** by continuing. Are you sure you want to opt out? if yes, type `{main.values(0)}optout I am sure`')
 
 
 def setup(bot):

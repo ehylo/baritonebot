@@ -25,7 +25,7 @@ class Help(commands.Cog):
             \n\u2022 `<un>exempt(ex) <channel(c)|user(u)|list(l)> <[channel]|[user]>` \
             \n\u2022 `rule(r) <add(a)|remove(r)> <[number]> <[title]> <[description]>` \
             \n*+ all lower commands*'
-        await help_embed(ctx, 'Admin', '`help <command>` to get command info or give no arguments if it does not have `<help>`', field_value, 'Commands:')
+        await help_embed(ctx, 'Admin', '`help <command>` to get command info or give no arguments', field_value, 'Commands:')
 
     @help.command(aliases=['m'])
     async def mod(self, ctx):
@@ -51,23 +51,25 @@ class Help(commands.Cog):
             \n\u2022 `response(rp) <details(d)|list(l)> <[number]>` \
             \n\u2022 `cringe(c) <add(a)> <[image url]|[image attachment]>` \
             \n*+ all lower commands*'
-        await help_embed(ctx, 'Helper', '`help <command>` to get command info or give no arguments if it does not have `<help>`', field_value, 'Commands:')
+        await help_embed(ctx, 'Helper', '`help <command>` to get command info or give no arguments', field_value, 'Commands:')
 
     @help.command(aliases=['e'])
     async def everyone(self, ctx):
         field_value = '\
             \u2022 `rule(r)<s> <[number]>` \
-            \n\u2022 `ping(p) <help>` \
+            \n\u2022 `ping(p)` \
             \n\u2022 `rps <rock(r)|paper(p)|scissors(s)>` \
-            \n\u2022 `flip <help>` \
-            \n\u2022 `cringe(c) <help>` \
-            \n\u2022 `serverinfo(si) <help>` \
+            \n\u2022 `flip` \
+            \n\u2022 `cringe(c)` \
+            \n\u2022 `serverinfo(si)` \
             \n\u2022 `userinfo(ui) <me|[user]>` \
-            \n\u2022 `<un>releases <help>` \
-            \n\u2022 `<un>ignore <help>` \
+            \n\u2022 `<un>releases` \
+            \n\u2022 `<un>ignore` \
+            \n\u2022 `uptime(ut)` \
+            \n\u2022 `info/about` \
             \n\u2022 `optout <I am sure>` \
             \n\u2022 `help(h) <admin(a)|mod(m)|helper(h)|everyone(e)>`'
-        await help_embed(ctx, 'Available to everyone:', '`help <command>` to get command info or give no arguments if it does not have `<help>`', field_value, 'Commands:')
+        await help_embed(ctx, 'Available to everyone:', '`help <command>` to get command info or give no arguments', field_value, 'Commands:')
 
     @help.command()
     async def unban(self, ctx):
@@ -135,15 +137,15 @@ class Help(commands.Cog):
 
     @help.command()
     async def ignore(self, ctx):
-        await help_embed(ctx, 'Ignored', 'Add/remove the ignored role, if you have this role your messages will not trigger most of the regex responses', '`<un>ignore <help>`')
+        await help_embed(ctx, 'Ignored', 'Add/remove the ignored role, if you have this role your messages will not trigger most of the regex responses', '`<un>ignore`')
 
     @help.command()
     async def releases(self, ctx):
-        await help_embed(ctx, 'Releases', 'Add/remove the releases role, if you have this role you will be pinged when a new release comes out', '`<un>releases <help>`')
+        await help_embed(ctx, 'Releases', 'Add/remove the releases role, if you have this role you will be pinged when a new release comes out', '`<un>releases`')
 
     @help.command()
     async def ping(self, ctx):
-        await help_embed(ctx, 'huh', 'why would you need help for ping? did you think it pings someone specific? xD', '`ping(p) <help>`')
+        await help_embed(ctx, 'huh', 'why would you need help for ping? did you think it pings someone specific? xD', '`ping(p)`')
 
     @help.command()
     async def rps(self, ctx):
@@ -155,11 +157,19 @@ class Help(commands.Cog):
 
     @help.command()
     async def flip(self, ctx):
-        await help_embed(ctx, 'Coin Flip', 'Randomly flips a coin for you, for when you need someone else to decide something for you', '`flip <help>`')
+        await help_embed(ctx, 'Coin Flip', 'Randomly flips a coin for you, for when you need someone else to decide something for you', '`flip`')
 
     @help.command()
     async def serverinfo(self, ctx):
-        await help_embed(ctx, 'Server Information', 'Shows information about the server', '`serverinfo(si) <help>`')
+        await help_embed(ctx, 'Server Information', 'Shows information about the server', '`serverinfo(si)`')
+
+    @help.command()
+    async def info(self, ctx):
+        await help_embed(ctx, 'Bot Information', 'Shows information about the bot', '`info/about`')
+
+    @help.command()
+    async def uptime(self, ctx):
+        await help_embed(ctx, 'Bot Uptime', 'Shows the time the bot has been online for', '`uptime(ut)`')
 
     @help.command()
     async def userinfo(self, ctx):

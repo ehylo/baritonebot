@@ -1,11 +1,12 @@
 import discord
+import main
+from time import time
 from discord.ext import commands
 from cogs.help import Help
-from main import ids, values, error_embed
 
 
 async def info_embed(ctx, member, title, field1, field2, field3, value):
-    em_v = discord.Embed(color=int(values(1), 16),  title=title)
+    em_v = discord.Embed(color=int(main.values(1), 16),  title=title)
     em_v.add_field(name='Mention:', value=member.mention, inline=True)
     em_v.add_field(name='Status:', value=field1, inline=True)
     em_v.add_field(name='Created:', value=member.created_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " "), inline=False)
@@ -29,9 +30,13 @@ class Info(commands.Cog):
         """Returns embeds for all the info commands."""
         self.bot = bot
 
+    @commands.command(aliases=['p'])
+    async def ping(self, ctx):
+        await main.channel_embed(ctx, f'Pong! 🏓 ({round(self.bot.latency * 1000)}ms)', None)
+
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ui'])
     async def userinfo(self, ctx, user_id=None):
-        b_guild = self.bot.get_guild(ids(1))
+        b_guild = self.bot.get_guild(main.ids(1))
         try:
             user_men = str(ctx.message.raw_mentions[0])
         except IndexError:
@@ -46,7 +51,7 @@ class Info(commands.Cog):
             else:
                 clear_member = b_guild.get_member_named(user_id)  # get the member if they gave a name with/without discrimitor
             if clear_member is None:
-                await error_embed(ctx, 'The user you gave is invalid')
+                await main.error_embed(ctx, 'The user you gave is invalid')
             else:
                 if b_guild.get_member(clear_member.id) is not None:
                     member = b_guild.get_member(clear_member.id)
@@ -57,7 +62,7 @@ class Info(commands.Cog):
 
     @userinfo.command()
     async def me(self, ctx):
-        b_guild = self.bot.get_guild(ids(1))
+        b_guild = self.bot.get_guild(main.ids(1))
         member_check = b_guild.get_member(ctx.author.id)
         if member_check is not None:
             await varistuff(ctx, member_check, ismember=True)
@@ -65,23 +70,42 @@ class Info(commands.Cog):
             await varistuff(ctx, ctx.author, ismember=False)
 
     @commands.command(aliases=['si'])
-    async def serverinfo(self, ctx, arg=None):
-        if (arg is not None) and (arg.lower() == 'help'):
-            await Help.serverinfo(self, ctx)
-        else:
-            b_guild = self.bot.get_guild(ids(1))
-            em_v = discord.Embed(color=int(values(1), 16),  title=f'Server Information: {b_guild.name}')
-            em_v.add_field(name='Owner:', value=f'{b_guild.owner} (ID: {b_guild.owner_id})', inline=False)
-            em_v.add_field(name='Description:', value=b_guild.description, inline=False)
-            em_v.add_field(name='Created:', value=b_guild.created_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " "), inline=False)
-            em_v.add_field(name='Region:', value=b_guild.region, inline=False)
-            em_v.add_field(name=f'Roles ({len(b_guild.roles)-1}):', value=(' '.join([str(r.mention) for r in b_guild.roles][1:])+'\u200b'), inline=False)
-            em_v.add_field(name='Text Channels:', value=str(len(b_guild.text_channels)), inline=True)
-            em_v.add_field(name='Voice Channels:', value=str(len(b_guild.voice_channels)), inline=True)
-            em_v.add_field(name='Members:', value=b_guild.member_count, inline=True)
-            em_v.set_footer(text=f'ID: {b_guild.id}')
-            em_v.set_thumbnail(url=b_guild.icon_url)
-            await ctx.send(embed=em_v)
+    async def serverinfo(self, ctx):
+        b_guild = self.bot.get_guild(main.ids(1))
+        em_v = discord.Embed(color=int(main.values(1), 16),  title=f'Server Information: {b_guild.name}')
+        em_v.add_field(name='Owner:', value=f'{b_guild.owner} (ID: {b_guild.owner_id})', inline=False)
+        em_v.add_field(name='Description:', value=b_guild.description, inline=False)
+        em_v.add_field(name='Created:', value=b_guild.created_at.strftime("%B %d, %Y at %I:%M:%S %p").lstrip("0").replace(" 0", " "), inline=False)
+        em_v.add_field(name='Region:', value=b_guild.region, inline=False)
+        em_v.add_field(name=f'Roles ({len(b_guild.roles)-1}):', value=(' '.join([str(r.mention) for r in b_guild.roles][1:])+'\u200b'), inline=False)
+        em_v.add_field(name='Text Channels:', value=str(len(b_guild.text_channels)), inline=True)
+        em_v.add_field(name='Voice Channels:', value=str(len(b_guild.voice_channels)), inline=True)
+        em_v.add_field(name='Members:', value=b_guild.member_count, inline=True)
+        em_v.set_footer(text=f'ID: {b_guild.id}')
+        em_v.set_thumbnail(url=b_guild.icon_url)
+        await ctx.send(embed=em_v)
+
+    @commands.command(aliases=['about'])
+    async def info(self, ctx):
+        em_v = discord.Embed(
+            color=int(main.values(1), 16),
+            description=f'Current prefix: `{main.values(0)}`'
+                        f'\n\n__**Info:**__'
+                        f'\n\u2022 Made by Flurr#0001'
+                        f'\n\u2022 Written in [python](https://www.python.org/) using the [discord.py](https://github.com/Rapptz/discord.py) library'
+                        f'\n\u2022 Uses a [PostgreSQL](https://www.postgresql.org/) database'
+                        f'\n\n__**Links:**__'
+                        f'\n\u2022 [Bot source code on GitHub](https://github.com/Flurrrr/baritonebot)'
+                        f'\n\u2022 [Main Baritone GitHub repo](https://github.com/cabaletta/baritone)'
+                        f'\n\u2022 [Invite to Baritone discord server](https://discord.gg/s6fRBAUpmr)'
+        )
+        em_v.set_author(name='Baritone Bot', url='https://github.com/Flurrrr/baritonebot', icon_url=self.bot.user.avatar_url)
+        em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
+        await ctx.send(embed=em_v)
+
+    @commands.command(aliases=['ut'])
+    async def uptime(self, ctx):
+        await main.channel_embed(ctx, 'Uptime', main.time_convert(int(time()) - main.start_time))
 
 
 def setup(bot):

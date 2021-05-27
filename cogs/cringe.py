@@ -1,7 +1,6 @@
 import discord
 import main
 from discord.ext import commands
-from cogs.help import Help
 
 
 class Cringe(commands.Cog):
@@ -10,15 +9,12 @@ class Cringe(commands.Cog):
         self.bot = bot
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['c'])
-    async def cringe(self, ctx, arg=None):
-        if (arg is not None) and (arg.lower() == 'help'):
-            await Help.cringe(self, ctx)
-        else:
-            main.cur.execute('SELECT cringe_link FROM cringe ORDER BY RANDOM() LIMIT 1')
-            em_v = discord.Embed(color=int(main.values(1), 16), title=':camera_with_flash:')
-            em_v.set_image(url=str(str(main.cur.fetchone())[2:-3]))
-            em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
-            await ctx.send(embed=em_v)
+    async def cringe(self, ctx):
+        main.cur.execute('SELECT cringe_link FROM cringe ORDER BY RANDOM() LIMIT 1')
+        em_v = discord.Embed(color=int(main.values(1), 16), title=':camera_with_flash:')
+        em_v.set_image(url=str(str(main.cur.fetchone())[2:-3]))
+        em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
+        await ctx.send(embed=em_v)
 
     @cringe.command(aliases=['r'])
     @commands.check(main.mod_group)

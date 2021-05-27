@@ -1,7 +1,8 @@
+import discord
+import main
 from random import SystemRandom
 from discord.ext import commands
 from cogs.help import Help
-from main import channel_embed
 
 
 rock_img = 'https://cdn.discordapp.com/attachments/819449117561585704/833146899216334850/rock.png'
@@ -40,7 +41,7 @@ async def computer_rps(ctx, choice_num, choice, image):
         else:
             action = scissors_paper
         title = 'You lost :('
-    await channel_embed(ctx, title, action, image)
+    await main.channel_embed(ctx, title, action, image)
 
 
 class Misc(commands.Cog):
@@ -48,23 +49,13 @@ class Misc(commands.Cog):
         """Returns if the user won or other emebeds for the commands."""
         self.bot = bot
 
-    @commands.command(aliases=['p'])
-    async def ping(self, ctx, arg=None):
-        if (arg is not None) and (arg.lower() == 'help'):
-            await Help.ping(self, ctx)
-        else:
-            await channel_embed(ctx, f'Pong! 🏓 ({round(self.bot.latency * 1000)}ms)', None)
-
     @commands.command()
-    async def flip(self, ctx, arg=None):
-        if (arg is not None) and (arg.lower() == 'help'):
-            await Help.flip(self, ctx)
+    async def flip(self, ctx):
+        c = [SystemRandom().randrange(2)][0]+1
+        if c == 1:
+            await main.channel_embed(ctx, '🗣 Heads! 🗣')
         else:
-            c = [SystemRandom().randrange(2)][0]+1
-            if c == 1:
-                await channel_embed(ctx, '🗣 Heads! 🗣')
-            else:
-                await channel_embed(ctx, '🦅 Tails! 🦅')
+            await main.channel_embed(ctx, '🦅 Tails! 🦅')
 
     @commands.group(invoke_without_command=True, case_insensitive=True)
     async def rps(self, ctx):
@@ -175,7 +166,7 @@ class Misc(commands.Cog):
             else:
                 action = f'{choice} {tie} {choice}'
                 title = 'We Tied :|'
-            await channel_embed(ctx, title,  action, image)
+            await main.channel_embed(ctx, title,  action, image)
 
 
 def setup(bot):

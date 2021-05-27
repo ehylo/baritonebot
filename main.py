@@ -1,16 +1,18 @@
 import discord
 import os
 import psycopg2
+from time import time
 from dotenv import load_dotenv
 from discord.ext import commands
 
 load_dotenv()
 token = os.getenv('token')
-pasteToken = os.getenv('paste_token')
+paste_token = os.getenv('paste_token')
 DATABASE_URL = os.getenv('DATABASE_URL')
 
 db = psycopg2.connect(DATABASE_URL, sslmode='require')
 cur = db.cursor()
+start_time = int(time())
 
 
 def ids(num):
@@ -23,6 +25,22 @@ def values(num):
     cur.execute('SELECT * FROM settings')
     actual = cur.fetchone()
     return actual[num]
+
+
+def time_convert(time_int):
+    new, edesc = time_int, ''
+    if time_int / 86400 >= 1:
+        edesc += f', {(time_int - (time_int % 86400)) // 86400} day(s)'
+        new = time_int - ((time_int - (time_int % 86400)) // 86400 * 86400)
+    if new / 3600 >= 1:
+        edesc += f', {(new - (new % 3600)) // 3600} hour(s)'
+        new -= ((new - (new % 3600)) // 3600 * 3600)
+    if new / 60 >= 1:
+        edesc += f', {(new - (new % 60)) // 60} minute(s)'
+        new -= ((new - (new % 60)) // 60 * 60)
+    if new >= 1:
+        edesc += f', {new} second(s)'
+    return edesc[2:]
 
 
 bot = commands.Bot(command_prefix=(values(0), values(0).upper()), case_insensitive=True, intents=discord.Intents.all())
