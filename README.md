@@ -14,7 +14,6 @@ Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Bari
 *   Add time to ban, also add weeks, months, years, and seconds (maybe more like decades :p) to the time aswell
 *   Add some commands to change the roles/channels, preped for this by storing the ids in a db instead of hard coded
 *   Add subrules to the rule command (like b?rule 4a)
-*   Have a like baritone setting command to look up settings from the docs (`!yc class_2775` from the Linkie bot or `?rtfm Context.author` from the dpy bot)
 *   Commands to add: polls, more api stuff (GitHub, cats, dog, random facts, literally any cool api)
 ## How to run
 [requirements are here](requirements.txt)

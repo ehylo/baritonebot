@@ -28,8 +28,7 @@ async def varistuff(ctx, member, ismember):
 
 
 async def setting_searcher(ctx, setting, link):
-    settings = []
-    description = ''
+    desc1, desc2, settings = '', '', []
     for x in requests.get(link).content.decode('utf-8').split('/**')[2:-4]:
         clean = ' '.join(x.split())
         default_setting = clean.split('*/', 1)[1][:-2].split(' = new Setting<>(', 1)[1]
@@ -55,12 +54,24 @@ async def setting_searcher(ctx, setting, link):
         settings.append(set_dict.copy())
     for x in settings:
         if re.search(setting.lower(), x['title'].lower()) is not None:
-            description += f"**[{x['title']}](https://baritone.leijurv.com/baritone/api/Settings.html#{x['title']})** | __{x['type']}__ | *Default:* `{x['default']}`\n{x['description']}\n\n"
-    if description == '':
-        description = 'There was no settings found for that search :('
-    em_v = discord.Embed(color=int(main.values(1), 16), description=description)
+            add = f"**[{x['title']}](https://baritone.leijurv.com/baritone/api/Settings.html#{x['title']})** | __{x['type']}__ | *Default:* `{x['default']}`\n{x['description']}\n\n"
+            if len(add) + len(desc1) <= 2048:
+                desc1 += add
+            else:
+                if len(add) + len(desc2) <= 1959:
+                    desc2 += add
+                else:
+                    desc2 += '*You exceeded the second embeds limit... maybe try searching for something more specific?*'
+                    break
+    if desc1 == '':
+        desc1 = 'There was no settings found for that search :('
+    em_v = discord.Embed(color=int(main.values(1), 16), description=desc1)
     em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=em_v)
+    if desc2 != '':
+        em_v = discord.Embed(color=int(main.values(1), 16), description=desc2)
+        em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
+        await ctx.send(embed=em_v)
 
 
 class Info(commands.Cog):
