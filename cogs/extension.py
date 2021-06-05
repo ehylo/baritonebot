@@ -77,9 +77,9 @@ class Extension(commands.Cog):
     async def list(self, ctx):
         desc = '\
             \u2022 **`event`** - dm log, nick changer, 24h log clear, message edit/delete, member join/leave, join/leave voice, and error handler \
+            \n\u2022 **`info`** - `ping`, `info`, `uptime`, `serverinfo`, `userinfo` `opspt`/`optpf`, commands \
             \n\u2022 **`bkm`** - `mute`, `ban`, `kick`, `unban`, `optout`, and `unmute` commands \
             \n\u2022 **`response`** - command, paste upload, regex response, and regex delete \
-            \n\u2022 **`info`** - `ping`, `info`, `uptime`, `serverinfo`, `userinfo` commands \
             \n\u2022 **`values`** - `embedcolor`, `status`, `prefix`, and `nick` commands \
             \n\u2022 **`misc`** - `rps`, and `flip` commands \
             \n\u2022 **`role`** - `ignore` and `releases` commands \

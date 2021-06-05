@@ -209,8 +209,10 @@ class Response(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
-        if message_before.content != message_after.content:
-            await regex_delete(self, message_after)
+        if message_after.author.discriminator != '0000':  # god damn webhooks breaking shit
+            if not message_after.content.lower().startswith(main.values(0)) and message_after.author.id != main.ids(0):
+                if message_before.content != message_after.content:
+                    await regex_delete(self, message_after)
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['rp'])
     @commands.check(main.helper_group)
