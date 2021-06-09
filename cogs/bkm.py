@@ -129,12 +129,12 @@ class Bkm(commands.Cog):
             if self.bot.get_guild(main.ids(1)).get_role(main.ids(12)) in member.roles:
                 await main.error_embed(ctx, 'That member is already muted')
             else:
-                time_reason = str(mtime).strip("')(").split(", '")
+                time_reason = str(mtime)[1:-2].split(', ')
                 reason = '' if reason is None else reason
                 if time_reason[0] == '0':
-                    reason_real, reason_time = time_reason[1] + reason, 'indefinitely'
+                    reason_real, reason_time = time_reason[1][1:] + ' ' + reason, 'indefinitely'
                 else:
-                    reason_real, reason_time = reason, f'for {time_reason[1]}'
+                    reason_real, reason_time = reason, f'for {time_reason[1][1:]}'
                 await member.add_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(12)))
                 try:
                     dm_channel = await member.create_dm()
