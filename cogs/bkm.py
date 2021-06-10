@@ -41,36 +41,35 @@ class Bkm(commands.Cog):
     @commands.command(aliases=['ub'])
     @commands.check(main.mod_group)
     async def unban(self, ctx, user=None):
+        if user is None:
+            await Help.unban(self, ctx)
         try:
             user_men = str(ctx.message.raw_mentions[0])
         except IndexError:
             user_men = ''
         b_guild = self.bot.get_guild(main.ids(1))
-        if user is None:
-            await Help.unban(self, ctx)
+        if user_men != '':
+            unban_user = self.bot.get_user(int(user_men))  # get the user if they mentioned
+        elif (user.isdigit()) and (len(user) == 18):
+            unban_user = self.bot.get_user(int(user))
         else:
-            if user_men != '':
-                unban_user = self.bot.get_user(int(user_men))  # get the user if they mentioned
-            elif (user.isdigit()) and (len(user) == 18):
-                unban_user = self.bot.get_user(int(user))
-            else:
-                unban_user = None
-            if unban_user is None:
-                await main.error_embed(ctx, 'The user you gave is invalid')
-            else:
-                try:
-                    await b_guild.unban(unban_user)
-                    await output(await self.bot.fetch_user(user), 'unbanned', await self.bot.fetch_channel(main.ids(5)), '', ctx, '', None)
-                except discord.NotFound:
-                    await main.error_embed(ctx, 'That user is not banned')
+            unban_user = None
+        if unban_user is None:
+            await main.error_embed(ctx, 'The user you gave is invalid')
+        else:
+            try:
+                await b_guild.unban(unban_user)
+                await output(await self.bot.fetch_user(user), 'unbanned', await self.bot.fetch_channel(main.ids(5)), '', ctx, '', None)
+            except discord.NotFound:
+                await main.error_embed(ctx, 'That user is not banned')
 
     @commands.command(aliases=['um'])
     @commands.check(main.mod_group)
     async def unmute(self, ctx, user: discord.User = None):
-        member, author_member = await member_check(self, ctx, user)
-        if member is None:
+        if user is None:
             await Help.unmute(self, ctx)
-        elif member.top_role == author_member.top_role:
+        member, author_member = await member_check(self, ctx, user)
+        if member.top_role == author_member.top_role:
             await main.error_embed(ctx, f'You don\'t outrank {member.mention}')
         else:
             if self.bot.get_guild(main.ids(1)).get_role(main.ids(12)) not in member.roles:
@@ -90,10 +89,10 @@ class Bkm(commands.Cog):
     @commands.command(aliases=['b', 'rm'])
     @commands.check(main.mod_group)
     async def ban(self, ctx, user: discord.User = None, purge=None, *, reason=None):
-        member, author_member = await member_check(self, ctx, user)
-        if member is None:
+        if user is None:
             await Help.ban(self, ctx)
-        elif member.top_role == author_member.top_role:
+        member, author_member = await member_check(self, ctx, user)
+        if member.top_role == author_member.top_role:
             await main.error_embed(ctx, f'You don\'t outrank {member.mention}')
         elif purge is None:
             await main.error_embed(ctx, 'You need to give a reason')
@@ -116,10 +115,10 @@ class Bkm(commands.Cog):
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['m'])
     @commands.check(main.helper_group)
     async def mute(self, ctx, user: discord.User = None, mtime: TimeConverter = None, *, reason=None):
-        member, author_member = await member_check(self, ctx, user)
-        if member is None:
+        if user is None:
             await Help.mute(self, ctx)
-        elif member.top_role == author_member.top_role:
+        member, author_member = await member_check(self, ctx, user)
+        if member.top_role == author_member.top_role:
             await main.error_embed(ctx, f'You don\'t outrank {member.mention}')
         elif mtime is None:
             await main.error_embed(ctx, 'You need to give a reason or amount of time to mute')
@@ -163,10 +162,10 @@ class Bkm(commands.Cog):
     @commands.command(aliases=['k'])
     @commands.check(main.mod_group)
     async def kick(self, ctx, user: discord.User = None, *, reason=None):
-        member, author_member = await member_check(self, ctx, user)
-        if member is None:
+        if user is None:
             await Help.kick(self, ctx)
-        elif member.top_role == author_member.top_role:
+        member, author_member = await member_check(self, ctx, user)
+        if member.top_role == author_member.top_role:
             await main.error_embed(ctx, f'You don\'t outrank {member.mention}')
         elif reason is None:
             await main.error_embed(ctx, 'You need to give a reason')
@@ -182,10 +181,10 @@ class Bkm(commands.Cog):
 
     @commands.command()
     async def optout(self, ctx, *, arg=None):
-        b_guild = self.bot.get_guild(main.ids(1))
         if arg is None:
             await Help.optout(self, ctx)
-        elif arg.lower() == 'I am sure':
+        b_guild = self.bot.get_guild(main.ids(1))
+        if arg.lower() == 'I am sure':
             channel = await self.bot.fetch_channel(main.ids(5))
             try:
                 dchannel = await ctx.author.create_dm()

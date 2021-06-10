@@ -26,7 +26,7 @@ async def regex_delete(self, message):
     match_regex = main.cur.fetchall()
     for x in match_regex:
         if role_check(self, message.author.id, x[4]) is not True:
-            if re.search(x[0], message.content) is not None:
+            if re.search(x[0], message.content.lower()) is not None:
                 try:
                     await main.dm_embed(x[1], x[2], await message.author.create_dm())
                     await message.delete()
@@ -41,7 +41,7 @@ async def regex_respond(self, message):
     main.cur.execute('SELECT * FROM response WHERE delete=false')
     match_regex = main.cur.fetchall()
     for x in match_regex:
-        if re.search(x[0], message.content) is not None:
+        if re.search(x[0], message.content.lower()) is not None:
             if (b_guild.get_member(main.ids(0)) in message.mentions) or (message.content.startswith('!')):
                 title = '' if x[1].lower() == 'none' else x[1]
                 desc = '' if x[2].lower() == 'none' else x[2]

@@ -12,13 +12,13 @@ class Clear(commands.Cog):
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['cl', 'pg', 'purge'])
     @commands.check(main.mod_group)
     async def clear(self, ctx, num=None, num2=None):
+        if num is None:
+            await Help.clear(self, ctx)
         try:
             user_men = str(ctx.message.raw_mentions[0])
         except IndexError:
             user_men = ''
-        if num is None:
-            await Help.clear(self, ctx)
-        elif ctx.guild is None:
+        if ctx.guild is None:
             await main.error_embed(ctx, 'You cannot use this command in DMs')
         else:
             if (user_men == '') and (len(num) != 18) and (num.isdigit()):  # make sure a number is given and its not an ID
