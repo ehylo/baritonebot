@@ -83,7 +83,6 @@ class Misc(commands.Cog):
 
     @commands.command()
     async def daily(self, ctx):
-        main.stat_update(r'UPDATE stats SET daily = true WHERE user_id = %s', ctx.author.id)
         main.cur.execute('SELECT daily FROM stats WHERE user_id = %s', (ctx.author.id,))
         daily_check = str(main.cur.fetchone())
         next_time = main.time_convert(86400 - int(time() % 86400))

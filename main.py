@@ -34,7 +34,6 @@ def stat_update(query, check_id):
         db.commit()
     cur.execute(query, (check_id,))
     db.commit()
-    return
 
 
 def time_convert(time_int):
