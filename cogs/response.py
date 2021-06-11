@@ -63,19 +63,16 @@ async def regex_respond(self, message):
                         return (auto_response.id == dreaction.message.id) and (duser.id == message.author.id or staffr_check(self, duser.id) is True)
                     except AttributeError:
                         pass
-
-                while True:
-                    try:
-                        reaction, user = await self.bot.wait_for('reaction_add', timeout=1800, check=check)
-                    except asyncio.TimeoutError:
-                        break
-                    else:
-                        if str(reaction) == '🗑️' and user.id != int(main.ids(0)):
-                            try:
-                                await auto_response.delete()
-                            except AttributeError:
-                                pass
-                            break
+                try:
+                    reaction, user = await self.bot.wait_for('reaction_add', timeout=1800, check=check)
+                except asyncio.TimeoutError:
+                    pass
+                else:
+                    if str(reaction) == '🗑️' and user.id != int(main.ids(0)):
+                        try:
+                            await auto_response.delete()
+                        except AttributeError:
+                            pass
 
 
 async def att_paste(message):
@@ -138,20 +135,17 @@ async def what_text(self, ctx, what, arep_num, desc, dontdelete=None):
             return bot_text.id == m.reference.message_id and m.author.id == ctx.author.id
         except AttributeError:
             pass
-    while True:
-        try:
-            message = await self.bot.wait_for('message', timeout=3600, check=check)
-        except asyncio.TimeoutError:
-            return await cancel_new(ctx, 'The new response was deleted because an hour has passed with no response', arep_num, dontdelete)
+    try:
+        message = await self.bot.wait_for('message', timeout=3600, check=check)
+    except asyncio.TimeoutError:
+        return await cancel_new(ctx, 'The new response was deleted because an hour has passed with no response', arep_num, dontdelete)
+    else:
+        if 'ignored' in desc:
+            if await ig_what(ctx, message, arep_num, dontdelete) is True:
+                return True
         else:
-            if 'ignored' in desc:
-                if await ig_what(ctx, message, arep_num, dontdelete) is True:
-                    return True
-                break
-            else:
-                if await text_what(ctx, message, what, arep_num, dontdelete) is True:
-                    return True
-                break
+            if await text_what(ctx, message, what, arep_num, dontdelete) is True:
+                return True
 
 
 async def do_delete(self, ctx, arep_num, dontdelete=None):
@@ -170,23 +164,21 @@ async def do_delete(self, ctx, arep_num, dontdelete=None):
             return bot_delete.id == dreaction.message.id and duser.id == ctx.author.id
         except AttributeError:
             pass
-    while True:
-        try:
-            reaction = await self.bot.wait_for('reaction_add', timeout=300, check=check)
-        except asyncio.TimeoutError:
-            return await cancel_new(ctx, 'The new response was deleted because 5 minutes has passed with no reaction', arep_num, dontdelete)
-        else:
-            if str(reaction[0]) == '🟢':  # green circle emote
-                main.cur.execute('UPDATE response SET delete=true WHERE rep_number=%s', (arep_num,))
-                main.db.commit()
-                return True
-            if str(reaction[0]) == '🔴':  # red circle emote
-                main.cur.execute('UPDATE response SET delete=false WHERE rep_number=%s', (arep_num,))
-                main.db.commit()
-                return True
-            if str(reaction[0]) == '❌':
-                await cancel_new(ctx, 'no', arep_num, dontdelete)
-                break
+    try:
+        reaction = await self.bot.wait_for('reaction_add', timeout=300, check=check)
+    except asyncio.TimeoutError:
+        return await cancel_new(ctx, 'The new response was deleted because 5 minutes has passed with no reaction', arep_num, dontdelete)
+    else:
+        if str(reaction[0]) == '🟢':  # green circle emote
+            main.cur.execute('UPDATE response SET delete=true WHERE rep_number=%s', (arep_num,))
+            main.db.commit()
+            return True
+        if str(reaction[0]) == '🔴':  # red circle emote
+            main.cur.execute('UPDATE response SET delete=false WHERE rep_number=%s', (arep_num,))
+            main.db.commit()
+            return True
+        if str(reaction[0]) == '❌':
+            await cancel_new(ctx, 'no', arep_num, dontdelete)
 
 title_desc = 'Please reply to this message with the title for this response \n\u2022 reply with `none` for no title \n\u2022 reply with `cancel` to cancel'
 desc_desc = 'Please reply to this message with the description for this response \n\u2022 reply with `none` for no description \n\u2022 reply with `cancel` to cancel'
@@ -261,24 +253,22 @@ class Response(commands.Cog):
 
             def check(ereaction, euser):
                 return bot_edit.id == ereaction.message.id and euser.id == ctx.author.id
-
-            while True:
-                try:
-                    reaction = await self.bot.wait_for('reaction_add', timeout=300, check=check)
-                except asyncio.TimeoutError:
-                    return await main.error_embed(ctx, '', num, 'don\'t delete')
-                else:
-                    if str(reaction[0]) == '1️⃣':
-                        return await what_text(self, ctx, 'title', num, title_desc, 'don\'t delete')
-                    if str(reaction[0]) == '2️⃣':
-                        return await what_text(self, ctx, 'description', num, desc_desc, 'don\'t delete')
-                    if str(reaction[0]) == '3️⃣':
-                        return await what_text(self, ctx, 'regex', num, regex_desc, 'don\'t delete')
-                    if str(reaction[0]) == '4️⃣':
-                        return await do_delete(self, ctx, num, 'don\'t delete')
-                    if str(reaction[0]) == '5️⃣':
-                        return await what_text(self, ctx, 'ignore', num, ignorerole_desc, 'don\'t delete')
-                    print(f'{ctx.author.id} edited response #{num}')
+            try:
+                reaction = await self.bot.wait_for('reaction_add', timeout=300, check=check)
+            except asyncio.TimeoutError:
+                return await main.error_embed(ctx, '', num, 'don\'t delete')
+            else:
+                if str(reaction[0]) == '1️⃣':
+                    return await what_text(self, ctx, 'title', num, title_desc, 'don\'t delete')
+                if str(reaction[0]) == '2️⃣':
+                    return await what_text(self, ctx, 'description', num, desc_desc, 'don\'t delete')
+                if str(reaction[0]) == '3️⃣':
+                    return await what_text(self, ctx, 'regex', num, regex_desc, 'don\'t delete')
+                if str(reaction[0]) == '4️⃣':
+                    return await do_delete(self, ctx, num, 'don\'t delete')
+                if str(reaction[0]) == '5️⃣':
+                    return await what_text(self, ctx, 'ignore', num, ignorerole_desc, 'don\'t delete')
+                print(f'{ctx.author.id} edited response #{num}')
         else:
             await main.error_embed(ctx, 'There is no response with that number')
 

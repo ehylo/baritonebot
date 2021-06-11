@@ -15,7 +15,7 @@ async def output(member, action, channel, time_muted, ctx, reason, log_e=None):
     await main.log_embed(log_e, f'User {action.capitalize()}', f'{member.mention} has been {action}{time_muted} {reason}', channel, member)
     await main.channel_embed(ctx, f'User {action.capitalize()}', f'{member.mention} has been {action}{time_muted} {reason}')
 
-time_regex = re.compile(r'(?:(\d+)([hmd]))+?')
+time_regex = re.compile(r'^(?:(.+\d)([a-z]))+?$')
 time_dict = {"h": 3600, "m": 60, "d": 86400}
 
 
@@ -25,7 +25,9 @@ class TimeConverter(commands.Converter):
         mtime = 0
         for v, k in re.findall(time_regex, args):
             try:
-                mtime += (time_dict[k]*int(v)) + int(time())
+                mtime += int((time_dict[k]*float(v)) + int(time()))
+                if mtime >= (9223372036854775807 - int(time())):
+                    await main.error_embed(ctx, 'That time in seconds is larger than 64 bits which isn\'t supported by postgresql, please chose a shorter time')
             except KeyError:
                 await main.error_embed(ctx, 'Only use `m`(minutes), `h`(hours), or `d`(days).')
             except ValueError:
@@ -154,9 +156,15 @@ class Bkm(commands.Cog):
         for row in muted_users:
             muted_user = self.bot.get_user(row[0])
             if row[1] != 0:
-                desc += f'**{muted_user.mention} ({muted_user}) Time remaining:** \n{main.time_convert(row[1] - int(time()))}\n'
+                try:
+                    desc += f'**{muted_user.mention} ({muted_user}) Time remaining:** \n{main.time_convert(row[1] - int(time()))}\n'
+                except AttributeError:
+                    desc += f'**{row[0]} Time remaining:** \n{main.time_convert(row[1] - int(time()))}\n'
             else:
-                desc += f'**{muted_user.mention} ({muted_user}) Time remaining:** \nindefinite\n'
+                try:
+                    desc += f'**{muted_user.mention} ({muted_user}) Time remaining:** \nindefinite\n'
+                except AttributeError:
+                    desc += f'**{row[0]} Time remaining:** \n{main.time_convert(row[1] - int(time()))}\n'
         await main.channel_embed(ctx, f'Muted Users ({len(muted_users)}):', desc)
 
     @commands.command(aliases=['k'])
