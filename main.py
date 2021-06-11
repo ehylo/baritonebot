@@ -27,6 +27,16 @@ def values(num):
     return actual[num]
 
 
+def stat_update(query, check_id):
+    cur.execute('SELECT user_id FROM stats WHERE user_id=%s', (check_id,))
+    if cur.fetchone() is None:
+        cur.execute('INSERT INTO stats(user_id) VALUES(%s)', (check_id,))
+        db.commit()
+    cur.execute(query, (check_id,))
+    db.commit()
+    return
+
+
 def time_convert(time_int):
     new, edesc = time_int, ''
     if time_int / 86400 >= 1:

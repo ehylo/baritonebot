@@ -9,7 +9,7 @@ Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Bari
 *   read [this](https://gist.github.com/InterStella0/b78488fb28cadf279dfd3164b9f0cf96) and see if it's better than current help command
 *   support gifs in emote command
 ### can probably do
-*   Completely track tons of stuff in the db to show interesting stuff and be able to display a leaderboard for it (messages sent, messages edited, tails/heads, rps(ls), responses triggered, maybe exp system with dailies and random xp per message?)
+*   Show a leaderboard of the stats (currently tracking them just no way to display)
 *   Add more options to the embed command (field, footer, author, image, etc) also be able to edit it
 *   Add time to ban, also add weeks, months, years, and seconds (maybe more like decades :p) to the time aswell
 *   Add some commands to change the roles/channels, preped for this by storing the ids in a db instead of hard coded

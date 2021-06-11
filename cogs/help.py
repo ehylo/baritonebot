@@ -67,6 +67,7 @@ class Help(commands.Cog):
             \n\u2022 `<un>ignore` \
             \n\u2022 `uptime(ut)` \
             \n\u2022 `info/about` \
+            \n\u2022 `daily` \
             \n\u2022 `optpf [setting]` \
             \n\u2022 `opspt [setting]` \
             \n\u2022 `optout <I am sure>` \
@@ -168,6 +169,10 @@ class Help(commands.Cog):
     @help.command()
     async def info(self, ctx):
         await help_embed(ctx, 'Bot Information', 'Shows information about the bot', '`info/about`')
+
+    @help.command()
+    async def daily(self, ctx):
+        await help_embed(ctx, 'Daily', 'Claims your daily exp', '`daily`')
 
     @help.command()
     async def uptime(self, ctx):

@@ -81,7 +81,7 @@ class Extension(commands.Cog):
             \n\u2022 **`bkm`** - `mute`, `ban`, `kick`, `unban`, `optout`, and `unmute` commands \
             \n\u2022 **`response`** - command, paste upload, regex response, and regex delete \
             \n\u2022 **`values`** - `embedcolor`, `status`, `prefix`, and `nick` commands \
-            \n\u2022 **`misc`** - `rps`, and `flip` commands \
+            \n\u2022 **`misc`** - `rps`, `daily`, and `flip` commands \
             \n\u2022 **`role`** - `ignore` and `releases` commands \
             \n\u2022 **`rule`** - command \
             \n\u2022 **`clear`** - command \

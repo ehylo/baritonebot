@@ -42,6 +42,7 @@ async def regex_respond(self, message):
     match_regex = main.cur.fetchall()
     for x in match_regex:
         if re.search(x[0], message.content.lower()) is not None:
+            main.stat_update(r'UPDATE stats SET triggered_responses = triggered_responses + 1 WHERE user_id = %s', message.author.id)
             if (b_guild.get_member(main.ids(0)) in message.mentions) or (message.content.startswith('!')):
                 title = '' if x[1].lower() == 'none' else x[1]
                 desc = '' if x[2].lower() == 'none' else x[2]
@@ -193,7 +194,7 @@ class Response(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.author.discriminator != '0000':  # god damn webhooks breaking shit
+        if message.author.discriminator != '0000':
             if not message.content.lower().startswith(main.values(0)) and message.author.id != main.ids(0):
                 if await regex_delete(self, message) is not True:
                     await regex_respond(self, message)
@@ -201,7 +202,7 @@ class Response(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
-        if message_after.author.discriminator != '0000':  # god damn webhooks breaking shit
+        if message_after.author.discriminator != '0000':
             if not message_after.content.lower().startswith(main.values(0)) and message_after.author.id != main.ids(0):
                 if message_before.content != message_after.content:
                     await regex_delete(self, message_after)

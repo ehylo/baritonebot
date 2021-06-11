@@ -37,39 +37,45 @@ class Event(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if (message.guild is None) and (message.author.id != main.ids(0)) and (str(message.author.id) not in exempt_users):
-            channel = self.bot.get_guild(main.ids(1)).get_channel(main.ids(4))
-            await main.log_embed(None, 'I have recieved a DM', message.content, channel, message.author)
-            print(f'{message.author.id} dmed me \"{message.content}\"')
+        if message.author.discriminator != '0000':
+            main.stat_update(r'UPDATE stats SET messages = messages + 1 WHERE user_id = %s', message.author.id)
+            if (message.guild is None) and (message.author.id != main.ids(0)) and (str(message.author.id) not in exempt_users):
+                channel = self.bot.get_guild(main.ids(1)).get_channel(main.ids(4))
+                await main.log_embed(None, 'I have recieved a DM', message.content, channel, message.author)
+                print(f'{message.author.id} dmed me \"{message.content}\"')
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if (message.author.id != main.ids(0)) and (str(message.channel.id) not in exempt_channels):
-            channel = await self.bot.fetch_channel(main.ids(3))
-            if message.guild is None:
-                del_channel = 'DMs'
-            else:
-                del_channel = message.channel.mention
-            await main.log_embed(None, None, f'**Message deleted in {del_channel}** \n{message.content}', channel, message.author)
-            print(f'{message.author.id} message was deleted: \"{message.content}\"')
+        if message.author.discriminator != '0000':
+            main.stat_update(r'UPDATE stats SET deleted = deleted + 1 WHERE user_id = %s', message.author.id)
+            if (message.author.id != main.ids(0)) and (str(message.channel.id) not in exempt_channels):
+                channel = await self.bot.fetch_channel(main.ids(3))
+                if message.guild is None:
+                    del_channel = 'DMs'
+                else:
+                    del_channel = message.channel.mention
+                await main.log_embed(None, None, f'**Message deleted in {del_channel}** \n{message.content}', channel, message.author)
+                print(f'{message.author.id} message was deleted: \"{message.content}\"')
 
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
-        if message_after.content != '' and message_before.content != '':
-            if message_before.author.id != main.ids(0):
-                if str(message_before.channel.id) not in exempt_channels:
-                    if message_after.content != message_before.content:  # prevent logging embeds loading
-                        if message_before.guild is None:
-                            jump = 'DMs**'
-                        else:
-                            jump = f'{message_after.channel.mention}** [(jump)](https://discord.com/channels/{message_after.guild.id}/{message_after.channel.id}/{message_after.id})'
-                        em_v = discord.Embed(color=int(main.values(1), 16), description=f'**Message edited in {jump}')
-                        em_v.add_field(name='Befored Edit:', value=message_before.content, inline=False)
-                        em_v.add_field(name='After Edit:', value=message_after.content, inline=False)
-                        em_v.set_footer(text=f'{message_after.author.name} | ID: {message_after.author.id}', icon_url=message_after.author.avatar_url)
-                        channel = await self.bot.fetch_channel(main.ids(3))
-                        await channel.send(embed=em_v)
-                        print(f'{message_after.author.id} edited a message, Before: \"{message_before.content}\" After: \"{message_after.content}\"')
+        if message_after.author.discriminator != '0000':
+            if message_after.content != '' and message_before.content != '':
+                main.stat_update(r'UPDATE stats SET edited = edited + 1 WHERE user_id = %s', message_after.author.id)
+                if message_before.author.id != main.ids(0):
+                    if str(message_before.channel.id) not in exempt_channels:
+                        if message_after.content != message_before.content:  # prevent logging embeds loading
+                            if message_before.guild is None:
+                                jump = 'DMs**'
+                            else:
+                                jump = f'{message_after.channel.mention}** [(jump)](https://discord.com/channels/{message_after.guild.id}/{message_after.channel.id}/{message_after.id})'
+                            em_v = discord.Embed(color=int(main.values(1), 16), description=f'**Message edited in {jump}')
+                            em_v.add_field(name='Befored Edit:', value=message_before.content, inline=False)
+                            em_v.add_field(name='After Edit:', value=message_after.content, inline=False)
+                            em_v.set_footer(text=f'{message_after.author.name} | ID: {message_after.author.id}', icon_url=message_after.author.avatar_url)
+                            channel = await self.bot.fetch_channel(main.ids(3))
+                            await channel.send(embed=em_v)
+                            print(f'{message_after.author.id} edited a message, Before: \"{message_before.content}\" After: \"{message_after.content}\"')
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
@@ -131,19 +137,19 @@ class Event(commands.Cog):
 
     @tasks.loop(seconds=1)
     async def loops(self):
-        b_guild = self.bot.get_guild(main.ids(1))
-        modlog_channel = await self.bot.fetch_channel(main.ids(5))
         log_channel = await self.bot.fetch_channel(main.ids(3))
         async for message in log_channel.history(limit=1000):
             if (message.created_at + timedelta(hours=24)) < datetime.utcnow():
                 await message.delete()
                 print('cleared logs older then 24 hours in the logs channel')
         main.cur.execute('SELECT * FROM rekt')
-        now = int(time())
         for i in main.cur.fetchall():
-            expiry = i[2]
-            if 0 <= (expiry-now)+4 <= 5:  # this gives it 5 seconds of variation for lag, if I make it without the +4/>0 and just <0 the perma mute wouldn't work
-                await unmute_embeds(b_guild, modlog_channel, i)
+            if i[2] != 0:
+                if i[2]-int(time()) <= 0:
+                    await unmute_embeds(self.bot.get_guild(main.ids(1)), await self.bot.fetch_channel(main.ids(5)), i)
+        if datetime.utcnow().hour == 0 and datetime.utcnow().minute == 0 and datetime.utcnow().second <= 5:
+            print('Dailies reset!')
+            main.cur.execute('UPDATE stats SET daily = false')
 
     @loops.before_loop
     async def before_loops(self):
