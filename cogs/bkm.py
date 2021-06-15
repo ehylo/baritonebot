@@ -189,10 +189,10 @@ class Bkm(commands.Cog):
 
     @commands.command()
     async def optout(self, ctx, *, arg=None):
+        b_guild = self.bot.get_guild(main.ids(1))
         if arg is None:
             await Help.optout(self, ctx)
-        b_guild = self.bot.get_guild(main.ids(1))
-        if arg.lower() == 'I am sure':
+        elif arg == 'I am sure':
             channel = await self.bot.fetch_channel(main.ids(5))
             try:
                 dchannel = await ctx.author.create_dm()

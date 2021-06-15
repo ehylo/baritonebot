@@ -140,7 +140,7 @@ class Info(commands.Cog):
             color=int(main.values(1), 16),
             description=f'Current prefix: `{main.values(0)}`'
                         f'\n\n__**Info:**__'
-                        f'\n\u2022 Made by Flurr#0001'
+                        f'\n\u2022 Made by bigdata#0001'
                         f'\n\u2022 Written in [python](https://www.python.org/) using the [discord.py](https://github.com/Rapptz/discord.py) library'
                         f'\n\u2022 Uses a [PostgreSQL](https://www.postgresql.org/) database'
                         f'\n\n__**Links:**__'

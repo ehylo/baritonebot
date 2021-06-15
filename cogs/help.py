@@ -68,8 +68,8 @@ class Help(commands.Cog):
             \n\u2022 `uptime(ut)` \
             \n\u2022 `info/about` \
             \n\u2022 `daily` \
-            \n\u2022 `optpf [setting]` \
-            \n\u2022 `opspt [setting]` \
+            \n\u2022 `optpf <[setting]>` \
+            \n\u2022 `opspt <[setting]>` \
             \n\u2022 `optout <I am sure>` \
             \n\u2022 `help(h) <admin(a)|mod(m)|helper(h)|everyone(e)>`'
         await help_embed(ctx, 'Available to everyone:', '`help <command>` to get command info or give no arguments', field_value, 'Commands:')
@@ -180,11 +180,11 @@ class Help(commands.Cog):
 
     @help.command()
     async def optpf(self, ctx):
-        await help_embed(ctx, '1.2.15 Settings', 'Searches through all baritone settings for v1.2.15', '`optpf [setting]`')
+        await help_embed(ctx, '1.2.15 Settings', 'Searches through all baritone settings for v1.2.15', '`optpf <[setting]>`')
 
     @help.command()
     async def opspt(self, ctx):
-        await help_embed(ctx, '1.6.3 Settings', 'Searches through all baritone settings for v1.6.3', '`opspt [setting]`')
+        await help_embed(ctx, '1.6.3 Settings', 'Searches through all baritone settings for v1.6.3', '`opspt <[setting]>`')
 
     @help.command()
     async def userinfo(self, ctx):
