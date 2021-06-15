@@ -7,7 +7,10 @@ from discord.ext import commands
 
 
 async def member_check(self, ctx, user):
-    return await self.bot.get_guild(main.ids(1)).fetch_member(user.id), await self.bot.get_guild(main.ids(1)).fetch_member(ctx.author.id)
+    try:
+        return await self.bot.get_guild(main.ids(1)).fetch_member(user.id), await self.bot.get_guild(main.ids(1)).fetch_member(ctx.author.id)
+    except discord.NotFound:
+        await main.error_embed(ctx, 'Couldn\'t find that member')
 
 
 async def output(member, action, channel, time_muted, ctx, reason, log_e=None):
