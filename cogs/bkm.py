@@ -7,10 +7,7 @@ from discord.ext import commands
 
 
 async def member_check(self, ctx, user):
-    try:
-        return await self.bot.get_guild(main.ids(1)).fetch_member(user.id), await self.bot.get_guild(main.ids(1)).fetch_member(ctx.author.id)
-    except discord.NotFound:
-        await main.error_embed(ctx, 'Couldn\'t find that member')
+    return await self.bot.get_guild(main.ids(1)).fetch_member(user.id), await self.bot.get_guild(main.ids(1)).fetch_member(ctx.author.id)
 
 
 async def output(member, action, channel, time_muted, ctx, reason, log_e=None):
@@ -47,7 +44,7 @@ class Bkm(commands.Cog):
     @commands.check(main.mod_group)
     async def unban(self, ctx, user=None):
         if user is None:
-            await Help.unban(self, ctx)
+            return await Help.unban(self, ctx)
         try:
             user_men = str(ctx.message.raw_mentions[0])
         except IndexError:
@@ -72,8 +69,11 @@ class Bkm(commands.Cog):
     @commands.check(main.mod_group)
     async def unmute(self, ctx, user: discord.User = None):
         if user is None:
-            await Help.unmute(self, ctx)
-        member, author_member = await member_check(self, ctx, user)
+            return await Help.unmute(self, ctx)
+        try:
+            member, author_member = await member_check(self, ctx, user)
+        except discord.NotFound:
+            return await main.error_embed(ctx, 'Couldn\'t find that member')
         if member.top_role == author_member.top_role:
             await main.error_embed(ctx, f'You don\'t outrank {member.mention}')
         else:
@@ -95,8 +95,11 @@ class Bkm(commands.Cog):
     @commands.check(main.mod_group)
     async def ban(self, ctx, user: discord.User = None, purge=None, *, reason=None):
         if user is None:
-            await Help.ban(self, ctx)
-        member, author_member = await member_check(self, ctx, user)
+            return await Help.ban(self, ctx)
+        try:
+            member, author_member = await member_check(self, ctx, user)
+        except discord.NotFound:
+            return await main.error_embed(ctx, 'Couldn\'t find that member')
         if member.top_role == author_member.top_role:
             await main.error_embed(ctx, f'You don\'t outrank {member.mention}')
         elif purge is None:
@@ -121,8 +124,11 @@ class Bkm(commands.Cog):
     @commands.check(main.helper_group)
     async def mute(self, ctx, user: discord.User = None, mtime: TimeConverter = None, *, reason=None):
         if user is None:
-            await Help.mute(self, ctx)
-        member, author_member = await member_check(self, ctx, user)
+            return await Help.mute(self, ctx)
+        try:
+            member, author_member = await member_check(self, ctx, user)
+        except discord.NotFound:
+            return await main.error_embed(ctx, 'Couldn\'t find that member')
         if member.top_role == author_member.top_role:
             await main.error_embed(ctx, f'You don\'t outrank {member.mention}')
         elif mtime is None:
@@ -174,8 +180,11 @@ class Bkm(commands.Cog):
     @commands.check(main.mod_group)
     async def kick(self, ctx, user: discord.User = None, *, reason=None):
         if user is None:
-            await Help.kick(self, ctx)
-        member, author_member = await member_check(self, ctx, user)
+            return await Help.kick(self, ctx)
+        try:
+            member, author_member = await member_check(self, ctx, user)
+        except discord.NotFound:
+            return await main.error_embed(ctx, 'Couldn\'t find that member')
         if member.top_role == author_member.top_role:
             await main.error_embed(ctx, f'You don\'t outrank {member.mention}')
         elif reason is None:
@@ -194,8 +203,8 @@ class Bkm(commands.Cog):
     async def optout(self, ctx, *, arg=None):
         b_guild = self.bot.get_guild(main.ids(1))
         if arg is None:
-            await Help.optout(self, ctx)
-        elif arg == 'I am sure':
+            return await Help.optout(self, ctx)
+        if arg == 'I am sure':
             channel = await self.bot.fetch_channel(main.ids(5))
             try:
                 dchannel = await ctx.author.create_dm()

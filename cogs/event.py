@@ -1,5 +1,6 @@
 import main
 import discord
+import traceback
 from time import time
 from datetime import datetime, timedelta
 from discord.ext import commands, tasks
@@ -132,8 +133,10 @@ class Event(commands.Cog):
         elif isinstance(error, commands.errors.CommandNotFound):
             await main.error_embed(ctx, f'The command `{ctx.message.content}` was not found, do `help` to see command categories')
         elif not isinstance(error, commands.errors.CheckFailure):
-            await main.error_embed(ctx, None, error)
-            print(f'{ctx.author.id} tried to use the command {ctx.command} but it gave the error: {error}')
+            await main.error_embed(ctx, 'An unexpected error occured')
+            me = await self.bot.get_user(747282743246848150).create_dm()
+            tb = str(traceback.format_exception(type(error), error, error.__traceback__)).replace(r"\n", "\n")
+            await me.send(f'```{tb[1:-1]}```')
 
     @tasks.loop(seconds=1)
     async def loops(self):

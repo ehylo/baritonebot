@@ -97,7 +97,7 @@ async def cancel_new(ctx, what, arep_num, dontdelete=None):
         print(f'{ctx.author.id} canceled the new response #{arep_num}')
     else:
         what = 'Edit was canceled'
-    await main.error_embed(ctx, what, None, 'Canceled')
+    await main.error_embed(ctx, what, 'Canceled')
 
 
 async def ig_what(ctx, message, arep_num, dontdelete):
@@ -210,7 +210,7 @@ class Response(commands.Cog):
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['rp'])
     @commands.check(main.helper_group)
     async def response(self, ctx):
-        await Help.response(self, ctx)
+        return await Help.response(self, ctx)
 
     @response.command(aliases=['n'])
     @commands.check(main.mod_group)
@@ -257,7 +257,7 @@ class Response(commands.Cog):
             try:
                 reaction = await self.bot.wait_for('reaction_add', timeout=300, check=check)
             except asyncio.TimeoutError:
-                return await main.error_embed(ctx, '', num, 'don\'t delete')
+                return await main.error_embed(ctx, '', 'don\'t delete')
             else:
                 if str(reaction[0]) == '1️⃣':
                     return await what_text(self, ctx, 'title', num, title_desc, 'don\'t delete')

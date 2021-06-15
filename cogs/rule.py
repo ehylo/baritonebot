@@ -12,8 +12,8 @@ class Rule(commands.Cog):
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['r'])
     async def rule(self, ctx, rulenum: int = None):
         if rulenum is None:
-            await Help.rule(self, ctx)
-        elif rulenum <= 0:
+            return await Help.rule(self, ctx)
+        if rulenum <= 0:
             await main.error_embed(ctx, 'You need to give a **positive non zero** rule number')
         else:
             main.cur.execute('SELECT * FROM rules WHERE rules_number=%s', (rulenum,))

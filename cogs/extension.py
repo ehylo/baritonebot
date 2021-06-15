@@ -12,7 +12,7 @@ class Extension(commands.Cog):
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ext'])
     @commands.check(main.admin_group)
     async def extension(self, ctx):
-        await Help.extension(self, ctx)
+        return await Help.extension(self, ctx)
 
     @extension.command(aliases=['ld'])
     @commands.check(main.admin_group)

@@ -91,23 +91,22 @@ class Info(commands.Cog):
         except IndexError:
             user_men = ''
         if user_id is None:
-            await Help.userinfo(self, ctx)
+            return await Help.userinfo(self, ctx)
+        if user_men != '':
+            clear_member = await self.bot.fetch_user(int(user_men))  # get the user if they mentioned
+        elif (user_id.isdigit()) and (len(user_id) == 18):
+            clear_member = await self.bot.fetch_user(int(user_id))  # get the user if they gave an ID
         else:
-            if user_men != '':
-                clear_member = await self.bot.fetch_user(int(user_men))  # get the user if they mentioned
-            elif (user_id.isdigit()) and (len(user_id) == 18):
-                clear_member = await self.bot.fetch_user(int(user_id))  # get the user if they gave an ID
+            clear_member = b_guild.get_member_named(user_id)  # get the member if they gave a name with/without discrimitor
+        if clear_member is None:
+            await main.error_embed(ctx, 'The user you gave is invalid')
+        else:
+            if b_guild.get_member(clear_member.id) is not None:
+                member = b_guild.get_member(clear_member.id)
+                await varistuff(ctx, member, ismember=True)
             else:
-                clear_member = b_guild.get_member_named(user_id)  # get the member if they gave a name with/without discrimitor
-            if clear_member is None:
-                await main.error_embed(ctx, 'The user you gave is invalid')
-            else:
-                if b_guild.get_member(clear_member.id) is not None:
-                    member = b_guild.get_member(clear_member.id)
-                    await varistuff(ctx, member, ismember=True)
-                else:
-                    member = await self.bot.fetch_user(clear_member.id)
-                    await varistuff(ctx, member, ismember=False)
+                member = await self.bot.fetch_user(clear_member.id)
+                await varistuff(ctx, member, ismember=False)
 
     @userinfo.command()
     async def me(self, ctx):
@@ -159,16 +158,14 @@ class Info(commands.Cog):
     @commands.command()
     async def opspt(self, ctx, setting=None):
         if setting is None:
-            await Help.opspt(self, ctx)
-        else:
-            await setting_searcher(ctx, setting, 'https://raw.githubusercontent.com/cabaletta/baritone/v1.6.3/src/api/java/baritone/api/Settings.java')
+            return await Help.opspt(self, ctx)
+        await setting_searcher(ctx, setting, 'https://raw.githubusercontent.com/cabaletta/baritone/v1.6.3/src/api/java/baritone/api/Settings.java')
 
     @commands.command()
     async def optpf(self, ctx, setting=None):
         if setting is None:
-            await Help.optpf(self, ctx)
-        else:
-            await setting_searcher(ctx, setting, 'https://raw.githubusercontent.com/cabaletta/baritone/v1.2.15/src/api/java/baritone/api/Settings.java')
+            return await Help.optpf(self, ctx)
+        await setting_searcher(ctx, setting, 'https://raw.githubusercontent.com/cabaletta/baritone/v1.2.15/src/api/java/baritone/api/Settings.java')
 
 
 def setup(bot):

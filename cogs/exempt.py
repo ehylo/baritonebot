@@ -36,7 +36,7 @@ class Exempt(commands.Cog):
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ex'])
     @commands.check(main.admin_group)
     async def exempt(self, ctx):
-        await Help.exempt(self, ctx)
+        return await Help.exempt(self, ctx)
 
     @exempt.command(aliases=['c'])
     @commands.check(main.admin_group)
@@ -59,8 +59,8 @@ class Exempt(commands.Cog):
     @commands.check(main.admin_group)
     async def list(self, ctx, arg=None):
         if arg is None:
-            await Help.exempt(self, ctx)
-        elif arg.lower() in ['channel', 'c']:
+            return await Help.exempt(self, ctx)
+        if arg.lower() in ['channel', 'c']:
             main.cur.execute("SELECT ids FROM exempted WHERE type='channel'")
             exm_channels = [str(item[0]) for item in main.cur.fetchall()]
             await main.channel_embed(ctx, f'Exempted Channels ({len(exm_channels)})', '<#'+'>, <#'.join(exm_channels)+'>')
@@ -72,7 +72,7 @@ class Exempt(commands.Cog):
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['unex'])
     @commands.check(main.admin_group)
     async def unexempt(self, ctx):
-        await Help.exempt(self, ctx)
+        return await Help.exempt(self, ctx)
 
     @unexempt.command(aliases=['c', 'channel'])
     @commands.check(main.admin_group)

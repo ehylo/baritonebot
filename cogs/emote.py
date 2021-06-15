@@ -31,8 +31,8 @@ class Emote(commands.Cog):
     async def emote(self, ctx, name=None, url=None):
         b_guild = self.bot.get_guild(main.ids(1))
         if name is None:
-            await Help.emote(self, ctx)
-        elif len(ctx.message.attachments) > 0:
+            return await Help.emote(self, ctx)
+        if len(ctx.message.attachments) > 0:
             if ctx.message.attachments[0].url.lower().endswith(('.png', '.jpeg', '.jpg', '.gif')):
                 await create_emote(ctx, name, ctx.message.attachments[0].url, b_guild)
             else:

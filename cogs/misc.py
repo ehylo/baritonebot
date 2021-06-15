@@ -64,7 +64,7 @@ class Misc(commands.Cog):
 
     @commands.group(invoke_without_command=True, case_insensitive=True)
     async def rps(self, ctx):
-        await Help.rps(self, ctx)
+        return await Help.rps(self, ctx)
 
     @rps.command(aliases=['r'])
     async def rock(self, ctx):
@@ -106,98 +106,97 @@ class Misc(commands.Cog):
         spock_rock = 'Spock vaporizes Rock'
         spock_scissors = 'Spock smashes Scissors'
         if (choice is None) or (choice.lower() not in ['rock', 'paper', 'scissors', 'lizard', 'spock']):
-            await Help.rpsls(self, ctx)
+            return await Help.rpsls(self, ctx)
+        if choice.lower() == 'rock':
+            main.stat_update(r'UPDATE stats SET rock = rock + 1 WHERE user_id = %s', ctx.author.id)
+            user_choice = 1
+            image = rock_img
+        elif choice.lower() == 'paper':
+            main.stat_update(r'UPDATE stats SET paper = paper + 1 WHERE user_id = %s', ctx.author.id)
+            user_choice = 2
+            image = paper_img
+        elif choice.lower() == 'scissors':
+            main.stat_update(r'UPDATE stats SET scissors = scissors + 1 WHERE user_id = %s', ctx.author.id)
+            user_choice = 3
+            image = scissors_img
+        elif choice.lower() == 'lizard':
+            main.stat_update(r'UPDATE stats SET lizard = lizard + 1 WHERE user_id = %s', ctx.author.id)
+            user_choice = 4
+            image = lizard_img
         else:
-            if choice.lower() == 'rock':
-                main.stat_update(r'UPDATE stats SET rock = rock + 1 WHERE user_id = %s', ctx.author.id)
-                user_choice = 1
-                image = rock_img
-            elif choice.lower() == 'paper':
-                main.stat_update(r'UPDATE stats SET paper = paper + 1 WHERE user_id = %s', ctx.author.id)
-                user_choice = 2
-                image = paper_img
-            elif choice.lower() == 'scissors':
-                main.stat_update(r'UPDATE stats SET scissors = scissors + 1 WHERE user_id = %s', ctx.author.id)
-                user_choice = 3
-                image = scissors_img
-            elif choice.lower() == 'lizard':
-                main.stat_update(r'UPDATE stats SET lizard = lizard + 1 WHERE user_id = %s', ctx.author.id)
-                user_choice = 4
-                image = lizard_img
-            else:
-                main.stat_update(r'UPDATE stats SET spock = spock + 1 WHERE user_id = %s', ctx.author.id)
-                user_choice = 5
-                image = spock_img
-            comp_choice = [SystemRandom().randrange(5)][0]+1
-            if user_choice == 1 and comp_choice == 2:
-                title = 'You lost :('
-                action = paper_rock
-            elif user_choice == 1 and comp_choice == 5:
-                title = 'You lost :('
-                action = spock_rock
-            elif user_choice == 1 and comp_choice == 3:
-                title = 'You Won! :)'
-                action = rock_scissors
-            elif user_choice == 1 and comp_choice == 4:
-                title = 'You Won! :)'
-                action = rock_lizard
-            elif user_choice == 2 and comp_choice == 3:
-                title = 'You lost :('
-                action = scissors_paper
-            elif user_choice == 2 and comp_choice == 4:
-                title = 'You lost :('
-                action = lizard_paper
-            elif user_choice == 2 and comp_choice == 1:
-                title = 'You Won! :)'
-                action = paper_rock
-            elif user_choice == 2 and comp_choice == 5:
-                title = 'You Won! :)'
-                action = paper_spock
-            elif user_choice == 3 and comp_choice == 1:
-                title = 'You lost :('
-                action = rock_scissors
-            elif user_choice == 3 and comp_choice == 5:
-                title = 'You lost :('
-                action = spock_scissors
-            elif user_choice == 3 and comp_choice == 2:
-                title = 'You Won! :)'
-                action = scissors_paper
-            elif user_choice == 3 and comp_choice == 4:
-                title = 'You Won! :)'
-                action = scissors_lizard
-            elif user_choice == 4 and comp_choice == 1:
-                title = 'You lost :('
-                action = rock_lizard
-            elif user_choice == 4 and comp_choice == 3:
-                title = 'You lost :('
-                action = scissors_lizard
-            elif user_choice == 4 and comp_choice == 2:
-                title = 'You Won! :)'
-                action = lizard_paper
-            elif user_choice == 4 and comp_choice == 5:
-                title = 'You Won! :)'
-                action = lizard_spock
-            elif user_choice == 5 and comp_choice == 2:
-                title = 'You lost :('
-                action = paper_spock
-            elif user_choice == 5 and comp_choice == 4:
-                title = 'You lost :('
-                action = lizard_spock
-            elif user_choice == 5 and comp_choice == 1:
-                title = 'You Won! :)'
-                action = spock_rock
-            elif user_choice == 5 and comp_choice == 3:
-                title = 'You Won! :)'
-                action = spock_scissors
-            else:
-                action = f'{choice} {tie} {choice}'
-                title = 'We Tied :|'
-                main.stat_update(r'UPDATE stats SET tied = tied + 1 WHERE user_id = %s', ctx.author.id)
-            if title == 'You Won! :)':
-                main.stat_update(r'UPDATE stats SET won = won + 1 WHERE user_id = %s', ctx.author.id)
-            elif title == 'You lost :(':
-                main.stat_update(r'UPDATE stats SET lost = lost + 1 WHERE user_id = %s', ctx.author.id)
-            await main.channel_embed(ctx, title,  action, image)
+            main.stat_update(r'UPDATE stats SET spock = spock + 1 WHERE user_id = %s', ctx.author.id)
+            user_choice = 5
+            image = spock_img
+        comp_choice = [SystemRandom().randrange(5)][0]+1
+        if user_choice == 1 and comp_choice == 2:
+            title = 'You lost :('
+            action = paper_rock
+        elif user_choice == 1 and comp_choice == 5:
+            title = 'You lost :('
+            action = spock_rock
+        elif user_choice == 1 and comp_choice == 3:
+            title = 'You Won! :)'
+            action = rock_scissors
+        elif user_choice == 1 and comp_choice == 4:
+            title = 'You Won! :)'
+            action = rock_lizard
+        elif user_choice == 2 and comp_choice == 3:
+            title = 'You lost :('
+            action = scissors_paper
+        elif user_choice == 2 and comp_choice == 4:
+            title = 'You lost :('
+            action = lizard_paper
+        elif user_choice == 2 and comp_choice == 1:
+            title = 'You Won! :)'
+            action = paper_rock
+        elif user_choice == 2 and comp_choice == 5:
+            title = 'You Won! :)'
+            action = paper_spock
+        elif user_choice == 3 and comp_choice == 1:
+            title = 'You lost :('
+            action = rock_scissors
+        elif user_choice == 3 and comp_choice == 5:
+            title = 'You lost :('
+            action = spock_scissors
+        elif user_choice == 3 and comp_choice == 2:
+            title = 'You Won! :)'
+            action = scissors_paper
+        elif user_choice == 3 and comp_choice == 4:
+            title = 'You Won! :)'
+            action = scissors_lizard
+        elif user_choice == 4 and comp_choice == 1:
+            title = 'You lost :('
+            action = rock_lizard
+        elif user_choice == 4 and comp_choice == 3:
+            title = 'You lost :('
+            action = scissors_lizard
+        elif user_choice == 4 and comp_choice == 2:
+            title = 'You Won! :)'
+            action = lizard_paper
+        elif user_choice == 4 and comp_choice == 5:
+            title = 'You Won! :)'
+            action = lizard_spock
+        elif user_choice == 5 and comp_choice == 2:
+            title = 'You lost :('
+            action = paper_spock
+        elif user_choice == 5 and comp_choice == 4:
+            title = 'You lost :('
+            action = lizard_spock
+        elif user_choice == 5 and comp_choice == 1:
+            title = 'You Won! :)'
+            action = spock_rock
+        elif user_choice == 5 and comp_choice == 3:
+            title = 'You Won! :)'
+            action = spock_scissors
+        else:
+            action = f'{choice} {tie} {choice}'
+            title = 'We Tied :|'
+            main.stat_update(r'UPDATE stats SET tied = tied + 1 WHERE user_id = %s', ctx.author.id)
+        if title == 'You Won! :)':
+            main.stat_update(r'UPDATE stats SET won = won + 1 WHERE user_id = %s', ctx.author.id)
+        elif title == 'You lost :(':
+            main.stat_update(r'UPDATE stats SET lost = lost + 1 WHERE user_id = %s', ctx.author.id)
+        await main.channel_embed(ctx, title,  action, image)
 
 
 def setup(bot):

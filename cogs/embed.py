@@ -13,8 +13,8 @@ class Embed(commands.Cog):
     @commands.check(mod_group)
     async def embed(self, ctx, channel: discord.TextChannel = None, etitle=None, *, edesc=None):
         if channel is None:
-            await Help.embed(self, ctx)
-        elif etitle is None:
+            return await Help.embed(self, ctx)
+        if etitle is None:
             await error_embed(ctx, 'You need to give a title')
         elif edesc is None:
             await error_embed(ctx, 'You need to give a description')
