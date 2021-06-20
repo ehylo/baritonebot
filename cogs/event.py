@@ -31,7 +31,10 @@ class Event(commands.Cog):
     def __init__(self, bot):
         """Returns all of the specific emebeds for even related actions."""
         self.bot = bot
-        self.loops.start()
+        try:
+            self.loops.start()
+        except RuntimeError:
+            pass
 
     def cog_unload(self):
         self.loops.cancel()
@@ -150,7 +153,7 @@ class Event(commands.Cog):
             if i[2] != 0:
                 if i[2]-int(time()) <= 0:
                     await unmute_embeds(self.bot.get_guild(main.ids(1)), await self.bot.fetch_channel(main.ids(5)), i)
-        if datetime.utcnow().hour == 0 and datetime.utcnow().minute == 0 and datetime.utcnow().second <= 5:
+        if datetime.utcnow().hour == 1 and datetime.utcnow().minute == 0 and datetime.utcnow().second <= 1:
             print('Dailies reset!')
             main.cur.execute('UPDATE stats SET daily = false')
 
