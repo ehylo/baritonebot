@@ -157,7 +157,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def exempt(self, ctx):
-        await help_embed(ctx, 'Exempt', 'Allows you to set a channel or user to be exempted from the message edit/delete logging or dm logging, if you don\'t give a user or channel it will set it as the current', '`<un>exempt(ex) <channel(c)|user(u)|list(l)> <[channel]|[user]>`')
+        await help_embed(ctx, 'Exempt', 'Allows you to set a channel to be exempted from the message edit/delete logging, if you don\'t give a channel it will set it as the current', '`<un>exempt(ex) <list(l)|[channel]>`')
 
 
 def setup(bot):

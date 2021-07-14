@@ -124,6 +124,11 @@ async def help_embed(ctx, title, desc=None, field_value=None, field_name=None, i
     em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=em_v)
 
+
+async def dm_embed(dtitle, ddesc, dchannel):
+    em_v = discord.Embed(color=int(values(1), 16), title=dtitle, description=ddesc)
+    await dchannel.send(embed=em_v)
+
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):
         bot.load_extension(f'cogs.{filename[:-3]}')

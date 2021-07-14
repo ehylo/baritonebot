@@ -23,8 +23,6 @@ async def unmute_embeds(b_guild, modlog_channel, i):
 
 main.cur.execute("SELECT ids FROM exempted WHERE type='channel'")
 exempt_channels = [str(item[0]) for item in main.cur.fetchall()]
-main.cur.execute("SELECT ids FROM exempted WHERE type='user'")
-exempt_users = [str(item[0]) for item in main.cur.fetchall()]
 
 
 class Event(commands.Cog):
@@ -37,24 +35,14 @@ class Event(commands.Cog):
         self.loops.cancel()
 
     @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.author.discriminator != '0000':
-            if (message.guild is None) and (message.author.id != main.ids(0)) and (str(message.author.id) not in exempt_users):
-                channel = self.bot.get_guild(main.ids(1)).get_channel(main.ids(4))
-                await main.log_embed(None, 'I have recieved a DM', message.content, channel, message.author)
-                print(f'{message.author.id} dmed me \"{message.content}\"')
-
-    @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.author.discriminator != '0000':
             if (message.author.id != main.ids(0)) and (str(message.channel.id) not in exempt_channels):
-                channel = await self.bot.fetch_channel(main.ids(3))
-                if message.guild is None:
-                    del_channel = 'DMs'
-                else:
+                if message.guild is not None:
+                    channel = await self.bot.fetch_channel(main.ids(3))
                     del_channel = message.channel.mention
-                await main.log_embed(None, None, f'**Message deleted in {del_channel}** \n{message.content}', channel, message.author)
-                print(f'{message.author.id} message was deleted: \"{message.content}\"')
+                    await main.log_embed(None, None, f'**Message deleted in {del_channel}** \n{message.content}', channel, message.author)
+                    print(f'{message.author.id} message was deleted: \"{message.content}\"')
 
     @commands.Cog.listener()
     async def on_message_edit(self, message_before, message_after):
@@ -63,17 +51,15 @@ class Event(commands.Cog):
                 if message_before.author.id != main.ids(0):
                     if str(message_before.channel.id) not in exempt_channels:
                         if message_after.content != message_before.content:  # prevent logging embeds loading
-                            if message_before.guild is None:
-                                jump = 'DMs**'
-                            else:
+                            if message_before.guild is not None:
                                 jump = f'{message_after.channel.mention}** [(jump)](https://discord.com/channels/{message_after.guild.id}/{message_after.channel.id}/{message_after.id})'
-                            em_v = discord.Embed(color=int(main.values(1), 16), description=f'**Message edited in {jump}')
-                            em_v.add_field(name='Befored Edit:', value=message_before.content, inline=False)
-                            em_v.add_field(name='After Edit:', value=message_after.content, inline=False)
-                            em_v.set_footer(text=f'{message_after.author.name} | ID: {message_after.author.id}', icon_url=message_after.author.avatar_url)
-                            channel = await self.bot.fetch_channel(main.ids(3))
-                            await channel.send(embed=em_v)
-                            print(f'{message_after.author.id} edited a message, Before: \"{message_before.content}\" After: \"{message_after.content}\"')
+                                em_v = discord.Embed(color=int(main.values(1), 16), description=f'**Message edited in {jump}')
+                                em_v.add_field(name='Befored Edit:', value=message_before.content, inline=False)
+                                em_v.add_field(name='After Edit:', value=message_after.content, inline=False)
+                                em_v.set_footer(text=f'{message_after.author.name} | ID: {message_after.author.id}', icon_url=message_after.author.avatar_url)
+                                channel = await self.bot.fetch_channel(main.ids(3))
+                                await channel.send(embed=em_v)
+                                print(f'{message_after.author.id} edited a message, Before: \"{message_before.content}\" After: \"{message_after.content}\"')
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
