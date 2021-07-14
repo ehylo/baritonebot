@@ -24,7 +24,7 @@ class Exempt(commands.Cog):
             await main.channel_embed(ctx, 'Exempted', f'The channel {channel.mention} is now on the exempted list')
             print(f'{ctx.author.id} added a channel ({channel.id}) on the exempted list')
         else:
-            await main.error_embed(ctx, f'This channel is already on the exempted list')
+            await main.error_embed(ctx, 'This channel is already on the exempted list')
 
     @exempt.command(aliases=['l'])
     @commands.check(main.admin_group)
@@ -49,7 +49,7 @@ class Exempt(commands.Cog):
             await main.channel_embed(ctx, 'Un-exempted', f'The channel {channel.mention} is no longer on the exempted list')
             print(f'{ctx.author.id} removed a channel ({channel.id}) on the exempted list')
         else:
-            await main.error_embed(ctx, f'This channel is not on the exempted list')
+            await main.error_embed(ctx, 'This channel is not on the exempted list')
 
     @unexempt.command(aliases=['l', 'list'])
     @commands.check(main.admin_group)
