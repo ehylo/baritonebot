@@ -31,10 +31,7 @@ class Event(commands.Cog):
     def __init__(self, bot):
         """Returns all of the specific emebeds for even related actions."""
         self.bot = bot
-        try:
-            self.loops.start()
-        except RuntimeError:
-            pass
+        self.loops.start()
 
     def cog_unload(self):
         self.loops.cancel()
@@ -42,7 +39,6 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.discriminator != '0000':
-            main.stat_update(r'UPDATE stats SET messages = messages + 1 WHERE user_id = %s', message.author.id)
             if (message.guild is None) and (message.author.id != main.ids(0)) and (str(message.author.id) not in exempt_users):
                 channel = self.bot.get_guild(main.ids(1)).get_channel(main.ids(4))
                 await main.log_embed(None, 'I have recieved a DM', message.content, channel, message.author)
@@ -51,7 +47,6 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.author.discriminator != '0000':
-            main.stat_update(r'UPDATE stats SET deleted = deleted + 1 WHERE user_id = %s', message.author.id)
             if (message.author.id != main.ids(0)) and (str(message.channel.id) not in exempt_channels):
                 channel = await self.bot.fetch_channel(main.ids(3))
                 if message.guild is None:
@@ -65,7 +60,6 @@ class Event(commands.Cog):
     async def on_message_edit(self, message_before, message_after):
         if message_after.author.discriminator != '0000':
             if message_after.content != '' and message_before.content != '':
-                main.stat_update(r'UPDATE stats SET edited = edited + 1 WHERE user_id = %s', message_after.author.id)
                 if message_before.author.id != main.ids(0):
                     if str(message_before.channel.id) not in exempt_channels:
                         if message_after.content != message_before.content:  # prevent logging embeds loading
@@ -82,24 +76,14 @@ class Event(commands.Cog):
                             print(f'{message_after.author.id} edited a message, Before: \"{message_before.content}\" After: \"{message_after.content}\"')
 
     @commands.Cog.listener()
-    async def on_member_remove(self, member):
-        channel = await self.bot.fetch_channel(main.ids(2))
-        await main.log_embed(None, 'User Left', None, channel, member)
-        print(f'{member.id} left the server')
-
-    @commands.Cog.listener()
     async def on_member_join(self, member):
         if member.name.startswith(('!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/')):
             await member.edit(nick=f'z{member.name}')
             print(f'{member.id} joined with a name that puts them to the top of the list, so z was added infront')
-        channel = await self.bot.fetch_channel(main.ids(2))
-        await main.log_embed(None, 'User Joined', None, channel, member)
         main.cur.execute('SELECT user_id FROM rekt WHERE user_id=%s', (member.id,))
         if main.cur.fetchone() is not None:
             await member.add_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(12)))
             print(f'{member.id} joined the server and was given the mute role because they are still muted')
-        else:
-            print(f'{member.id} joined the server')
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
@@ -153,9 +137,6 @@ class Event(commands.Cog):
             if i[2] != 0:
                 if i[2]-int(time()) <= 0:
                     await unmute_embeds(self.bot.get_guild(main.ids(1)), await self.bot.fetch_channel(main.ids(5)), i)
-        if datetime.utcnow().hour == 1 and datetime.utcnow().minute == 0 and datetime.utcnow().second <= 1:
-            print('Dailies reset!')
-            main.cur.execute('UPDATE stats SET daily = false')
 
     @loops.before_loop
     async def before_loops(self):

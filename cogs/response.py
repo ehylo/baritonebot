@@ -42,7 +42,6 @@ async def regex_respond(self, message):
     match_regex = main.cur.fetchall()
     for x in match_regex:
         if re.search(x[0], message.content.lower()) is not None:
-            main.stat_update(r'UPDATE stats SET triggered_responses = triggered_responses + 1 WHERE user_id = %s', message.author.id)
             if (b_guild.get_member(main.ids(0)) in message.mentions) or (message.content.startswith('!')):
                 title = '' if x[1].lower() == 'none' else x[1]
                 desc = '' if x[2].lower() == 'none' else x[2]

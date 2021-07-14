@@ -1,7 +1,6 @@
 import discord
 import os
 import psycopg2
-from time import time
 from dotenv import load_dotenv
 from discord.ext import commands
 
@@ -12,7 +11,6 @@ DATABASE_URL = os.getenv('DATABASE_URL')
 
 db = psycopg2.connect(DATABASE_URL, sslmode='require')
 cur = db.cursor()
-start_time = int(time())
 
 
 def ids(num):
@@ -25,15 +23,6 @@ def values(num):
     cur.execute('SELECT * FROM settings')
     actual = cur.fetchone()
     return actual[num]
-
-
-def stat_update(query, check_id):
-    cur.execute('SELECT user_id FROM stats WHERE user_id=%s', (check_id,))
-    if cur.fetchone() is None:
-        cur.execute('INSERT INTO stats(user_id) VALUES(%s)', (check_id,))
-        db.commit()
-    cur.execute(query, (check_id,))
-    db.commit()
 
 
 def time_convert(time_int):
@@ -134,11 +123,6 @@ async def help_embed(ctx, title, desc=None, field_value=None, field_name=None, i
     em_v.add_field(name=field_name, value=field_value, inline=False)
     em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
     await ctx.send(embed=em_v)
-
-
-async def dm_embed(dtitle, ddesc, dchannel):
-    em_v = discord.Embed(color=int(values(1), 16), title=dtitle, description=ddesc)
-    await dchannel.send(embed=em_v)
 
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):

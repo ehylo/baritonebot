@@ -37,9 +37,7 @@ class Help(commands.Cog):
             \n\u2022 `kick(k) <[user]> <[reason]>` \
             \n\u2022 `clear(cl|pg|purge) <[number]|[user]> <[number]>` \
             \n\u2022 `unmute(um) <[user]>` \
-            \n\u2022 `nick(n) <default(d)|remove(r)|[name]>` \
             \n\u2022 `status(s) <default(d)|[type(1=\'Watching\', 2=\'Playing\', 3=\'Listening to\', 4=\'Competing in\')]> <[presence]>` \
-            \n\u2022 `emote(em) <[name]> <[image attachment]|[image url]>` \
             \n\u2022 `embed(eb) <[channel]|here(h)> <[title]> <[description]>` \
             \n*+ all lower commands*'
         await help_embed(ctx, 'Moderator', '`help <command>` to get command info or give no arguments', field_value, 'Commands:')
@@ -58,16 +56,11 @@ class Help(commands.Cog):
         field_value = '\
             \u2022 `rule(r)<s> <[number]>` \
             \n\u2022 `ping(p)` \
-            \n\u2022 `rps <rock(r)|paper(p)|scissors(s)>` \
-            \n\u2022 `flip` \
             \n\u2022 `cringe(c)` \
             \n\u2022 `serverinfo(si)` \
             \n\u2022 `userinfo(ui) <me|[user]>` \
             \n\u2022 `<un>releases` \
             \n\u2022 `<un>ignore` \
-            \n\u2022 `uptime(ut)` \
-            \n\u2022 `info/about` \
-            \n\u2022 `daily` \
             \n\u2022 `optpf <[setting]>` \
             \n\u2022 `opspt <[setting]>` \
             \n\u2022 `optout <I am sure>` \
@@ -99,10 +92,6 @@ class Help(commands.Cog):
         await help_embed(ctx, 'Embed', 'Sends an embed to the specified channel with the specified title/description', '`embed(eb) <[channel]|here(h)> <[title]> <[description]>`')
 
     @help.command()
-    async def emote(self, ctx):
-        await help_embed(ctx, 'Emote', 'Creates an emote with the specified name and provided image', '`emote(em) <[name]> <[image attachment]|[image url]>` - you can attach an image instead of having a url')
-
-    @help.command()
     async def clear(self, ctx):
         await help_embed(ctx, 'Clear', 'Clears the specified amount of messages in that channel or give a user to clear a specific amount of their messages', '`clear(cl|pg|purge) <[number]|[user]> <[number]>`')
 
@@ -127,10 +116,6 @@ class Help(commands.Cog):
         await help_embed(ctx, 'Embedcolor', 'Allows you to set the embedcolor for all the embeds the bot sends', '`embedcolor(ec) <default(d)|[hex color]>`')
 
     @help.command()
-    async def nick(self, ctx):
-        await help_embed(ctx, 'Nick', 'Allows you to set the bot\'s nick in this server', '`nick(n) <default(d)|remove(r)|[name]>`')
-
-    @help.command()
     async def status(self, ctx):
         await help_embed(ctx, 'Status', 'Allows you to set the bot\'s status', '`status(s) <default(d)|[type(1=\'Watching\', 2=\'Playing\', 3=\'Listening to\', 4=\'Competing in\')]> <[presence]>`')
 
@@ -151,32 +136,8 @@ class Help(commands.Cog):
         await help_embed(ctx, 'huh', 'why would you need help for ping? did you think it pings someone specific? xD', '`ping(p)`')
 
     @help.command()
-    async def rps(self, ctx):
-        await help_embed(ctx, 'Rock, Paper, Scissors', 'Play a game of rock, paper, scissors against a bot', '`rps <rock(r)|paper(p)|scissors(s)>`')
-
-    @help.command()
-    async def rpsls(self, ctx):
-        await help_embed(ctx, 'Rock, Paper, Scissors, Lizard, Spock', 'Play a game of rock, paper, scissors, lizard, spock against a bot', '`rps ls <rock|paper|scissors|lizard|spock>`', None, 'https://cdn.discordapp.com/attachments/819449117561585704/833201595189035008/Rock_paper_scissors_lizard_spock.png')
-
-    @help.command()
-    async def flip(self, ctx):
-        await help_embed(ctx, 'Coin Flip', 'Randomly flips a coin for you, for when you need someone else to decide something for you', '`flip`')
-
-    @help.command()
     async def serverinfo(self, ctx):
         await help_embed(ctx, 'Server Information', 'Shows information about the server', '`serverinfo(si)`')
-
-    @help.command()
-    async def info(self, ctx):
-        await help_embed(ctx, 'Bot Information', 'Shows information about the bot', '`info/about`')
-
-    @help.command()
-    async def daily(self, ctx):
-        await help_embed(ctx, 'Daily', 'Claims your daily exp', '`daily`')
-
-    @help.command()
-    async def uptime(self, ctx):
-        await help_embed(ctx, 'Bot Uptime', 'Shows the time the bot has been online for', '`uptime(ut)`')
 
     @help.command()
     async def optpf(self, ctx):

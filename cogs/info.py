@@ -2,7 +2,6 @@ import discord
 import main
 import requests
 import re
-from time import time
 from discord.ext import commands
 from cogs.help import Help
 
@@ -132,28 +131,6 @@ class Info(commands.Cog):
         em_v.set_footer(text=f'ID: {b_guild.id}')
         em_v.set_thumbnail(url=b_guild.icon_url)
         await ctx.send(embed=em_v)
-
-    @commands.command(aliases=['about'])
-    async def info(self, ctx):
-        em_v = discord.Embed(
-            color=int(main.values(1), 16),
-            description=f'Current prefix: `{main.values(0)}`'
-                        f'\n\n__**Info:**__'
-                        f'\n\u2022 Made by bigdata#0001'
-                        f'\n\u2022 Written in [python](https://www.python.org/) using the [discord.py](https://github.com/Rapptz/discord.py) library'
-                        f'\n\u2022 Uses a [PostgreSQL](https://www.postgresql.org/) database'
-                        f'\n\n__**Links:**__'
-                        f'\n\u2022 [Bot source code on GitHub](https://github.com/Flurrrr/baritonebot)'
-                        f'\n\u2022 [Main Baritone GitHub repo](https://github.com/cabaletta/baritone)'
-                        f'\n\u2022 [Invite to Baritone discord server](https://discord.gg/s6fRBAUpmr)'
-        )
-        em_v.set_author(name='Baritone Bot', url='https://github.com/Flurrrr/baritonebot', icon_url=self.bot.user.avatar_url)
-        em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
-        await ctx.send(embed=em_v)
-
-    @commands.command(aliases=['ut'])
-    async def uptime(self, ctx):
-        await main.channel_embed(ctx, 'Uptime', main.time_convert(int(time()) - main.start_time))
 
     @commands.command()
     async def opspt(self, ctx, setting=None):

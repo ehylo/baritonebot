@@ -45,32 +45,6 @@ class Values(commands.Cog):
         await main.channel_embed(ctx, 'Embedcolor set', 'Set the embed color to the default (81C3FF)')
         print(f'{ctx.author.id} set the embedcolor to default')
 
-    @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['n'])
-    @commands.check(main.mod_group)
-    async def nick(self, ctx, *, name=None):
-        b_guild = self.bot.get_guild(main.ids(1))
-        if name is None:
-            return await Help.nick(self, ctx)
-        await b_guild.me.edit(nick=name)
-        await main.channel_embed(ctx, 'Nick set', f'Set the bot\'s nickname in this server to `{name}`')
-        print(f'{ctx.author.id} set the nick to {name}')
-
-    @nick.command(aliases=['d'])
-    @commands.check(main.mod_group)
-    async def defaultn(self, ctx):
-        b_guild = self.bot.get_guild(main.ids(1))
-        await b_guild.me.edit(nick='Franky')
-        await main.channel_embed(ctx, 'Nick set', 'Set the bot\'s nickname in this server to the default (Franky)')
-        print(f'{ctx.author.id} set the nick to default')
-
-    @nick.command(aliases=['r'])
-    @commands.check(main.mod_group)
-    async def remove(self, ctx):
-        b_guild = self.bot.get_guild(main.ids(1))
-        await b_guild.me.edit(nick=None)
-        await main.channel_embed(ctx, 'Nick removed', 'Removed the bot\'s nick in this server')
-        print(f'{ctx.author.id} removed the nick')
-
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['s'])
     @commands.check(main.mod_group)
     async def status(self, ctx, ptype: int = None, *, presence=None):

@@ -76,18 +76,16 @@ class Extension(commands.Cog):
     @commands.check(main.admin_group)
     async def list(self, ctx):
         desc = '\
-            \u2022 **`event`** - dm log, nick changer, 24h log clear, message edit/delete, member join/leave, join/leave voice, and error handler \
-            \n\u2022 **`info`** - `ping`, `info`, `uptime`, `serverinfo`, `userinfo` `opspt`/`optpf`, commands \
+            \u2022 **`event`** - nick changer, 24h log clear, message edit/delete, join/leave voice, and error handler \
+            \n\u2022 **`info`** - `ping`, `info`, `serverinfo`, `userinfo` `opspt`/`optpf`, commands \
             \n\u2022 **`bkm`** - `mute`, `ban`, `kick`, `unban`, `optout`, and `unmute` commands \
             \n\u2022 **`response`** - command, paste upload, regex response, and regex delete \
-            \n\u2022 **`values`** - `embedcolor`, `status`, `prefix`, and `nick` commands \
-            \n\u2022 **`misc`** - `rps`, `daily`, and `flip` commands \
+            \n\u2022 **`values`** - `embedcolor`, `status`, and `prefix` commands \
             \n\u2022 **`role`** - `ignore` and `releases` commands \
             \n\u2022 **`rule`** - command \
             \n\u2022 **`clear`** - command \
             \n\u2022 **`cringe`** - command \
             \n\u2022 **`embed`** - command \
-            \n\u2022 **`emote`** - command \
             \n\u2022 **`exempt`** - command \
             \n\u2022 **`help`** - commands'
         await main.channel_embed(ctx, 'All Extensions:', desc)
