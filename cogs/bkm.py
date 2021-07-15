@@ -81,26 +81,26 @@ class Bkm(commands.Cog):
     @commands.command(aliases=['um'])
     @commands.check(main.mod_group)
     async def unmute(self, ctx, user: discord.User = None):
-        if other_check(self, ctx, user) is True:
-            member, author_member = await member_check(self, ctx, user)
-            if self.bot.get_guild(main.ids(1)).get_role(main.ids(12)) not in member.roles:
+        if await other_check(self, ctx, user) is True:
+            member = await member_check(self, ctx, user)
+            if self.bot.get_guild(main.ids(1)).get_role(main.ids(12)) not in member[0].roles:
                 await main.error_embed(ctx, 'That member is not muted')
             else:
-                await member.remove_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(12)))
+                await member[0].remove_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(12)))
                 try:
-                    dm_channel = await member.create_dm()
+                    dm_channel = await member[0].create_dm()
                     await main.dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
                 except (discord.Forbidden, discord.errors.HTTPException):
                     pass
                 channel = await self.bot.fetch_channel(main.ids(5))
-                await output(member, 'unmuted', channel, '', ctx, '', ctx)
+                await output(member[0], 'unmuted', channel, '', ctx, '', ctx)
                 main.cur.execute('DELETE FROM rekt WHERE user_id=%s', (user.id,))
                 main.db.commit()
 
     @commands.command(aliases=['b', 'rm'])
     @commands.check(main.mod_group)
     async def ban(self, ctx, user: discord.User = None, purge=None, *, reason=None):
-        if other_check(self, ctx, user) is True:
+        if await other_check(self, ctx, user) is True:
             member, author_member = await member_check(self, ctx, user)
             if purge is None:
                 await main.error_embed(ctx, 'You need to give a reason')
@@ -123,7 +123,7 @@ class Bkm(commands.Cog):
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['m'])
     @commands.check(main.helper_group)
     async def mute(self, ctx, user: discord.User = None, mtime: TimeConverter = None, *, reason=None):
-        if other_check(self, ctx, user) is True:
+        if await other_check(self, ctx, user) is True:
             member, author_member = await member_check(self, ctx, user)
             if mtime is None:
                 await main.error_embed(ctx, 'You need to give a reason or amount of time to mute')
@@ -173,7 +173,7 @@ class Bkm(commands.Cog):
     @commands.command(aliases=['k'])
     @commands.check(main.mod_group)
     async def kick(self, ctx, user: discord.User = None, *, reason=None):
-        if other_check(self, ctx, user) is True:
+        if await other_check(self, ctx, user) is True:
             member, author_member = await member_check(self, ctx, user)
             if reason is None:
                 await main.error_embed(ctx, 'You need to give a reason')
