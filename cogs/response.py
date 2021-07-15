@@ -40,39 +40,54 @@ async def regex_respond(self, message):
     b_guild = self.bot.get_guild(main.ids(1))
     main.cur.execute('SELECT * FROM response WHERE delete=false')
     match_regex = main.cur.fetchall()
+    desc = []
+    title = []
     for x in match_regex:
         if re.search(x[0], message.content.lower()) is not None:
+            title.append(x[1])
+            desc.append(x[2])
             if (b_guild.get_member(main.ids(0)) in message.mentions) or (message.content.startswith('!')):
-                title = '' if x[1].lower() == 'none' else x[1]
-                desc = '' if x[2].lower() == 'none' else x[2]
-                await main.channel_embed(message.channel, title, desc)
                 print(f'{message.author.id} manually triggered response #{x[5]}')
                 if message.guild is not None:
-                    await message.delete()
-            elif role_check(self, message.author.id, x[4]) is not True:
-                title = '' if x[1].lower() == 'none' else x[1]
-                desc = '' if x[2].lower() == 'none' else x[2]
-                print(f'{message.author.id} triggered response #{x[5]}')
-                em_v = discord.Embed(color=int(main.values(1), 16), title=title, description=desc)
-                em_v.set_footer(text=f'{message.author.name} | ID: {message.author.id}', icon_url=message.author.avatar_url)
-                auto_response = await message.channel.send(embed=em_v)
-                await auto_response.add_reaction('🗑️')
-
-                def check(dreaction, duser):
                     try:
-                        return (auto_response.id == dreaction.message.id) and (duser.id == message.author.id or staffr_check(self, duser.id) is True)
+                        await message.delete()
+                    except discord.NotFound:
+                        pass
+            elif role_check(self, message.author.id, x[4]) is not True:
+                print(f'{message.author.id} triggered response #{x[5]}')
+
+    if title:
+        em_v = discord.Embed(color=int(main.values(1), 16))
+        if len(title) == 1:
+            title = '' if title[0].lower() == 'none' else title[0]
+            desc = '' if desc[0].lower() == 'none' else desc[0]
+            em_v = discord.Embed(color=int(main.values(1), 16), title=title, description=desc)
+        else:
+            for x, y in zip(title, desc):
+                title = '\u200b' if x == 'none' else x
+                desc = '\u200b' if y == 'none' else y
+                em_v.add_field(name=title, value=desc, inline=False)
+        em_v.set_footer(text=f'{message.author.name} | ID: {message.author.id}', icon_url=message.author.avatar_url)
+        auto_response = await message.channel.send(embed=em_v)
+        await auto_response.add_reaction('🗑️')
+
+        def check(dreaction, duser):
+            try:
+                return (auto_response.id == dreaction.message.id) and (duser.id == message.author.id or staffr_check(self, duser.id) is True)
+            except AttributeError:
+                pass
+
+        while True:
+            try:
+                reaction, user = await self.bot.wait_for('reaction_add', timeout=1800, check=check)
+            except asyncio.TimeoutError:
+                break
+            else:
+                if str(reaction) == '🗑️' and user.id != int(main.ids(0)):
+                    try:
+                        await auto_response.delete()
                     except AttributeError:
                         pass
-                try:
-                    reaction, user = await self.bot.wait_for('reaction_add', timeout=1800, check=check)
-                except asyncio.TimeoutError:
-                    pass
-                else:
-                    if str(reaction) == '🗑️' and user.id != int(main.ids(0)):
-                        try:
-                            await auto_response.delete()
-                        except AttributeError:
-                            pass
 
 
 async def att_paste(message):

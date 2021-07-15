@@ -81,56 +81,56 @@ class Bkm(commands.Cog):
     @commands.command(aliases=['um'])
     @commands.check(main.mod_group)
     async def unmute(self, ctx, user: discord.User = None):
-        if await other_check(self, ctx, user) is True:
-            member = await member_check(self, ctx, user)
-            if self.bot.get_guild(main.ids(1)).get_role(main.ids(12)) not in member[0].roles:
+        checks = await other_check(self, ctx, user)
+        if checks[0] is True:
+            if self.bot.get_guild(main.ids(1)).get_role(main.ids(12)) not in checks[1].roles:
                 await main.error_embed(ctx, 'That member is not muted')
             else:
-                await member[0].remove_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(12)))
+                await checks[1].remove_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(12)))
                 try:
-                    dm_channel = await member[0].create_dm()
+                    dm_channel = await checks[1].create_dm()
                     await main.dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
                 except (discord.Forbidden, discord.errors.HTTPException):
                     pass
                 channel = await self.bot.fetch_channel(main.ids(5))
-                await output(member[0], 'unmuted', channel, '', ctx, '', ctx)
+                await output(checks[1], 'unmuted', channel, '', ctx, '', ctx)
                 main.cur.execute('DELETE FROM rekt WHERE user_id=%s', (user.id,))
                 main.db.commit()
 
     @commands.command(aliases=['b', 'rm'])
     @commands.check(main.mod_group)
     async def ban(self, ctx, user: discord.User = None, purge=None, *, reason=None):
-        if await other_check(self, ctx, user) is True:
-            member, author_member = await member_check(self, ctx, user)
+        checks = await other_check(self, ctx, user)
+        if checks[0] is True:
             if purge is None:
                 await main.error_embed(ctx, 'You need to give a reason')
             else:
                 async def ban_embeds(reasons):
                     try:
-                        dm_channel = await member.create_dm()
+                        dm_channel = await checks[1].create_dm()
                         await main.dm_embed('Banned', f'You have been banned from the baritone discord for reason: \n```{reasons}```', dm_channel)
                     except (discord.Forbidden, discord.errors.HTTPException):
                         pass
                     channel = await self.bot.fetch_channel(main.ids(5))
-                    await output(member, 'banned', channel, '', ctx, f'for reason: \n```{reasons}```', ctx)
+                    await output(checks[1], 'banned', channel, '', ctx, f'for reason: \n```{reasons}```', ctx)
                 if purge.lower() == 'purge':
                     await ban_embeds(reason)
-                    await member.ban(reason=reason, delete_message_days=7)
+                    await checks[1].ban(reason=reason, delete_message_days=7)
                 else:
                     await ban_embeds(f'{purge} {reason}')
-                    await member.ban(reason=reason, delete_message_days=0)
+                    await checks[1].ban(reason=reason, delete_message_days=0)
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['m'])
     @commands.check(main.helper_group)
     async def mute(self, ctx, user: discord.User = None, mtime: TimeConverter = None, *, reason=None):
-        if await other_check(self, ctx, user) is True:
-            member, author_member = await member_check(self, ctx, user)
+        checks = await other_check(self, ctx, user)
+        if checks[0] is True:
             if mtime is None:
                 await main.error_embed(ctx, 'You need to give a reason or amount of time to mute')
             elif str(mtime).strip("')(").split(", '")[0] != '0' and reason is None:
                 await main.error_embed(ctx, 'You need to give a reason')
             else:
-                if self.bot.get_guild(main.ids(1)).get_role(main.ids(12)) in member.roles:
+                if self.bot.get_guild(main.ids(1)).get_role(main.ids(12)) in checks[1].roles:
                     await main.error_embed(ctx, 'That member is already muted')
                 else:
                     time_reason = str(mtime)[1:-2].split(', ')
@@ -139,15 +139,15 @@ class Bkm(commands.Cog):
                         reason_real, reason_time = time_reason[1][1:] + ' ' + reason, 'indefinitely'
                     else:
                         reason_real, reason_time = reason, f'for {time_reason[1][1:]}'
-                    await member.add_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(12)))
+                    await checks[1].add_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(12)))
                     try:
-                        dm_channel = await member.create_dm()
+                        dm_channel = await checks[1].create_dm()
                         await main.dm_embed('Muted', f'You have been muted in the baritone discord {reason_time}, reason: \n```{reason_real}```', dm_channel)
                     except (discord.Forbidden, discord.errors.HTTPException):
                         pass
                     channel = await self.bot.fetch_channel(main.ids(5))
-                    await output(member, 'muted', channel, f' {reason_time}', ctx, f'for reason: \n```{reason_real}```', ctx)
-                    main.cur.execute('INSERT INTO rekt(user_id, action, expiry, punisher) VALUES(%s, %s, %s, %s)', (member.id, 'muted', int(time_reason[0]), ctx.author.id))
+                    await output(checks[1], 'muted', channel, f' {reason_time}', ctx, f'for reason: \n```{reason_real}```', ctx)
+                    main.cur.execute('INSERT INTO rekt(user_id, action, expiry, punisher) VALUES(%s, %s, %s, %s)', (checks[1].id, 'muted', int(time_reason[0]), ctx.author.id))
                     main.db.commit()
 
     @mute.command(aliases=['l'])
@@ -173,19 +173,19 @@ class Bkm(commands.Cog):
     @commands.command(aliases=['k'])
     @commands.check(main.mod_group)
     async def kick(self, ctx, user: discord.User = None, *, reason=None):
-        if await other_check(self, ctx, user) is True:
-            member, author_member = await member_check(self, ctx, user)
+        checks = await other_check(self, ctx, user)
+        if checks[0] is True:
             if reason is None:
                 await main.error_embed(ctx, 'You need to give a reason')
             else:
                 try:
-                    dm_channel = await member.create_dm()
+                    dm_channel = await checks[1].create_dm()
                     await main.dm_embed('Kicked', f'You have been kicked from the baritone discord for reason: \n```{reason}```', dm_channel)
                 except (discord.Forbidden, discord.errors.HTTPException):
                     pass
                 channel = await self.bot.fetch_channel(main.ids(5))
-                await output(member, 'kicked', channel, '', ctx, f'for reason: \n```{reason}```', ctx)
-                await member.kick(reason=reason)
+                await output(checks[1], 'kicked', channel, '', ctx, f'for reason: \n```{reason}```', ctx)
+                await checks[1].kick(reason=reason)
 
     @commands.command()
     async def optout(self, ctx, *, arg=None):
