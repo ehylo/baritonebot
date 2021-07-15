@@ -44,9 +44,9 @@ async def regex_respond(self, message):
     title = []
     for x in match_regex:
         if re.search(x[0], message.content.lower()) is not None:
-            title.append(x[1])
-            desc.append(x[2])
             if (b_guild.get_member(main.ids(0)) in message.mentions) or (message.content.startswith('!')):
+                title.append(x[1])
+                desc.append(x[2])
                 print(f'{message.author.id} manually triggered response #{x[5]}')
                 if message.guild is not None:
                     try:
@@ -54,6 +54,8 @@ async def regex_respond(self, message):
                     except discord.NotFound:
                         pass
             elif role_check(self, message.author.id, x[4]) is not True:
+                title.append(x[1])
+                desc.append(x[2])
                 print(f'{message.author.id} triggered response #{x[5]}')
 
     if title:
