@@ -55,28 +55,12 @@ class Bkm(commands.Cog):
 
     @commands.command(aliases=['ub'])
     @commands.check(main.mod_group)
-    async def unban(self, ctx, user=None):
-        if user is None:
-            return await Help.unban(self, ctx)
+    async def unban(self, ctx, user: discord.User = None):
         try:
-            user_men = str(ctx.message.raw_mentions[0])
-        except IndexError:
-            user_men = ''
-        b_guild = self.bot.get_guild(main.ids(1))
-        if user_men != '':
-            unban_user = self.bot.get_user(int(user_men))  # get the user if they mentioned
-        elif (user.isdigit()) and (len(user) == 18):
-            unban_user = self.bot.get_user(int(user))
-        else:
-            unban_user = None
-        if unban_user is None:
-            await main.error_embed(ctx, 'The user you gave is invalid')
-        else:
-            try:
-                await b_guild.unban(unban_user)
-                await output(await self.bot.fetch_user(user), 'unbanned', await self.bot.fetch_channel(main.ids(5)), '', ctx, '', None)
-            except discord.NotFound:
-                await main.error_embed(ctx, 'That user is not banned')
+            await self.bot.get_guild(main.ids(1)).unban(user)
+            await output(await self.bot.fetch_user(user), 'unbanned', await self.bot.fetch_channel(main.ids(5)), '', ctx, '', None)
+        except discord.NotFound:
+            await main.error_embed(ctx, 'That user is not banned')
 
     @commands.command(aliases=['um'])
     @commands.check(main.mod_group)
