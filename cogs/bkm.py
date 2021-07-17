@@ -58,7 +58,7 @@ class Bkm(commands.Cog):
     async def unban(self, ctx, user: discord.User = None):
         try:
             await self.bot.get_guild(main.ids(1)).unban(user)
-            await output(await self.bot.fetch_user(user), 'unbanned', await self.bot.fetch_channel(main.ids(5)), '', ctx, '', None)
+            await output(user, 'unbanned', await self.bot.fetch_channel(main.ids(5)), '', ctx, '', None)
         except discord.NotFound:
             await main.error_embed(ctx, 'That user is not banned')
 
