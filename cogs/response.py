@@ -71,7 +71,8 @@ async def regex_respond(self, message):
                 em_v.add_field(name=title, value=desc, inline=False)
         em_v.set_footer(text=f'{message.author.name} | ID: {message.author.id}', icon_url=message.author.avatar_url)
         auto_response = await message.channel.send(embed=em_v)
-        await auto_response.add_reaction('🗑️')
+        if (b_guild.get_member(main.ids(0)) not in message.mentions) and (not message.content.startswith('!')):
+            await auto_response.add_reaction('🗑️')
 
         def check(dreaction, duser):
             try:
