@@ -30,8 +30,11 @@ class Event(commands.Cog):
         """Returns all of the specific emebeds for even related actions."""
         self.bot = bot
         self.loops.start()
+        self.old_on_error = bot.on_error
+        bot.on_error = self.new_on_error
 
     def cog_unload(self):
+        self.bot.on_error = self.old_on_error
         self.loops.cancel()
 
     @commands.Cog.listener()
@@ -110,6 +113,10 @@ class Event(commands.Cog):
             me = await self.bot.get_user(747282743246848150).create_dm()
             tb = str(traceback.format_exception(type(error), error, error.__traceback__)).replace(r"\n", "\n")
             await me.send(f'```{tb[1:-1]}```')
+
+    async def new_on_error(self, *args, **kwargs):
+        me = await self.bot.get_user(747282743246848150).create_dm()
+        await me.send(f'Error in event {args[0]}\nAttributes: {args[1]}\nKey word args: {kwargs}')
 
     @tasks.loop(seconds=1)
     async def loops(self):
