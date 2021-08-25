@@ -14,7 +14,7 @@ cur = db.cursor()
 
 
 def ids(num):
-    cur.execute("SELECT id FROM ids WHERE guild='baritone' ORDER BY order_by")
+    cur.execute("SELECT id FROM ids WHERE guild='test' ORDER BY order_by")
     actual = [int(item[0]) for item in cur.fetchall()]
     return actual[num]
 

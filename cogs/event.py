@@ -1,6 +1,5 @@
 import main
 import discord
-import traceback
 from time import time
 from datetime import datetime, timedelta
 from discord.ext import commands, tasks
@@ -30,11 +29,8 @@ class Event(commands.Cog):
         """Returns all of the specific emebeds for even related actions."""
         self.bot = bot
         self.loops.start()
-        self.old_on_error = bot.on_error
-        bot.on_error = self.new_on_error
 
     def cog_unload(self):
-        self.bot.on_error = self.old_on_error
         self.loops.cancel()
 
     @commands.Cog.listener()
@@ -53,7 +49,7 @@ class Event(commands.Cog):
             if message_after.content != '' and message_before.content != '':
                 if message_before.author.id != main.ids(0):
                     if str(message_before.channel.id) not in exempt_channels:
-                        if message_after.content != message_before.content:  # prevent logging embeds loading
+                        if message_after.content != message_before.content:
                             if message_before.guild is not None:
                                 jump = f'{message_after.channel.mention}** [(jump)](https://discord.com/channels/{message_after.guild.id}/{message_after.channel.id}/{message_after.id})'
                                 em_v = discord.Embed(color=int(main.values(1), 16), description=f'**Message edited in {jump}')
@@ -89,7 +85,7 @@ class Event(commands.Cog):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        if before.channel is None:  # only reason its 'before' and 'is' is so that before is used and pycharm stops yelling at me
+        if before.channel is None:
             b_role = discord.utils.get(member.guild.roles, id=main.ids(14))
             await member.add_roles(b_role)
             print(f'{member.id} joined a voice channel and got the voice role')
@@ -108,15 +104,8 @@ class Event(commands.Cog):
             await main.error_embed(ctx, 'You need to give a **number**')
         elif isinstance(error, commands.errors.CommandNotFound):
             await main.error_embed(ctx, f'The command `{ctx.message.content}` was not found, do `help` to see command categories')
-        elif not isinstance(error, commands.errors.CheckFailure):
-            await main.error_embed(ctx, 'An unexpected error occured')
-            me = await self.bot.get_user(747282743246848150).create_dm()
-            tb = str(traceback.format_exception(type(error), error, error.__traceback__)).replace(r"\n", "\n")
-            await me.send(f'```{tb[1:-1]}```')
-
-    async def new_on_error(self, *args, **kwargs):
-        me = await self.bot.get_user(747282743246848150).create_dm()
-        await me.send(f'Error in event {args[0]}\nAttributes: {args[1]}\nKey word args: {kwargs}')
+        elif isinstance(error, commands.errors.CheckFailure):
+            pass
 
     @tasks.loop(seconds=1)
     async def loops(self):
