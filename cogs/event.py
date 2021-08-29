@@ -86,12 +86,12 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         if before.channel is None:
-            b_role = discord.utils.get(member.guild.roles, id=main.ids(14))
-            await member.add_roles(b_role)
+            if self.bot.get_guild(main.ids(1)).get_role(main.ids(14)) not in member.roles:
+                await member.add_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(14)))
             print(f'{member.id} joined a voice channel and got the voice role')
         elif after.channel is None:
-            b_role = discord.utils.get(member.guild.roles, id=main.ids(14))
-            await member.remove_roles(b_role)
+            if self.bot.get_guild(main.ids(1)).get_role(main.ids(14)) in member.roles:
+                await member.remove_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(14)))
             print(f'{member.id} left a voice channel and the voice role was removed')
 
     @commands.Cog.listener()
