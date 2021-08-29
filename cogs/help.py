@@ -22,7 +22,7 @@ class Help(commands.Cog):
             \u2022 `extension(ext) <reload(r)|unload(u)|load(ld)|list(l)> <[extension]|all>` \
             \n\u2022 `embedcolor(ec) <default(d)|[hex color]>` \
             \n\u2022 `prefix(pf) <default(d)|[prefix]>` \
-            \n\u2022 `<un>exempt(ex) <channel(c)|user(u)|list(l)> <[channel]|[user]>` \
+            \n\u2022 `<un>exempt(ex) <list(l)|[channel]>` \
             \n\u2022 `rule(r) <add(a)|remove(r)> <[number]> <[title]> <[description]>` \
             \n*+ all lower commands*'
         await help_embed(ctx, 'Admin', '`help <command>` to get command info or give no arguments', field_value, 'Commands:')
@@ -45,7 +45,7 @@ class Help(commands.Cog):
     @help.command(aliases=['h'])
     async def helper(self, ctx):
         field_value = '\
-            \u2022 `mute(m) <[user]> <[time(d=days, h=hours, m=minutes)]|[reason]|list(l)> <[reason]>` \
+            \u2022 `mute(m) <[user]> <[time]|[reason]|list(l)> <[reason]>` \
             \n\u2022 `response(rp) <details(d)|list(l)> <[number]>` \
             \n\u2022 `cringe(c) <add(a)> <[image url]|[image attachment]>` \
             \n*+ all lower commands*'
@@ -81,7 +81,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def mute(self, ctx):
-        await help_embed(ctx, 'Mute', 'Mutes the specified member indefinitely or for the specified amount of time', '`mute(m) <[user]> <[time(d=days, h=hours, m=minutes)]|[reason]|list(l)> <[reason]>`')
+        await help_embed(ctx, 'Mute', 'Mutes the specified member indefinitely or for the specified amount of time', '`mute(m) <[user]> <[time]|[reason]|list(l)> <[reason]>`\n\nTime can be seconds, minutes, hours, days, weeks, or years')
 
     @help.command()
     async def kick(self, ctx):
@@ -97,7 +97,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def optout(self, ctx):
-        await help_embed(ctx, 'Opt-Out', 'You will be banned from the server', '`optout <I am sure>`')
+        await help_embed(ctx, 'Opt out', 'You will be banned from the server', '`optout <I am sure>`')
 
     @help.command()
     async def response(self, ctx):
@@ -133,7 +133,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def ping(self, ctx):
-        await help_embed(ctx, 'huh', 'why would you need help for ping? did you think it pings someone specific? xD', '`ping(p)`')
+        await help_embed(ctx, 'Ping', 'da ping command', '`ping(p)`')
 
     @help.command()
     async def serverinfo(self, ctx):

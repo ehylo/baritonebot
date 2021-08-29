@@ -5,13 +5,13 @@ Please submit prs cause this is probably really poorly made. (see [help.py](cogs
 
 Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Baritone repo](https://github.com/cabaletta/baritone)
 ## Things to-do
-*   support gifs in emote command
-*   Add more options to the embed command (field, footer, author, image, etc) also be able to edit it
-*   Add time to ban, also add weeks, months, years, and seconds (maybe more like decades :p) to the time aswell
-*   Add some commands to change the roles/channels, preped for this by storing the ids in a db instead of hard coded
-*   Add subrules to the rule command (like b?rule 4a)
-*   GitHub command using the GitHub api
-*   Redo everything to have buttons/slash commands when dpy 2.0 comes out
+* support gifs in emote command
+* Add more options to the embed command (field, footer, author, image, etc.) also be able to edit it
+* Add some commands to change the roles/channels, preped for this by storing the ids in a db instead of hard coded
+* Add subrules to the rule command (like b?rule 4a)
+* GitHub command using the GitHub api
+* Redo everything to have buttons/slash commands
+* Add time to ban, not sure how this is going to work with purge/time that's why I skipped adding it for now
 ## How to run
 Requires:
 *   [Python 3.9](https://www.python.org/downloads/)
