@@ -37,7 +37,7 @@ class TimeConverter(commands.Converter):
             mute_time = 0
             try:
                 mute_time += int((time_dict[amount] * float(digit)) + int(time()))
-                if mute_time >= (9223372036854775807 - int(time())):
+                if mute_time >= (9223372036854775800 - int(time())):
                     return mute_time, args, False, 2
             except KeyError:
                 return mute_time, args, False, 1
@@ -78,25 +78,50 @@ class Bkm(commands.Cog):
                 punisher = await self.bot.get_guild(main.ids(1)).fetch_member(ctx.author.id)
                 muted_user = await self.bot.get_guild(main.ids(1)).fetch_member(user.id)
                 if role_hierarchy(punisher, muted_user) is True:
-                    if mute_time[2] is True:
-                        if mute_time[0] == 0:
-                            reason = '' if reason is None else reason
-                            mute_reason = f'{mute_time[1]} {reason}'
-                            print(mute_reason)
-                            print(mute_time[0])
-                            # Do some db and embed stuff here and apply role
-                        else:
-                            if reason is None:
+                    if self.bot.get_guild(main.ids(1)).get_role(main.ids(12)) in muted_user.roles:
+                        await main.error_embed(ctx, 'That member is already muted')
+                    else:
+                        if mute_time[2] is True:
+                            if reason is None and mute_time[0] != 0:
                                 await main.error_embed(ctx, 'You need to give a reason')
                             else:
-                                print(reason)
-                                print(mute_time[0])
-                                # Do some db and embed stuff here and apply role
-                    else:
-                        if mute_time[3] == 1:
-                            await main.error_embed(ctx, 'Only use `m`(minutes), `h`(hours), or `d`(days).')
-                        elif mute_time[3] == 2:
-                            await main.error_embed(ctx, 'That time in seconds is larger than 64 bits which isn\'t supported by postgresql, please chose a shorter time')
+                                await muted_user.add_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(12)))
+                                if mute_time[0] == 0:
+                                    reason = '' if reason is None else reason
+                                    mute_reason = f'{mute_time[1]} {reason}'
+                                    print(mute_reason)
+                                    print(mute_time[0])  # this is when there is no time
+
+                                    await main.channel_embed(ctx, 'User Muted', f'{muted_user.mention} has been muted indefinitely for reason: ```{reason}```')
+                                    try:  # dm embed
+                                        dm_channel = await muted_user.create_dm()
+                                        await main.dm_embed('Muted', f'You have been muted in the baritone discord indefinitely for reason: \n```{reason}```', dm_channel)
+                                    except (discord.Forbidden, discord.errors.HTTPException):
+                                        pass
+                                    print(f'{ctx.author.id} muted {muted_user.id} indefinitely for reason: {reason}')  # print message
+                                    await main.log_embed(ctx, f'User Muted', f'{muted_user.mention} has been muted indefinitely for reason: ```{reason}```', muted_user)
+                                    main.cur.execute('INSERT INTO rekt(user_id, action, expiry, punisher) VALUES(%s, %s, %s, %s)', (muted_user.id, 'muted', int(mute_time[0]), ctx.author.id))
+                                    main.db.commit()
+
+                                else:
+                                    print(reason)
+                                    print(mute_time[0])  # this is when there is a time
+
+                                    await main.channel_embed(ctx, 'User Muted', f'{muted_user.mention} has been muted for {mute_time[1]} for reason: ```{reason}```')
+                                    try:  # dm embed
+                                        dm_channel = await muted_user.create_dm()
+                                        await main.dm_embed('Muted', f'You have been muted in the baritone discord for {mute_time[1]} for reason: \n```{reason}```', dm_channel)
+                                    except (discord.Forbidden, discord.errors.HTTPException):
+                                        pass
+                                    print(f'{ctx.author.id} muted {muted_user.id} for {mute_time[1]} for reason: {reason}')  # print message
+                                    await main.log_embed(ctx, f'User Muted', f'{muted_user.mention} has been muted for {mute_time[1]} for reason: ```{reason}```', muted_user)
+                                    main.cur.execute('INSERT INTO rekt(user_id, action, expiry, punisher) VALUES(%s, %s, %s, %s)', (muted_user.id, 'muted', int(mute_time[0]), ctx.author.id))
+                                    main.db.commit()
+                        else:
+                            if mute_time[3] == 1:
+                                await main.error_embed(ctx, 'Only use `m`(minutes), `h`(hours), or `d`(days).')
+                            elif mute_time[3] == 2:
+                                await main.error_embed(ctx, 'That time in seconds is larger than 64 bits which isn\'t supported by postgreSQL, please chose a shorter time')
                 else:
                     await main.error_embed(ctx, f'You don\'t outrank {muted_user.mention}')
             except discord.NotFound:
