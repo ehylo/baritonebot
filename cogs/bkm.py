@@ -61,7 +61,7 @@ class Bkm(commands.Cog):
             await main.channel_embed(ctx, 'User Unbanned', f'{user.mention} has been unbanned')
             print(f'{ctx.author.id} unbanned {user.id}')
             channel = await self.bot.fetch_channel(main.ids(5))
-            await main.log_embed(ctx, f'User Unbanned', f'{user.mention} has been unbanned', channel, user)
+            await main.log_embed(ctx, 'User Unbanned', f'{user.mention} has been unbanned', channel, user)
         except discord.NotFound:
             await main.error_embed(ctx, 'That user is not banned')
 
@@ -81,12 +81,12 @@ class Bkm(commands.Cog):
             await main.channel_embed(ctx, 'User Unmuted', f'{unmuted_user.mention} has been unmuted')
             try:
                 dm_channel = await unmuted_user.create_dm()
-                await main.dm_embed('Unmuted', f'You have been unmuted in the baritone discord', dm_channel)
+                await main.dm_embed('Unmuted', 'You have been unmuted in the baritone discord', dm_channel)
             except (discord.Forbidden, discord.errors.HTTPException):
                 pass
             print(f'{ctx.author.id} unmuted {unmuted_user.id}')
             channel = await self.bot.fetch_channel(main.ids(5))
-            await main.log_embed(ctx, f'User Unmuted', f'{unmuted_user.mention} has been unmuted', channel, unmuted_user)
+            await main.log_embed(ctx, 'User Unmuted', f'{unmuted_user.mention} has been unmuted', channel, unmuted_user)
             main.cur.execute('DELETE FROM rekt WHERE user_id=%s', (user.id,))
             main.db.commit()
         except discord.NotFound:
@@ -114,7 +114,7 @@ class Bkm(commands.Cog):
                 pass
             print(f'{ctx.author.id} banned {banned_user.id} for reason: {ban_reason}')
             channel = await self.bot.fetch_channel(main.ids(5))
-            await main.log_embed(ctx, f'Member Banned', f'{banned_user.mention} has been banned for reason: ```{ban_reason}```', channel, banned_user)
+            await main.log_embed(ctx, 'Member Banned', f'{banned_user.mention} has been banned for reason: ```{ban_reason}```', channel, banned_user)
             purge_days = 7 if do_purge.lower() == 'purge' else 0
             await banned_user.ban(reason=ban_reason, delete_message_days=purge_days)
         except discord.NotFound:
@@ -157,7 +157,7 @@ class Bkm(commands.Cog):
                     pass
                 print(f'{ctx.author.id} muted {muted_user.id} {amount} for reason: {mute_reason}')
                 channel = await self.bot.fetch_channel(main.ids(5))
-                await main.log_embed(ctx, f'Member Muted', f'{muted_user.mention} has been muted {amount} for reason: ```{mute_reason}```', channel, muted_user)
+                await main.log_embed(ctx, 'Member Muted', f'{muted_user.mention} has been muted {amount} for reason: ```{mute_reason}```', channel, muted_user)
                 main.cur.execute('INSERT INTO rekt(user_id, action, expiry, punisher) VALUES(%s, %s, %s, %s)', (muted_user.id, 'muted', int(mute_time[0]), ctx.author.id))
                 main.db.commit()
         except discord.NotFound:
@@ -195,7 +195,7 @@ class Bkm(commands.Cog):
                 pass
             print(f'{ctx.author.id} kicked {kicked_user.id} for reason: {reason}')
             channel = await self.bot.fetch_channel(main.ids(5))
-            await main.log_embed(ctx, f'Member Kicked', f'{kicked_user.mention} has been kicked for reason: ```{reason}```', channel, kicked_user)
+            await main.log_embed(ctx, 'Member Kicked', f'{kicked_user.mention} has been kicked for reason: ```{reason}```', channel, kicked_user)
             await kicked_user.kick(reason=reason)
         except discord.NotFound:
             await main.error_embed(ctx, 'That is not a valid member')
@@ -211,14 +211,14 @@ class Bkm(commands.Cog):
                 dm_channel = await opter.create_dm()
                 await main.dm_embed(
                     'Opted out',
-                    f'You have been banned for opting out, this is not reverisable and DMing mods asking to be unbanned will just get you blocked',
+                    'You have been banned for opting out, this is not reverisable and DMing mods asking to be unbanned will just get you blocked',
                     dm_channel
                 )
             except (discord.Forbidden, discord.errors.HTTPException):
                 pass
             print(f'{opter.id} has been banned for reason: Opted out')
             channel = await self.bot.fetch_channel(main.ids(5))
-            await main.log_embed(ctx, f'Member Opted out', f'{opter.mention} has been banned', channel, opter)
+            await main.log_embed(ctx, 'Member Opted out', f'{opter.mention} has been banned', channel, opter)
             await self.bot.get_guild(main.ids(1)).ban(user=opter, reason='Opted out and banned', delete_message_days=7)
         else:
             await main.channel_embed(
