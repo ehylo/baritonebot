@@ -25,6 +25,18 @@ def values(num):
     return actual[num]
 
 
+async def mem_check(self, args):
+    if args.isdigit():
+        member = await self.bot.get_guild(ids(1)).fetch_member(args)
+        if member is None:
+            return False, args, True
+        return True, member, False
+    member = await self.bot.get_guild(ids(1)).get_member_named(args)
+    if member is None:
+        return False, args, False
+    return True, member, False
+
+
 def time_convert(time_int):
     new, edesc = time_int, ''
     if time_int / 86400 >= 1:
