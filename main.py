@@ -27,8 +27,9 @@ def values(num):
 
 async def mem_check(self, args):
     if args.isdigit():
-        member = await self.bot.get_guild(ids(1)).fetch_member(args)
-        if member is None:
+        try:
+            member = await self.bot.get_guild(ids(1)).fetch_member(args)
+        except discord.HTTPException:
             return False, args, True
         return True, member, False
     member = await self.bot.get_guild(ids(1)).get_member_named(args)

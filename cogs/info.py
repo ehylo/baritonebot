@@ -83,29 +83,21 @@ class Info(commands.Cog):
         await main.channel_embed(ctx, f'Pong! 🏓 ({round(self.bot.latency * 1000)}ms)', None)
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ui'])
-    async def userinfo(self, ctx, user_id=None):
-        b_guild = self.bot.get_guild(main.ids(1))
-        try:
-            user_men = str(ctx.message.raw_mentions[0])
-        except IndexError:
-            user_men = ''
-        if user_id is None:
+    async def userinfo(self, ctx, num=None):
+        if num is None:
             return await Help.userinfo(self, ctx)
-        if user_men != '':
-            clear_member = await self.bot.fetch_user(int(user_men))  # get the user if they mentioned
-        elif (user_id.isdigit()) and (len(user_id) == 18):
-            clear_member = await self.bot.fetch_user(int(user_id))  # get the user if they gave an ID
-        else:
-            clear_member = b_guild.get_member_named(user_id)  # get the member if they gave a name with/without discrimitor
-        if clear_member is None:
-            await main.error_embed(ctx, 'The user you gave is invalid')
-        else:
-            if b_guild.get_member(clear_member.id) is not None:
-                member = b_guild.get_member(clear_member.id)
-                await varistuff(ctx, member, ismember=True)
-            else:
-                member = await self.bot.fetch_user(clear_member.id)
-                await varistuff(ctx, member, ismember=False)
+        args = await main.mem_check(self, num)
+        if args[0] is False:
+            if num.isdigit():
+                if num > 0:
+                    try:
+                        non_member = await self.bot.fetch_user(num)
+                        return await varistuff(ctx, non_member, ismember=False)
+                    except discord.HTTPException:
+                        pass
+            return await main.error_embed(ctx, 'The user you gave is invalid')
+        if args[0] is True:
+            return await varistuff(ctx, args[1], ismember=True)
 
     @userinfo.command()
     async def me(self, ctx):

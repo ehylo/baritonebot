@@ -17,7 +17,7 @@ class Clear(commands.Cog):
         if ctx.guild is None:
             return await main.error_embed(ctx, 'You cannot use this command in DMs')
         args = await main.mem_check(self, num)
-        channel = await self.bot.fetch_channel(main.ids(3))
+        channel = await self.bot.get_channel(main.ids(3))
         if args[0] is True:  # A member was given
             if num2 is None:
                 return await main.error_embed(ctx, 'You need to give a positive non zero number')

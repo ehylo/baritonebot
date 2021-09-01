@@ -38,7 +38,7 @@ class Event(commands.Cog):
         if message.author.discriminator != '0000':
             if (message.author.id != main.ids(0)) and (str(message.channel.id) not in exempt_channels):
                 if message.guild is not None:
-                    channel = await self.bot.fetch_channel(main.ids(3))
+                    channel = await self.bot.get_channel(main.ids(3))
                     del_channel = message.channel.mention
                     await main.log_embed(None, None, f'**Message deleted in {del_channel}** \n{message.content}', channel, message.author)
                     print(f'{message.author.id} message was deleted: \"{message.content}\"')
@@ -56,7 +56,7 @@ class Event(commands.Cog):
                                 em_v.add_field(name='Befored Edit:', value=message_before.content, inline=False)
                                 em_v.add_field(name='After Edit:', value=message_after.content, inline=False)
                                 em_v.set_footer(text=f'{message_after.author.name} | ID: {message_after.author.id}', icon_url=message_after.author.avatar_url)
-                                channel = await self.bot.fetch_channel(main.ids(3))
+                                channel = await self.bot.get_channel(main.ids(3))
                                 await channel.send(embed=em_v)
                                 print(f'{message_after.author.id} edited a message, Before: \"{message_before.content}\" After: \"{message_after.content}\"')
 
@@ -109,7 +109,7 @@ class Event(commands.Cog):
 
     @tasks.loop(seconds=1)
     async def loops(self):
-        log_channel = await self.bot.fetch_channel(main.ids(3))
+        log_channel = await self.bot.get_channel(main.ids(3))
         async for message in log_channel.history(limit=1000):
             if (message.created_at + timedelta(hours=24)) < datetime.utcnow():
                 await message.delete()
@@ -118,7 +118,7 @@ class Event(commands.Cog):
         for i in main.cur.fetchall():
             if i[2] != 0:
                 if i[2]-int(time()) <= 0:
-                    await unmute_embeds(self.bot.get_guild(main.ids(1)), await self.bot.fetch_channel(main.ids(5)), i)
+                    await unmute_embeds(self.bot.get_guild(main.ids(1)), await self.bot.get_channel(main.ids(5)), i)
 
     @loops.before_loop
     async def before_loops(self):
