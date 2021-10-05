@@ -20,8 +20,21 @@ async def unmute_embeds(b_guild, modlog_channel, i):
     main.cur.execute('DELETE FROM rekt WHERE user_id=%s', (i[0],))
     main.db.commit()
 
+
+async def unhoist(member):
+
+    def name_loop(name):
+        if name.startswith(hoisted_list):
+            return name_loop(name[1:])
+        if name == '':
+            return 'z' + member.name
+        return name
+    await member.edit(nick=name_loop(member.name))
+    print(f'{member.id} tried to set a nickname to put them at the top of the list but the hoisted char. was removed')
+
 main.cur.execute("SELECT ids FROM exempted WHERE type='channel'")
 exempt_channels = [str(item[0]) for item in main.cur.fetchall()]
+hoisted_list = ('!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/')
 
 
 class Event(commands.Cog):
@@ -62,9 +75,8 @@ class Event(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        if member.name.startswith(('!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/')):
-            await member.edit(nick=f'z{member.name}')
-            print(f'{member.id} joined with a name that puts them to the top of the list, so z was added infront')
+        if member.name.startswith(hoisted_list):
+            await unhoist(member)
         main.cur.execute('SELECT user_id FROM rekt WHERE user_id=%s', (member.id,))
         if main.cur.fetchone() is not None:
             await member.add_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(12)))
@@ -73,10 +85,9 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
         try:
-            if after.display_name.startswith(('!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/')):
-                if before.display_name.startswith(('!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/')):
-                    await after.edit(nick=f'z{after.display_name}')
-                    print(f'{after.id} tried to set a nickname to put them at the top of the list so a z was added infront')
+            if after.display_name.startswith(hoisted_list):
+                if before.display_name.startswith(hoisted_list):
+                    await unhoist(after)
                 else:
                     await after.edit(nick=before.display_name)
                     print(f'{after.id} tried to set a nickname to put them at the top of the list so it was reverted')
