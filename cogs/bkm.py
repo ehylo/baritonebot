@@ -177,7 +177,7 @@ class Bkm(commands.Cog):
 
     @commands.command(aliases=['k'])
     @commands.check(main.mod_group)
-    async def kick(self, ctx, user: discord.User = None, reason=None):
+    async def kick(self, ctx, user: discord.User = None, *, reason=None):
         if user is None:
             return await Help.kick(self, ctx)
         if reason is None:
