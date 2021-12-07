@@ -3,3 +3,4 @@ python-dotenv
 Pillow
 requests
 psycopg2
+PyGithub

@@ -5,9 +5,10 @@ from dotenv import load_dotenv
 from discord.ext import commands
 
 load_dotenv()
-token = os.getenv('token')
-paste_token = os.getenv('paste_token')
 DATABASE_URL = os.getenv('DATABASE_URL')
+token = os.getenv('discord_token')
+paste_token = os.getenv('paste_token')
+github_token = os.getenv('github_token')
 
 db = psycopg2.connect(DATABASE_URL, sslmode='require')
 cur = db.cursor()
@@ -104,7 +105,7 @@ async def log_embed(ctx=None, title=None, desc=None, channel=None, member=None):
     await channel.send(embed=em_v)
 
 
-async def channel_embed(ctx, title=None, desc=None, thumbnail=None, replyorsend=None):
+async def channel_embed(ctx, title=None, desc=None, thumbnail=None, replyorsend=None, url=None):
     em_v = discord.Embed(color=int(values(1), 16), title=title)
     if desc is not None:
         em_v.description = desc
@@ -118,6 +119,8 @@ async def channel_embed(ctx, title=None, desc=None, thumbnail=None, replyorsend=
         if not hasattr(ctx, 'author'):
             pass
         else:
+            if url is not None:
+                em_v.url(url)
             em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
             ctx = ctx.channel
         await ctx.send(embed=em_v)
