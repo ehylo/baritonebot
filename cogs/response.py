@@ -76,7 +76,7 @@ async def regex_respond(self, message):
 
         def check(dreaction, duser):
             try:
-                return (auto_response.id == dreaction.message.id) and (duser.id == message.author.id or staffr_check(self, duser.id) is True)
+                return (auto_response.id == dreaction.message.id) and (duser.id == message.author.id or staffr_check(self, duser.id))
             except AttributeError:
                 pass
 
@@ -159,10 +159,10 @@ async def what_text(self, ctx, what, arep_num, desc, dontdelete=None):
         return await cancel_new(ctx, 'The new response was deleted because an hour has passed with no response', arep_num, dontdelete)
     else:
         if 'ignored' in desc:
-            if await ig_what(ctx, message, arep_num, dontdelete) is True:
+            if await ig_what(ctx, message, arep_num, dontdelete):
                 return True
         else:
-            if await text_what(ctx, message, what, arep_num, dontdelete) is True:
+            if await text_what(ctx, message, what, arep_num, dontdelete):
                 return True
 
 
@@ -241,11 +241,11 @@ class Response(commands.Cog):
         main.cur.execute('INSERT INTO response(rep_number) VALUES(%s)', (arep_num,))
         main.db.commit()
         print(f'{ctx.author.id} created a new response #{arep_num}')
-        if await what_text(self, ctx, 'title', arep_num, title_desc) is True:
-            if await what_text(self, ctx, 'description', arep_num, desc_desc) is True:
-                if await what_text(self, ctx, 'regex', arep_num, regex_desc) is True:
-                    if await do_delete(self, ctx, arep_num) is True:
-                        if await what_text(self, ctx, 'ignoreroles', arep_num, ignorerole_desc) is True:
+        if await what_text(self, ctx, 'title', arep_num, title_desc):
+            if await what_text(self, ctx, 'description', arep_num, desc_desc):
+                if await what_text(self, ctx, 'regex', arep_num, regex_desc):
+                    if await do_delete(self, ctx, arep_num):
+                        if await what_text(self, ctx, 'ignoreroles', arep_num, ignorerole_desc):
                             await main.channel_embed(ctx, 'Success!', f'To view the details of this new response, do `{main.values(0)}response details {arep_num}`')
 
     @response.command(aliases=['e'])

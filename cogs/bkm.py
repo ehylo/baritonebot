@@ -13,20 +13,20 @@ def role_hierarchy(punisher, against):
         punisher_roles.append(role.id)
     for role in against.roles:
         against_roles.append(role.id)
-    if any(i in [main.ids(8), main.ids(10), main.ids(7)] for i in against_roles) is True:  # checks if the against person has dev/admin/bypassed
+    if any(i in [main.ids(8), main.ids(10), main.ids(7)] for i in against_roles):  # checks if the against person has dev/admin/bypassed
         return False
     if main.ids(9) in against_roles:  # checks if the against person has mod
-        if any(i in [main.ids(8), main.ids(10), main.ids(7)] for i in punisher_roles) is True:
+        if any(i in [main.ids(8), main.ids(10), main.ids(7)] for i in punisher_roles):
             return True
     elif main.ids(6) in against_roles:  # checks if the against person has helper
-        if any(i in [main.ids(8), main.ids(10), main.ids(7), main.ids(9)] for i in punisher_roles) is True:
+        if any(i in [main.ids(8), main.ids(10), main.ids(7), main.ids(9)] for i in punisher_roles):
             return True
     else:
-        return True if any(i in [main.ids(8), main.ids(10), main.ids(7), main.ids(9), main.ids(6)] for i in punisher_roles) is True else False
+        return True if any(i in [main.ids(8), main.ids(10), main.ids(7), main.ids(9), main.ids(6)] for i in punisher_roles) else False
 
 
 time_regex = re.compile(r'^(\d+)([a-z])$')
-time_dict = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800, "y": 31536000}
+time_dict = {'s': 1, 'm': 60, 'h': 3600, "d": 86400, 'w': 604800, 'y': 31536000}
 
 
 class TimeConverter(commands.Converter):
@@ -138,7 +138,7 @@ class Bkm(commands.Cog):
                 return await main.error_embed(ctx, 'Only use `s`(seconds), `m`(minutes), `h`(hours), `d`(days), `w`(weeks), or `y`(years).')
             if mute_time[3] == 2:  # check if someone is trying to break the bot
                 return await main.error_embed(ctx, 'That time in seconds is larger than 64 bits which isn\'t supported by postgreSQL, please chose a shorter time')
-            if mute_time[2] is True:  # check if a correct mute time argument was given
+            if mute_time[2]:  # check if a correct mute time argument was given
                 if (reason is None) and (mute_time[0] != 0):  # make sure they provide a reason if they gave a time
                     return await main.error_embed(ctx, 'You need to give a reason')
                 await muted_user.add_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(12)))  # add the mute role

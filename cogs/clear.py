@@ -18,7 +18,7 @@ class Clear(commands.Cog):
             return await main.error_embed(ctx, 'You cannot use this command in DMs')
         args = await main.mem_check(self, num)
         channel = await self.bot.get_channel(main.ids(3))
-        if args[0] is True:  # A member was given
+        if args[0]:  # A member was given
             if num2 is None:
                 return await main.error_embed(ctx, 'You need to give a positive non zero number')
             if not num2.isdigit():
@@ -43,7 +43,7 @@ class Clear(commands.Cog):
                 pass
             print(f'{ctx.author.id} cleared {num2} messages in {ctx.channel.id} from {args[1].id}')
             return await main.log_embed(ctx, 'Bulk messages deleted', f'{ctx.author.mention} cleared {num2} messages in {ctx.channel.mention} from {args[1].mention}', channel, args[1])
-        if args[2] is True:  # A number was given
+        if args[2]:  # A number was given
             if int(num) > 1000000000:
                 return await main.error_embed(ctx, 'The number you gave is not a valid member ID or you are trying to clear over 1 Billion messages which is not allowed')
             if int(num) < 1:
