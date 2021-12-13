@@ -6,10 +6,6 @@ from cogs.help import Help
 from github import Github
 from github.GithubException import UnknownObjectException
 
-# these are for the help class
-# b?github <[search]|[info]> <[word]> <issue/pull> <open/closed>
-# b?issue <[number]> <[comments]>
-# b?pull <[number]> <[comments]>
 # - total merged is too slow as it makes a request for every pull (info) - could be fixed with the first todo
 
 # TODO: When info command is used, grab information from db and then after, upload the new information
@@ -55,14 +51,25 @@ class Gh(commands.Cog):
             lang_str += f'{i}: {100 * round((bts / total_bytes), 4)}%, '
         em_v.add_field(name='Languages', value=lang_str[:-2])
         em_v.add_field(name='Releases', value=str(brepo.get_releases().totalCount))
-        em_v.add_field(name='Latest Release', value=brepo.get_latest_release().html_url)
+        em_v.add_field(name='Latest Release', value=f'[{brepo.get_latest_release().tag_name}]({brepo.get_latest_release().html_url})')
         em_v.add_field(name='Created', value=f'<t:{int(brepo.created_at.timestamp())}:F>')
         em_v.set_thumbnail(url=gh.get_organization('cabaletta').avatar_url)
         em_v.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar_url)
         await message.edit(embed=em_v)
 
     @github.command(aliases=['s'])
-    async def search(self, ctx, *, term, is_pull, is_open=None):
+    async def search(self, ctx, term=None, is_pull=None, is_open=None):
+        if term is None:
+            return await Help.github(self, ctx)
+        if is_pull is None:
+            return await main.error_embed(ctx, 'You need to say if you want to search for pull requests or issues')
+        else:
+            if is_pull.lower() in ['pull', 'pr', 'pullrequest']:
+                is_pull = True
+            elif is_pull.lower() == 'issue':
+                is_pull = False
+            else:
+                return await main.error_embed(ctx, f'You need to provide either `issue` or `pull|pr|pullrequest` and not {is_pull}')
         if is_open is None:
             issues = gh.search_issues(query=term, repo='cabaletta/baritone')
             state = ''
@@ -98,11 +105,11 @@ class Gh(commands.Cog):
     @commands.command(aliases=['i'])
     async def issue(self, ctx, num: int = None, c_num=None):
         if num is None:
-            return await Help.pull(self, ctx)
+            return await Help.issue(self, ctx)
         try:
             data = brepo.get_issue(number=num)
         except UnknownObjectException:
-            return main.error_embed(ctx, 'That issue (or pull request) does not exist')
+            return await main.error_embed(ctx, 'That issue (or pull request) does not exist')
         if 'pull' in data.html_url:
             brepo.get_pull(number=num)
             question = await main.channel_embed(ctx, 'Couldn\'t find that issue', 'But I did find a pull request with that nunber, would you like to see that instead?')

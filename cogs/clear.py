@@ -16,8 +16,10 @@ class Clear(commands.Cog):
             return await Help.clear(self, ctx)
         if ctx.guild is None:
             return await main.error_embed(ctx, 'You cannot use this command in DMs')
+        if len(ctx.message.mentions) > 0:
+            num = ctx.message.mentions[0].id
         args = await main.mem_check(self, num)
-        channel = await self.bot.get_channel(main.ids(3))
+        channel = self.bot.get_channel(main.ids(3))
         if args[0]:  # A member was given
             if num2 is None:
                 return await main.error_embed(ctx, 'You need to give a positive non zero number')
@@ -48,7 +50,7 @@ class Clear(commands.Cog):
                 return await main.error_embed(ctx, 'The number you gave is not a valid member ID or you are trying to clear over 1 Billion messages which is not allowed')
             if int(num) < 1:
                 return await main.error_embed(ctx, 'You need to give a positive non zero number')
-            await ctx.channel.purge(limit=int(num))
+            await ctx.channel.purge(limit=int(num) + 1)
             print(f'{ctx.author.id} cleared {num} messages in {ctx.channel.id}')
             return await main.log_embed(None, 'Bulk messages deleted', f'{ctx.author.mention} cleared {num} messages in {ctx.channel.mention}', channel, ctx.author)
         return await main.error_embed(ctx, 'That is not a member or positive non zero number')

@@ -159,6 +159,18 @@ class Help(commands.Cog):
     async def exempt(self, ctx):
         await help_embed(ctx, 'Exempt', 'Allows you to set a channel to be exempted from the message edit/delete logging, if you don\'t give a channel it will set it as the current', '`<un>exempt(ex) <list(l)|[channel]>`')
 
+    @help.command()
+    async def issue(self, ctx):
+        await help_embed(ctx, 'Issue', 'Grabs the specified issue and sends information about it, can also show a specific comments or all of them', '`<[issue number]> <[comment number]|all>`')
+
+    @help.command()
+    async def pull(self, ctx):
+        await help_embed(ctx, 'Pull Request', 'Grabs the specified pull and sends information about it, can also show a specific comments or all of them', '`<[pull number]> <[comment number]|all>`')
+
+    @help.command()
+    async def github(self, ctx):
+        await help_embed(ctx, 'GitHub', 'Search the baritone repo for issues or pull requests and filter for open or closed ones, also gives information for the baritone repo itself.', '`<[search]|[info]> <[term]> <issue|pull> <open|closed>`')
+
 
 def setup(bot):
     bot.add_cog(Help(bot))

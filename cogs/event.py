@@ -39,7 +39,7 @@ hoisted_list = ('!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-'
 
 class Event(commands.Cog):
     def __init__(self, bot):
-        """Returns all of the specific emebeds for even related actions."""
+        """Returns all the specific emebeds for even related actions."""
         self.bot = bot
         self.loops.start()
 
@@ -51,7 +51,7 @@ class Event(commands.Cog):
         if message.author.discriminator != '0000':
             if (message.author.id != main.ids(0)) and (str(message.channel.id) not in exempt_channels):
                 if message.guild is not None:
-                    channel = await self.bot.get_channel(main.ids(3))
+                    channel = self.bot.get_channel(main.ids(3))
                     del_channel = message.channel.mention
                     await main.log_embed(None, None, f'**Message deleted in {del_channel}** \n{message.content}', channel, message.author)
                     print(f'{message.author.id} message was deleted: \"{message.content}\"')
@@ -69,7 +69,7 @@ class Event(commands.Cog):
                                 em_v.add_field(name='Befored Edit:', value=message_before.content, inline=False)
                                 em_v.add_field(name='After Edit:', value=message_after.content, inline=False)
                                 em_v.set_footer(text=f'{message_after.author.name} | ID: {message_after.author.id}', icon_url=message_after.author.avatar_url)
-                                channel = await self.bot.get_channel(main.ids(3))
+                                channel = self.bot.get_channel(main.ids(3))
                                 await channel.send(embed=em_v)
                                 print(f'{message_after.author.id} edited a message, Before: \"{message_before.content}\" After: \"{message_after.content}\"')
 
@@ -104,7 +104,7 @@ class Event(commands.Cog):
             if self.bot.get_guild(main.ids(1)).get_role(main.ids(14)) in member.roles:
                 await member.remove_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(14)))
             print(f'{member.id} left a voice channel and the voice role was removed')
-
+    """
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.errors.UserNotFound):
@@ -117,10 +117,10 @@ class Event(commands.Cog):
             await main.error_embed(ctx, f'The command `{ctx.message.content}` was not found, do `help` to see command categories')
         elif isinstance(error, commands.errors.CheckFailure):
             pass
-
+    """
     @tasks.loop(seconds=1)
     async def loops(self):
-        log_channel = await self.bot.get_channel(main.ids(3))
+        log_channel = self.bot.get_channel(main.ids(3))
         async for message in log_channel.history(limit=1000):
             if (message.created_at + timedelta(hours=24)) < datetime.utcnow():
                 await message.delete()
@@ -129,7 +129,7 @@ class Event(commands.Cog):
         for i in main.cur.fetchall():
             if i[2] != 0:
                 if i[2]-int(time()) <= 0:
-                    await unmute_embeds(self.bot.get_guild(main.ids(1)), await self.bot.get_channel(main.ids(5)), i)
+                    await unmute_embeds(self.bot.get_guild(main.ids(1)), self.bot.get_channel(main.ids(5)), i)
 
     @loops.before_loop
     async def before_loops(self):
