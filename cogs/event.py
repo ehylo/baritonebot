@@ -36,11 +36,11 @@ class Event(commands.Cog):
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.author.discriminator != '0000':
-            if (message.author.id != main.ids(0)) and (str(message.channel.id) not in exempt_channels):
-                if message.guild is not None:
-                    channel = await self.bot.fetch_channel(main.ids(3))
-                    if message.channel.id == channel.id:
-                        print(f'A message was deleted in the logs channel, the description was: {message.embeds[0].description}')
+            if message.guild is not None:
+                channel = await self.bot.fetch_channel(main.ids(3))
+                if message.channel.id == channel.id:
+                    print(f'A message was deleted in the logs channel, the description was: {message.embeds[0].description}')
+                if (message.author.id != main.ids(0)) and (str(message.channel.id) not in exempt_channels):
                     del_channel = message.channel.mention
                     await main.log_embed(None, None, f'**Message deleted in {del_channel}** \n{message.content}', channel, message.author)
                     print(f'{message.author.id} message was deleted: \"{message.content}\"')
