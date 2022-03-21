@@ -1,5 +1,3 @@
-discord.py
+py-cord
 python-dotenv
-Pillow
-requests
 psycopg2
