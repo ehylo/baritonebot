@@ -89,6 +89,16 @@ class Ban(commands.Cog):
         except discord.NotFound:
             return await embeds.slash_embed(ctx, ctx.author, 'That user is not banned', 'Not Found')
 
+    @discord.slash_command(
+        name='ban-list',
+        description='lists the current banned members',
+        guild_ids=[GUILD_ID],
+        default_permissions=False
+    )
+    @permissions.has_any_role(*sum((bot_db.helper_ids | bot_db.mod_ids | bot_db.admin_ids).values(), []))
+    async def ban_list(self, ctx):
+        pass
+
 
 def setup(bot):
     bot.add_cog(Ban(bot))

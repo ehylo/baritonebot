@@ -98,6 +98,16 @@ class TimeOut(commands.Cog):
             False
         )
 
+    @discord.slash_command(
+        name='timeout-list',
+        description='lists the current timed-out members',
+        guild_ids=[GUILD_ID],
+        default_permissions=False
+    )
+    @permissions.has_any_role(*sum((bot_db.helper_ids | bot_db.mod_ids | bot_db.admin_ids).values(), []))
+    async def timeout_list(self, ctx):
+        pass
+
 
 def setup(bot):
     bot.add_cog(TimeOut(bot))

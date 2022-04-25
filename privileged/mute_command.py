@@ -1,16 +1,40 @@
-from datetime import timedelta
-
 import discord
 from discord.commands import permissions, Option
 from discord.ext import commands
 
 from main import bot_db
-from utils.misc import role_hierarchy
-from utils.const import GUILD_ID, TIME_KEYS, FOUR_WEEKS
-from utils import embeds
+from utils.const import GUILD_ID
 
 
 class Mute(commands.Cog):
+    time_dict = {
+        'Seconds': 1,
+        'Minutes': 60,
+        'Milidays (1/1000 of a Day)': 86,
+        'Moments (90 Seconds)': 90,
+        'Hours': 3600,
+        'Days': 86400,
+        'Weeks': 604800,
+        'Mega Seconds (1mil Seconds)': 1000000,
+        'Fortnights': 1209600,
+        'Months': 2592000,
+        'Quarantines (40 Days)': 3456000,
+        'Semesters (18 Weeks)': 10886400,
+        'Years': 31536000,
+        'Gregorian Years (~Year)': 31556952,
+        'Olympiads (4 Years)': 126144000,
+        'Lustrums (5 Years)': 157680000,
+        'Decades': 315360000,
+        'Indictions (15 Years)': 473040000,
+        'Giga Seconds (1bil Seconds)': 1000000000,
+        'Jubilees (50 Years)': 1576800000,
+        'Centuries': 3153600000,
+        'Kiloannums/Millenniums': 31563000000,
+        'Megaannums/Megayears (1mil Years)': 31536000000000,
+        'Galactic Years (~230mil Years)': 7253280000000000,
+        'Cosmological Decades (varies)': 10000000000000000
+    }
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -29,7 +53,7 @@ class Mute(commands.Cog):
             str,
             name='units',
             description='unit of time',
-            choices=['Seconds', 'Minutes', 'Hours', 'Days', 'Weeks'],
+            choices=list(time_dict),
             required=True
         ),
         time_duration: Option(
@@ -41,37 +65,7 @@ class Mute(commands.Cog):
         ),
         reason: Option(str, name='reason', description='The reason you are muting this member', required=True)
     ):
-        time_text = f'{time_duration} {time_unit.lower()}'
-        if TIME_KEYS[time_unit] * time_duration > FOUR_WEEKS:
-            return await embeds.slash_embed(ctx, ctx.author, 'Discord only allows 4 weeks, please chose less.')
-        if not role_hierarchy(bot_db, ctx.guild.id, enforcer=ctx.author, offender=offender):
-            return await embeds.slash_embed(ctx, ctx.author, f'You don\'t outrank {offender.mention}')
-        await offender.timeout_for(timedelta(seconds=TIME_KEYS[time_unit] * time_duration), reason=reason)
-        await embeds.slash_embed(
-            ctx,
-            ctx.author,
-            f'{offender.mention} has been muted for {time_text}, Reason: ```{reason}```', 'Member Muted',
-            bot_db.embed_color[ctx.guild.id],
-            False
-        )
-        await embeds.mod_log_embed(
-            self.bot,
-            bot_db,
-            ctx.guild.id,
-            author=ctx.author,
-            offender=offender,
-            title='Member Muted',
-            description=f'{offender.mention} has been muted for {time_text}, Reason: ```{reason}```'
-        )
-        dm_channel = await offender.create_dm()
-        await embeds.dm_embed(
-            bot_db,
-            ctx.guild.id,
-            channel=dm_channel,
-            author=ctx.author,
-            title='Muted',
-            description=f'You have been muted in the baritone discord for {time_text}, Reason: \n```{reason}```'
-        )
+        pass
 
     @discord.slash_command(
         name='unmute',
@@ -85,18 +79,17 @@ class Mute(commands.Cog):
         ctx,
         offender: Option(discord.Member, name='member', description='Member you wish to un-mute', required=True)
     ):
-        if not role_hierarchy(bot_db, ctx.guild.id, enforcer=ctx.author, offender=offender):
-            return await embeds.slash_embed(ctx, ctx.author, f'You don\'t outrank {offender.mention}')
-        if offender.timed_out is None:
-            return await embeds.slash_embed(ctx, ctx.author, f'{offender.mention} is not muted.')
-        await offender.timeout(None)
-        await embeds.slash_embed(
-            ctx,
-            ctx.author,
-            f'{offender.mention} has been un-muted', 'Member Muted',
-            bot_db.embed_color[ctx.guild.id],
-            False
-        )
+        pass
+
+    @discord.slash_command(
+        name='mute-list',
+        description='lists the current muted members',
+        guild_ids=[GUILD_ID],
+        default_permissions=False
+    )
+    @permissions.has_any_role(*sum((bot_db.helper_ids | bot_db.mod_ids | bot_db.admin_ids).values(), []))
+    async def mute_list(self, ctx):
+        pass
 
 
 def setup(bot):

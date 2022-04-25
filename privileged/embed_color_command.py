@@ -24,7 +24,7 @@ class EmbedColor(commands.Cog):
         value: Option(
             str,
             name='color',
-            description='the color you want (Hex), or type "default" for the default color',
+            description='the color you want (Hex), or type "default" for the default color (81C3FF)',
             required=True
         )
     ):
