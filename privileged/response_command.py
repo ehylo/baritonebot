@@ -1,10 +1,9 @@
-# TODO all commands and test
-
 import discord
 from discord.ext import commands
 from discord.commands import permissions, Option
 
 from main import bot_db
+from utils.embeds import slash_embed
 from utils.const import GUILD_ID
 
 
@@ -69,7 +68,9 @@ class Response(commands.Cog):
             required=True
         )
     ):
-        pass
+
+        await slash_embed(ctx, ctx.author, '')
+        await main.channel_embed(ctx, f'Removed response #{num}:', response[1])
 
     @discord.slash_command(
         name='response-list',
@@ -79,7 +80,15 @@ class Response(commands.Cog):
     )
     @permissions.has_any_role(*sum((bot_db.helper_ids | bot_db.mod_ids | bot_db.admin_ids).values(), []))
     async def response_list(self, ctx):
-        pass
+        description = ''
+        title = bot_db.response_title[ctx.guild.id]
+        regex = bot_db.response_regex[ctx.guild.id]
+        for response_num in range(regex):
+            description += f'**{response_num + 1}.** Title: {title[response_num]} \nRegex: `{regex[response_num]}`\n'
+        # TODO: make this pages so we don't reach embed limit
+        await slash_embed(
+            ctx, ctx.author, description, f'Current Responses ({len(regex)}):', bot_db.embed_color[ctx.guild.id]
+        )
 
     @discord.slash_command(
         name='response-details',
@@ -91,7 +100,7 @@ class Response(commands.Cog):
     async def response_details(
         self,
         ctx,
-        response_num: Option(
+        num: Option(
             int,
             name='response number',
             description='which response you want to get the details of',
@@ -99,7 +108,21 @@ class Response(commands.Cog):
             required=True
         )
     ):
-        pass
+        if len(bot_db.response_regex[ctx.guild.id]) < num:
+            return await slash_embed(ctx, ctx.author, 'There are not that many responses', 'Bad Number')
+        ignored_roles = ''
+        for i in bot_db.response_ignored_roles[ctx.guild.id][num - 1].strip('}{').split(','):
+            ignored_roles += f', <@&{i}>'
+        regex = bot_db.response_regex[ctx.guild.id][num - 1]
+        delete_message = bot_db.response_delete_message[ctx.guild.id][num - 1]
+        embed_var = discord.Embed(color=bot_db.embed_color[ctx.guild.id])
+        embed_var.title = f'Response #{num} details:'
+        embed_var.description = f'\u2022 Regex: `{regex}` \n\u2022 Deletes message? {delete_message} \n\u2022 Ignored roles: \n{ignored_roles[2:]}'
+        embed_var.add_field(
+            name=bot_db.response_title[ctx.guild.id][num - 1], value=bot_db.response_description[ctx.guild.id][num - 1]
+        )
+        embed_var.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar.url)
+        await ctx.respond(embed=embed_var)
 
 
 def setup(bot):

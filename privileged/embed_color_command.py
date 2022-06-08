@@ -29,14 +29,7 @@ class EmbedColor(commands.Cog):
         )
     ):
         if value.lower() == 'default':
-            bot_db.update_embed_color(ctx.guild.id, DEFAULT_EMBED_COLOR)
-            return await slash_embed(
-                ctx,
-                ctx.author,
-                f'Set the embed color of this server to the default ({DEFAULT_EMBED_COLOR})',
-                'Embed-color set',
-                bot_db.embed_color[ctx.guild.id]
-            )
+            value = DEFAULT_EMBED_COLOR
         if len(value) != 6:
             return await slash_embed(ctx, ctx.author, f'Hex codes are 6 char. long, yours is {len(value)} char. long')
         bot_db.update_embed_color(ctx.guild.id, value)

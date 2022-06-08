@@ -45,6 +45,10 @@ class DB:
         self.cur.execute('SELECT guild_id, admin_ids FROM v2roles')
         self.admin_ids = dict(self.cur.fetchall())
 
+        # response variables
+        self.cur.execute('SELECT guild_id, title, description, regex, delete_message, ignored_roles FROM v2responses')
+        self.response = dict(self.cur.fetchall())
+
     def update_bot_id(self, bot_id):
         self.bot_id = bot_id
         self.cur.execute('SELECT presence_action FROM v2bots WHERE bot_id = %s', (bot_id, ))
@@ -52,7 +56,7 @@ class DB:
         self.cur.execute('SELECT presence_value FROM v2bots WHERE bot_id = %s', (bot_id, ))
         self.presence_value = self.cur.fetchone()[0]
 
-    def update_presence_action(self, presence_action: int = None):
+    def update_presence_action(self, presence_action: str = None):
         self.cur.execute('UPDATE v2bots SET presence_action = %s WHERE bot_id = %s', (presence_action, self.bot_id))
         self.db.commit()
         self.presence_action = presence_action

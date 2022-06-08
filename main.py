@@ -11,7 +11,7 @@ bot_db = DB()
 baritone_settings = VersionSettings()
 
 
-def get_prefix(_, message):
+def get_prefix(_ctx, message):
     return bot_db.prefix[message.guild.id]
 
 

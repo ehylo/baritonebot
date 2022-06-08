@@ -11,7 +11,7 @@ from utils.embeds import slash_embed
 
 class RePing(discord.ui.View):
     @discord.ui.button(label='Ping again!', emoji='🏓', style=discord.ButtonStyle.blurple, custom_id='ping')
-    async def button_callback(self, _: discord.ui.Button, inter):
+    async def button_callback(self, _button, inter):
         ms = get_unix(inter.id) - round(time.time() * 1000)
         await slash_embed(
             inter,

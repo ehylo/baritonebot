@@ -14,10 +14,10 @@ GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 
 # other stuff
 PRESENCE_ACTION_KEY = {
-    1: discord.ActivityType.watching,
-    2: discord.ActivityType.playing,
-    3: discord.ActivityType.listening,
-    4: discord.ActivityType.competing
+    'Watching': discord.ActivityType.watching,
+    'Playing': discord.ActivityType.playing,
+    'Listening to': discord.ActivityType.listening,
+    'Competing in': discord.ActivityType.competing
 }
 TIME_KEYS = {
     'Seconds': 1,
@@ -37,5 +37,5 @@ VERSION_163_URL = ''
 # defaults
 DEFAULT_EMBED_COLOR = '81C3FF'
 DEFAULT_PREFIX = 'b?'
-DEFAULT_PRESENCE_ACTION = 1
+DEFAULT_PRESENCE_ACTION = 'Watching'
 DEFAULT_PRESENCE_VALUE = 'humans interact'

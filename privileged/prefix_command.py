@@ -2,7 +2,8 @@ import discord
 from discord.commands import permissions, Option
 from discord.ext import commands
 
-from utils.const import GUILD_ID
+from utils.const import GUILD_ID, DEFAULT_PREFIX
+from utils.embeds import slash_embed
 from main import bot_db
 
 
@@ -23,11 +24,20 @@ class Prefix(commands.Cog):
         value: Option(
             str,
             name='prefix',
-            description='the prefix you want (Hex), or type "default" for the default prefix (b?)',
+            description='the prefix you want, or type "default" for the default prefix (b?)',
             required=True
         )
     ):
-        pass
+        if value.lower() == 'default':
+            value = DEFAULT_PREFIX
+        bot_db.update_prefix(ctx.guild.id, value)
+        return await slash_embed(
+            ctx,
+            ctx.author,
+            f'Set the prefix of this server to {value}',
+            'Prefix set',
+            bot_db.embed_color[ctx.guild.id]
+        )
 
 
 def setup(bot):

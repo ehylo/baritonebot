@@ -1,3 +1,4 @@
 py-cord
 python-dotenv
 psycopg2
+requests
