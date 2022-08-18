@@ -42,8 +42,6 @@ class ForwardButton(discord.ui.Button):
         super().__init__(emoji='▶️', style=discord.ButtonStyle.blurple, custom_id='settings_forward')
 
     async def callback(self, inter):
-        print(inter.message.interaction.data)
-        print(inter.message.interaction.data['options'])
         if self.view.old_message:
             return await slash_embed(
                 inter,
