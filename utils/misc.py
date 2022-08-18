@@ -47,7 +47,7 @@ def role_hierarchy(bot_db, guild_id, enforcer, offender):
 
 
 def get_unix(discord_id):
-    return (int(bin(discord_id)[2:][:-22], 2) + 1420070400000) // 1000
+    return int(bin(discord_id)[2:][:-22], 2) + 1420070400000
 
 
 async def get_user(bot, user_id):

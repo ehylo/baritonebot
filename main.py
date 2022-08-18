@@ -27,7 +27,7 @@ bot = commands.Bot(
 for folder_name in glob.glob('*/'):
     for file_name in glob.glob(folder_name + '/*'):
         if file_name.endswith('.py') and not file_name.startswith('utils'):
-            bot.load_extension(file_name[:-3].replace('\\', '.'), store=False)
+            bot.load_extension(file_name[:-3].replace('\\', '.').replace('/', '.'), store=False)
 
 
 @bot.event

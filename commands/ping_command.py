@@ -16,7 +16,7 @@ class RePing(discord.ui.View):
         await slash_embed(
             inter,
             inter.user,
-            title=f'Pong! 🏓 ({ms}ms)',
+            title=f'Pong! 🏓 ({abs(ms)}ms)',
             color=bot_db.embed_color[inter.guild.id],
             view=self,
             interaction=True
@@ -29,11 +29,11 @@ class Ping(commands.Cog):
 
     @discord.slash_command(name='ping', description='da ping command', guild_ids=[GUILD_ID])
     async def ping(self, ctx):
-        ms = get_unix(ctx.interaction.id) - round(time.time() * 1000)
+        ms = (get_unix(ctx.interaction.id)) - round(time.time() * 1000)
         await slash_embed(
             ctx,
             ctx.author,
-            title=f'Pong! 🏓 ({ms}ms)',
+            title=f'Pong! 🏓 ({abs(ms)}ms)',
             color=bot_db.embed_color[ctx.guild.id],
             view=RePing(timeout=None)
         )

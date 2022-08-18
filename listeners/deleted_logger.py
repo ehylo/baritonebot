@@ -15,7 +15,7 @@ class DeletedLogger(commands.Cog):
         if log_channel.id == payload.channel_id:
             return
         if payload.cached_message is None:
-            unix_time = get_unix(payload.message_id)
+            unix_time = get_unix(payload.message_id) // 1000
             embed_var = discord.Embed(
                 color=bot_db.embed_color[payload.guild_id],
                 description=f'Un-cached message deleted in <#{payload.channel_id}>, it was sent on <t:{unix_time}:F>'

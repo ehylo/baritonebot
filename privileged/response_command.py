@@ -63,7 +63,8 @@ class Response(commands.Cog):
                         )
                     except (discord.NotFound, discord.Forbidden, discord.errors.HTTPException):
                         pass
-                elif message.guild.get_role(bot_db.ignore_id[message.guild.id]) not in message.author.roles:
+                elif not role_check(message.author, responses.ignored_ids[index]) or \
+                        self.bot in message.mentions or message.content.startswith('!'):
                     view = discord.ui.View(timeout=None)
                     view.add_item(Trash())
                     if len(message.attachments) > 0:
