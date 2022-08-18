@@ -1,24 +1,19 @@
 import discord
 from discord.ext import commands
-from discord.commands import permissions, Option
+from discord.commands import Option
 
 from main import bot_db
 from utils import embeds
 from utils.const import GUILD_ID
-from utils.misc import role_hierarchy, get_user
+from utils.misc import role_hierarchy
 
 
 class Ban(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @discord.slash_command(
-        name='ban',
-        description='bans the specified member',
-        guild_ids=[GUILD_ID],
-        default_permissions=False
-    )
-    @permissions.has_any_role(*sum((bot_db.mod_ids | bot_db.admin_ids).values(), []))
+    @discord.slash_command(name='ban', description='bans the specified member', guild_ids=[GUILD_ID])
+    @discord.default_permissions(ban_members=True)
     async def ban(
         self,
         ctx,
@@ -28,10 +23,9 @@ class Ban(commands.Cog):
             name='days',
             description='# of days you want to purge messages from this member',
             choices=[0, 1, 2, 3, 4, 5, 6, 7],
-            required=True,
-            default=0
+            required=True
         ),
-        reason: Option(str, name='reason', description='The reason you are banning this member', required=True)
+        reason: Option(name='reason', description='The reason you are banning this member', required=True)
     ):
         if not role_hierarchy(bot_db, ctx.guild.id, enforcer=ctx.author, offender=offender):
             return await embeds.slash_embed(ctx, ctx.author, f'You don\'t outrank {offender.mention}')
@@ -63,20 +57,14 @@ class Ban(commands.Cog):
         )
         await offender.ban(reason=reason, delete_message_days=purge)
 
-    @discord.slash_command(
-        name='unban',
-        description='unbans the specified user',
-        guild_ids=[GUILD_ID],
-        default_permissions=False
-    )
-    @permissions.has_any_role(*sum((bot_db.mod_ids | bot_db.admin_ids).values(), []))
+    @discord.slash_command(name='unban', description='unbans the specified user', guild_ids=[GUILD_ID])
+    @discord.default_permissions(ban_members=True)
     async def unban(
         self,
         ctx,
-        user_id: Option(discord.User, name='user', description='User you want to unban', required=True)
+        user: Option(discord.User, name='user', description='User you want to unban', required=True)
     ):
         try:
-            user = await get_user(self.bot, user_id)
             await ctx.guild.unban(user)
             await embeds.slash_embed(
                 ctx,
@@ -88,16 +76,6 @@ class Ban(commands.Cog):
             )
         except discord.NotFound:
             return await embeds.slash_embed(ctx, ctx.author, 'That user is not banned', 'Not Found')
-
-    @discord.slash_command(
-        name='ban-list',
-        description='lists the current banned members',
-        guild_ids=[GUILD_ID],
-        default_permissions=False
-    )
-    @permissions.has_any_role(*sum((bot_db.helper_ids | bot_db.mod_ids | bot_db.admin_ids).values(), []))
-    async def ban_list(self, ctx):
-        pass
 
 
 def setup(bot):

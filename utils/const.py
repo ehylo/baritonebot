@@ -29,13 +29,11 @@ TIME_KEYS = {
 FOUR_WEEKS = 2419200
 RED_EMBED_COLOR = 16711680
 HOISTED_CHARS = ('!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/')
-VERSION_182_URL = ''
-VERSION_1215_URL = ''
-VERSION_172_URL = ''
-VERSION_163_URL = ''
+VERSION_183_URL = 'https://raw.githubusercontent.com/cabaletta/baritone/v1.8.3/src/api/java/baritone/api/Settings.java'
+VERSION_1215_URL = 'https://raw.githubusercontent.com/cabaletta/baritone/v1.2.15/src/api/java/baritone/api/Settings.java'
+VERSION_19_URL = 'https://raw.githubusercontent.com/wagyourtail/baritone/1.19/1.19.2/src/api/java/baritone/api/Settings.java'
 
 # defaults
 DEFAULT_EMBED_COLOR = '81C3FF'
-DEFAULT_PREFIX = 'b?'
 DEFAULT_PRESENCE_ACTION = 'Watching'
 DEFAULT_PRESENCE_VALUE = 'humans interact'

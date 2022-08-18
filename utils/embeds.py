@@ -26,11 +26,14 @@ async def slash_embed(
     color: int = RED_EMBED_COLOR,
     ephemeral: bool = True,
     view: discord.ui.View = None,
-    interaction: bool = False
+    interaction: bool = False,
+    interaction_response: bool = False
 ):
     embed_var = discord.Embed(color=color, title=title, description=description)
     embed_var.set_footer(text=f'{author.name} | ID: {author.id}', icon_url=author.avatar.url)
     if interaction:
         await ctx.response.edit_message(embed=embed_var, view=view)
+    elif interaction_response:
+        await ctx.response.send_message(embed=embed_var, ephemeral=ephemeral, view=view)
     else:
         await ctx.respond(embed=embed_var, ephemeral=ephemeral, view=view)

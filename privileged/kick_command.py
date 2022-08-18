@@ -1,5 +1,5 @@
 import discord
-from discord.commands import permissions, Option
+from discord.commands import Option
 from discord.ext import commands
 
 from utils.const import GUILD_ID
@@ -15,15 +15,14 @@ class Kick(commands.Cog):
     @discord.slash_command(
         name='kick',
         description='kicks the specified member',
-        guild_ids=[GUILD_ID],
-        default_permissions=False
+        guild_ids=[GUILD_ID]
     )
-    @permissions.has_any_role(*sum((bot_db.mod_ids | bot_db.admin_ids).values(), []))
+    @discord.default_permissions(ban_members=True)
     async def kick(
         self,
         ctx,
         offender: Option(discord.Member, name='member', description='Member you wish to kick', required=True),
-        reason: Option(str, name='reason', description='The reason you are kicking this member', required=True)
+        reason: Option(ame='reason', description='The reason you are kicking this member', required=True)
     ):
         if not role_hierarchy(bot_db, ctx.guild.id, enforcer=ctx.author, offender=offender):
             return await embeds.slash_embed(ctx, ctx.author, f'You don\'t outrank {offender.mention}')

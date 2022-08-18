@@ -1,32 +1,35 @@
-# TODO fix back and forward button code and test
-
 import discord
 from discord.ext import commands
 from discord.commands import Option
 
-
-from main import baritone_settings, bot_db
+import main
+from main import bot_db
 from utils import const
 from utils.embeds import slash_embed
 
 
 class BackwardButton(discord.ui.Button):
     def __init__(self):
-        super().__init__(emoji='◄', style=discord.ButtonStyle.blurple, custom_id='settings_back')
+        super().__init__(emoji='◀️', style=discord.ButtonStyle.blurple, custom_id='settings_back', disabled=True)
 
     async def callback(self, inter):
-        data = inter.message.interaction.data['data']['options']
-        version = data[0]['value']
-        term = data[1]['value']
-        old_page = 2
-        total_pages = len(baritone_settings.search(term, version))
-        if old_page - 1 == 1:
+        if self.view.old_message:
+            return await slash_embed(
+                inter,
+                inter.user,
+                'This message was sent before my current session so I cannot cycle between the pages',
+                'Search again',
+                interaction_response=True
+            )
+        self.view.current_page -= 1
+        self.view.children[1].disabled = False
+        pages = main.version_matcher[self.view.version].search(self.view.term)
+        if self.view.current_page == 0:
             self.disabled = True
         await slash_embed(
             ctx=inter,
             author=inter.user,
-            description=baritone_settings.search(term, version)[old_page - 2],
-            title=f'{old_page - 1}/{total_pages}',
+            description=pages[self.view.current_page],
             color=bot_db.embed_color[inter.guild.id],
             ephemeral=False,
             view=self.view,
@@ -34,32 +37,30 @@ class BackwardButton(discord.ui.Button):
         )
 
 
-class CurrentPage(discord.ui.Button):
-    def __init__(self, total_pages):
-        super().__init__(label='1/' + total_pages, style=discord.ButtonStyle.green, custom_id='current_page')
-
-    async def button_callback(self, button, inter):
-        # don't do anything, this is just visual
-        pass
-
-
 class ForwardButton(discord.ui.Button):
     def __init__(self):
-        super().__init__(emoji='►', style=discord.ButtonStyle.blurple, custom_id='settings_forward')
+        super().__init__(emoji='▶️', style=discord.ButtonStyle.blurple, custom_id='settings_forward')
 
-    async def button_callback(self, button, inter):
-        data = inter.message.interaction.data['data']['options']
-        version = data[0]['value']
-        term = data[1]['value']
-        old_page = 1
-        total_pages = len(baritone_settings.search(term, version))
-        if old_page + 1 == total_pages:
-            button.disabled = True
-        await slash_embed(
+    async def callback(self, inter):
+        print(inter.message.interaction.data)
+        print(inter.message.interaction.data['options'])
+        if self.view.old_message:
+            return await slash_embed(
+                inter,
+                inter.user,
+                'This message was sent before my current session so I cannot cycle between the pages',
+                'Search again',
+                interaction_response=True
+            )
+        self.view.current_page += 1
+        self.view.children[0].disabled = False
+        pages = main.version_matcher[self.view.version].search(self.view.term)
+        if self.view.current_page == len(pages) - 1:
+            self.disabled = True
+        return await slash_embed(
             ctx=inter,
             author=inter.user,
-            description=baritone_settings.search(term, version)[old_page],
-            title=f'{old_page + 1}/{total_pages}',
+            description=pages[self.view.current_page],
             color=bot_db.embed_color[inter.guild.id],
             ephemeral=False,
             view=self.view,
@@ -71,21 +72,27 @@ class BaritoneSettings(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.Cog.listener()
+    async def on_ready(self):
+        view = discord.ui.View(timeout=None)
+        view.old_message = True
+        view.add_item(BackwardButton())
+        view.add_item(ForwardButton())
+        self.bot.add_view(view)
+
     @discord.slash_command(name='settings', description='finds baritone settings', guild_ids=[const.GUILD_ID])
     async def setting_searcher(
         self,
         ctx,
         version: Option(
-            str,
-            name='baritone version',
+            name='version',
             description='the baritone version you want to find settings for',
-            choices=['1.2.15', '1.6.3', '1.7.2', '1.8.2'],
-            default='1.2.15',
+            choices=['1.2.15', '1.8.3', '1.9'],
             required=True
         ),
-        term: Option(str, name='search term', description='The term you want to search for', required=True)
+        term: Option(name='term', description='The term you want to search for', required=True)
     ):
-        content = baritone_settings.search(term, version)
+        content = main.version_matcher[version].search(term)
         if content == ['']:
             return await slash_embed(
                 ctx,
@@ -103,8 +110,11 @@ class BaritoneSettings(commands.Cog):
                 ephemeral=False
             )
         view = discord.ui.View(timeout=None)
+        view.term = term
+        view.version = version
+        view.old_message = False
+        view.current_page = 0
         view.add_item(BackwardButton())
-        view.add_item(CurrentPage(len(content)))
         view.add_item(ForwardButton())
         return await slash_embed(
             ctx,

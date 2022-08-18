@@ -56,7 +56,6 @@ class Releases(commands.Cog):
         self,
         ctx,
         action: Option(
-            str,
             name='action',
             description='Add or remove the releases role',
             choices=['Add', 'Remove'],

@@ -56,7 +56,6 @@ class Ignored(commands.Cog):
         self,
         ctx,
         action: Option(
-            str,
             name='action',
             description='Add or remove the ignored role',
             choices=['Add', 'Remove'],

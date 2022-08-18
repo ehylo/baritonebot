@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from discord.commands import permissions, Option
+from discord.commands import Option
 
 from utils.const import GUILD_ID
 from utils.embeds import slash_embed
@@ -69,15 +69,13 @@ class Exempt(commands.Cog):
     @discord.slash_command(
         name='exempt',
         description='exempts a channel from logging',
-        guild_ids=[GUILD_ID],
-        default_permissions=False
+        guild_ids=[GUILD_ID]
     )
-    @permissions.has_any_role(*sum(bot_db.admin_ids.values(), []))
+    @discord.default_permissions(administrator=True)
     async def exempt(
         self,
         ctx,
         action: Option(
-            str,
             name='action',
             description='Add or remove a channel from the exempt list',
             choices=['Add', 'Remove'],
@@ -93,7 +91,7 @@ class Exempt(commands.Cog):
         if action == 'Add':
             if channel.id in bot_db.exempted_ids[ctx.guild.id]:
                 return await slash_embed(ctx, ctx.author, 'That channel is exempted already')
-            bot_db.update_exempted_ids(ctx.guild.id, bot_db.exempted_ids[ctx.guild.id] + [channel.id])
+            bot_db.update_exempted_ids(ctx.guild, bot_db.exempted_ids[ctx.guild.id] + [channel.id])
             await slash_embed(
                 ctx,
                 ctx.author,
@@ -107,7 +105,7 @@ class Exempt(commands.Cog):
                 return await slash_embed(ctx, ctx.author, 'That channel isn\'t exempted')
             exempt_list = bot_db.exempted_ids[ctx.guild.id]
             exempt_list.remove(channel.id)
-            bot_db.update_exempted_ids(ctx.guild.id, exempt_list)
+            bot_db.update_exempted_ids(ctx.guild, exempt_list)
             await slash_embed(
                 ctx,
                 ctx.author,
@@ -120,15 +118,13 @@ class Exempt(commands.Cog):
     @discord.slash_command(
         name='exempt-list',
         description='lists the exempted/un-exempted channels',
-        guild_ids=[GUILD_ID],
-        default_permissions=False
+        guild_ids=[GUILD_ID]
     )
-    @permissions.has_any_role(*sum(bot_db.admin_ids.values(), []))
+    @discord.default_permissions(administrator=True)
     async def exempt_list(
         self,
         ctx,
         action: Option(
-            str,
             name='option',
             description='List the exempted or un-exempted channels',
             choices=['Exempted', 'Un-Exempted'],

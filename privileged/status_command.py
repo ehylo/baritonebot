@@ -1,5 +1,5 @@
 import discord
-from discord.commands import permissions, Option
+from discord.commands import Option
 from discord.ext import commands
 
 from utils import const
@@ -14,23 +14,19 @@ class Status(commands.Cog):
     @discord.slash_command(
         name='status',
         description='set the bot\'s status',
-        guild_ids=[const.GUILD_ID],
-        default_permissions=False
+        guild_ids=[const.GUILD_ID]
     )
-    @permissions.has_any_role(*sum((bot_db.mod_ids | bot_db.admin_ids).values(), []))
+    @discord.default_permissions(ban_members=True)
     async def status(
         self,
         ctx,
         action: Option(
-            str,
-            name='presence action',
+            name='action',
             description='the action you want the bot todo',
             choices=['Watching', 'Playing', 'Listening to', 'Competing in'],
-            default=const.DEFAULT_PRESENCE_ACTION,
             required=True
         ),
         value: Option(
-            str,
             name='status',
             description='the status you want, or type "default" for the default status ("humans interact")',
             required=True
@@ -38,7 +34,7 @@ class Status(commands.Cog):
     ):
         if value.lower() == 'default':
             value = const.DEFAULT_PRESENCE_VALUE
-        bot_db.update_presence_value(ctx.guild.id, value)
+        bot_db.update_presence_value(value)
         bot_db.update_presence_action(action)
         await self.bot.change_presence(
             activity=discord.Activity(

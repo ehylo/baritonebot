@@ -1,5 +1,7 @@
+import re
+
 import discord
-from discord.commands import permissions, Option
+from discord.commands import Option
 from discord.ext import commands
 
 from utils.embeds import slash_embed
@@ -14,15 +16,13 @@ class EmbedColor(commands.Cog):
     @discord.slash_command(
         name='embed-color',
         description='set the bot\'s embed color for this server',
-        guild_ids=[GUILD_ID],
-        default_permissions=False
+        guild_ids=[GUILD_ID]
     )
-    @permissions.has_any_role(*sum((bot_db.mod_ids | bot_db.admin_ids).values(), []))
+    @discord.default_permissions(ban_members=True)
     async def embed_color(
         self,
         ctx,
         value: Option(
-            str,
             name='color',
             description='the color you want (Hex), or type "default" for the default color (81C3FF)',
             required=True
@@ -30,9 +30,13 @@ class EmbedColor(commands.Cog):
     ):
         if value.lower() == 'default':
             value = DEFAULT_EMBED_COLOR
-        if len(value) != 6:
-            return await slash_embed(ctx, ctx.author, f'Hex codes are 6 char. long, yours is {len(value)} char. long')
-        bot_db.update_embed_color(ctx.guild.id, value)
+        if not re.search(r'^#[A-Fa-f\d]{6}|[A-Fa-f\d]{3}$', '#' + value):
+            return await slash_embed(
+                ctx,
+                ctx.author,
+                r'That is not a valid hex-code, it **must** match this regex: `^#[A-Fa-f\d]{6}|[A-Fa-f\d]{3}$`'
+            )
+        bot_db.update_embed_color(ctx.guild, value)
         return await slash_embed(
             ctx,
             ctx.author,

@@ -14,10 +14,10 @@ class Errors(commands.Cog):
         print(exception)
 
     @commands.Cog.listener()
-    async def on_application_command_error(self, _ctx, error):
+    async def on_application_command_error(self, ctx, error):
         exception = '\n'.join(traceback.format_exception(type(error), error, error.__traceback__))
-        exception = f'```py\n{exception}```'
         print(exception)
+        await ctx.respond('```py\n' + exception[:1990] + '```')
 
 
 def setup(bot):

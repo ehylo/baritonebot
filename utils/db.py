@@ -1,6 +1,8 @@
 import psycopg2
+import discord
 
 from utils.const import DATABASE_URL, DEFAULT_PRESENCE_VALUE, DEFAULT_PRESENCE_ACTION
+from utils.responses import Responses
 
 
 class DB:
@@ -15,39 +17,51 @@ class DB:
         self.presence_action = DEFAULT_PRESENCE_ACTION
         self.presence_value = DEFAULT_PRESENCE_VALUE
 
-        # guild variables
-        self.cur.execute('SELECT guild_id, prefix FROM v2guilds')
-        self.prefix = dict(self.cur.fetchall())
-        self.cur.execute('SELECT guild_id, embed_color FROM v2guilds')
-        self.embed_color = dict([(x, int(str(y), 16)) for (x, y) in self.cur.fetchall()])
+        self.cur.execute('UPDATE v2guilds SET rules_titles[1] = %s WHERE guild_id = %s', ('Moderators have the final say', 822011099561197579))
+        self.db.commit()
+
         self.cur.execute('SELECT guild_id, cringe_list FROM v2guilds')
         self.cringe_list = dict(self.cur.fetchall())
+        self.cur.execute('SELECT guild_id, embed_color FROM v2guilds')
+        self.embed_color = dict([(x, int(str(y), 16)) for (x, y) in self.cur.fetchall()])
         self.cur.execute('SELECT guild_id, exempt_ids FROM v2guilds')
         self.exempted_ids = dict(self.cur.fetchall())
+        self.cur.execute('SELECT guild_id, mutes FROM v2guilds')
+        self.mutes = dict(self.cur.fetchall())
+        self.cur.execute('SELECT guild_id, rules_titles FROM v2guilds')
+        self.rules_titles = dict(self.cur.fetchall())
+        self.cur.execute('SELECT guild_id, rules_descriptions FROM v2guilds')
+        self.rules_descriptions = dict(self.cur.fetchall())
 
-        # channel variables
-        self.cur.execute('SELECT guild_id, logs_id FROM v2channels')
-        self.logs_id = dict(self.cur.fetchall())
-        self.cur.execute('SELECT guild_id, mod_logs_id FROM v2channels')
-        self.mod_logs_id = dict(self.cur.fetchall())
+        self.cur.execute('SELECT guild_id, title FROM v2responses')
+        self.universal_response_titles = dict(self.cur.fetchall())
+        self.cur.execute('SELECT guild_id, description FROM v2responses')
+        self.universal_response_descriptions = dict(self.cur.fetchall())
+        self.cur.execute('SELECT guild_id, regex FROM v2responses')
+        self.universal_response_regexes = dict(self.cur.fetchall())
+        self.cur.execute('SELECT guild_id, delete_message FROM v2responses')
+        self.universal_response_deletes = dict(self.cur.fetchall())
+        self.cur.execute('SELECT guild_id, ignored_ids FROM v2responses')
+        self.universal_response_ignored_ids = dict(self.cur.fetchall())
 
-        # role variables
-        self.cur.execute('SELECT guild_id, voice_id FROM v2roles')
+        self.cur.execute('SELECT guild_id, voice_id FROM v2constants')
         self.voice_id = dict(self.cur.fetchall())
-        self.cur.execute('SELECT guild_id, release_id FROM v2roles')
+        self.cur.execute('SELECT guild_id, release_id FROM v2constants')
         self.release_id = dict(self.cur.fetchall())
-        self.cur.execute('SELECT guild_id, ignore_id FROM v2roles')
+        self.cur.execute('SELECT guild_id, ignored_id FROM v2constants')
         self.ignore_id = dict(self.cur.fetchall())
-        self.cur.execute('SELECT guild_id, helper_ids FROM v2roles')
+        self.cur.execute('SELECT guild_id, muted_id FROM v2constants')
+        self.muted_id = dict(self.cur.fetchall())
+        self.cur.execute('SELECT guild_id, helper_ids FROM v2constants')
         self.helper_ids = dict(self.cur.fetchall())
-        self.cur.execute('SELECT guild_id, mod_ids FROM v2roles')
+        self.cur.execute('SELECT guild_id, mod_ids FROM v2constants')
         self.mod_ids = dict(self.cur.fetchall())
-        self.cur.execute('SELECT guild_id, admin_ids FROM v2roles')
+        self.cur.execute('SELECT guild_id, admin_ids FROM v2constants')
         self.admin_ids = dict(self.cur.fetchall())
-
-        # response variables
-        self.cur.execute('SELECT guild_id, title, description, regex, delete_message, ignored_roles FROM v2responses')
-        self.response = dict(self.cur.fetchall())
+        self.cur.execute('SELECT guild_id, logs_id FROM v2constants')
+        self.logs_id = dict(self.cur.fetchall())
+        self.cur.execute('SELECT guild_id, mod_logs_id FROM v2constants')
+        self.mod_logs_id = dict(self.cur.fetchall())
 
     def update_bot_id(self, bot_id):
         self.bot_id = bot_id
@@ -66,62 +80,100 @@ class DB:
         self.db.commit()
         self.presence_value = presence_value
 
-    def update_prefix(self, guild_id: int = None, prefix: str = None):
-        self.cur.execute('UPDATE v2guilds SET prefix = %s WHERE guild_id = %s', (prefix, guild_id))
+    def update_embed_color(self, guild: discord.Guild = None, embed_color: str = None):
+        self.cur.execute('UPDATE v2guilds SET embed_color = %s WHERE guild_id = %s', (embed_color, guild.id))
         self.db.commit()
-        self.prefix[guild_id] = prefix
+        self.embed_color[guild.id] = int(str(embed_color), 16)
 
-    def update_embed_color(self, guild_id: int = None, embed_color: str = None):
-        self.cur.execute('UPDATE v2guilds SET embed_color = %s WHERE guild_id = %s', (embed_color, guild_id))
+    def update_cringe_list(self, guild: discord.Guild = None, cringe_list: list[str] = None):
+        self.cur.execute('UPDATE v2guilds SET cringe_list = %s WHERE guild_id = %s', (cringe_list, guild.id))
         self.db.commit()
-        self.embed_color[guild_id] = int(str(embed_color), 16)
+        self.cringe_list[guild.id] = cringe_list
 
-    def update_cringe_list(self, guild_id: int = None, cringe_list: list[str] = None):
-        self.cur.execute('UPDATE v2guilds SET cringe_list = %s WHERE guild_id = %s', (cringe_list, guild_id))
+    def update_exempted_ids(self, guild: discord.Guild = None, exempted_ids: list[int] = None):
+        self.cur.execute('UPDATE v2guilds SET exempt_ids = %s WHERE guild_id = %s', (exempted_ids, guild.id))
         self.db.commit()
-        self.cringe_list[guild_id] = cringe_list
+        self.exempted_ids[guild.id] = exempted_ids
 
-    def update_exempted_ids(self, guild_id: int = None, exempted_ids: list[int] = None):
-        self.cur.execute('UPDATE v2guilds SET exempt_ids = %s WHERE guild_id = %s', (exempted_ids, guild_id))
+    def update_mutes(self, guild: discord.Guild = None, mutes: list[int] = None):
+        self.cur.execute('UPDATE v2guilds SET mutes = %s WHERE guild_id = %s', (mutes, guild.id))
         self.db.commit()
-        self.exempted_ids[guild_id] = exempted_ids
+        self.mutes[guild.id] = mutes
 
-    def update_logs_id(self, guild_id: int = None, logs_id: int = None):
-        self.cur.execute('UPDATE v2channels SET logs_id = %s WHERE guild_id = %s', (logs_id, guild_id))
+    def update_rules_titles(self, guild: discord.Guild = None, rules_titles: list[str] = None):
+        self.cur.execute('UPDATE v2guilds SET mutes = %s WHERE guild_id = %s', (rules_titles, guild.id))
         self.db.commit()
-        self.logs_id[guild_id] = logs_id
+        self.rules_titles[guild.id] = rules_titles
 
-    def update_mod_logs_id(self, guild_id: int = None, mod_logs_id: int = None):
-        self.cur.execute('UPDATE v2channels SET mod_logs_id = %s WHERE guild_id = %s', (mod_logs_id, guild_id))
+    def update_rules_descriptions(self, guild: discord.Guild = None, rules_descriptions: list[str] = None):
+        self.cur.execute('UPDATE v2guilds SET mutes = %s WHERE guild_id = %s', (rules_descriptions, guild.id))
         self.db.commit()
-        self.mod_logs_id[guild_id] = mod_logs_id
+        self.rules_descriptions[guild.id] = rules_descriptions
 
-    def update_voice_id(self, guild_id: int = None, voice_id: int = None):
-        self.cur.execute('UPDATE v2roles SET voice_id = %s WHERE guild_id = %s', (voice_id, guild_id))
+    def update_responses(self, guild: discord.Guild = None, guild_responses: Responses = None):
+        self.cur.execute(
+            'UPDATE v2responses '
+            'SET title = %s, description = %s, regex = %s, delete_message = %s, ignored_ids = %s '
+            'WHERE guild_id = %s',
+            (
+                guild_responses.titles,
+                guild_responses.descriptions,
+                guild_responses.regexes,
+                guild_responses.deletes,
+                guild_responses.ignored_ids,
+                guild.id
+            )
+        )
         self.db.commit()
-        self.voice_id[guild_id] = voice_id
+        self.universal_response_titles[guild.id] = guild_responses.titles
+        self.universal_response_descriptions[guild.id] = guild_responses.descriptions
+        self.universal_response_regexes[guild.id] = guild_responses.regexes
+        self.universal_response_deletes[guild.id] = guild_responses.deletes
+        self.universal_response_ignored_ids[guild.id] = guild_responses.ignored_ids
 
-    def update_release_id(self, guild_id: int = None, release_id: int = None):
-        self.cur.execute('UPDATE v2roles SET release_id = %s WHERE guild_id = %s', (release_id, guild_id))
-        self.db.commit()
-        self.release_id[guild_id] = release_id
+    # unused so far
 
-    def update_ignore_id(self, guild_id: int = None, ignore_id: int = None):
-        self.cur.execute('UPDATE v2roles SET ignore_id = %s WHERE guild_id = %s', (ignore_id, guild_id))
+    def update_voice_id(self, guild: discord.Guild = None, voice_id: int = None):
+        self.cur.execute('UPDATE v2constants SET voice_id = %s WHERE guild_id = %s', (voice_id, guild.id))
         self.db.commit()
-        self.ignore_id[guild_id] = ignore_id
+        self.voice_id[guild.id] = voice_id
 
-    def update_helper_ids(self, guild_id: int = None, helper_ids: list[int] = None):
-        self.cur.execute('UPDATE v2roles SET helper_ids = %s WHERE guild_id = %s', (helper_ids, guild_id))
+    def update_release_id(self, guild: discord.Guild = None, release_id: int = None):
+        self.cur.execute('UPDATE v2constants SET release_id = %s WHERE guild_id = %s', (release_id, guild.id))
         self.db.commit()
-        self.helper_ids[guild_id] = helper_ids
+        self.release_id[guild.id] = release_id
 
-    def update_mod_ids(self, guild_id: int = None, mod_ids: list[int] = None):
-        self.cur.execute('UPDATE v2roles SET mod_ids = %s WHERE guild_id = %s', (mod_ids, guild_id))
+    def update_ignore_id(self, guild: discord.Guild = None, ignore_id: int = None):
+        self.cur.execute('UPDATE v2constants SET ignored_id = %s WHERE guild_id = %s', (ignore_id, guild.id))
         self.db.commit()
-        self.mod_ids[guild_id] = mod_ids
+        self.ignore_id[guild.id] = ignore_id
 
-    def update_admin_ids(self, guild_id: int = None, admin_ids: list[int] = None):
-        self.cur.execute('UPDATE v2roles SET admin_ids = %s WHERE guild_id = %s', (admin_ids, guild_id))
+    def update_muted_id(self, guild: discord.Guild = None, muted_id: int = None):
+        self.cur.execute('UPDATE v2constants SET muted_id = %s WHERE guild_id = %s', (muted_id, guild.id))
         self.db.commit()
-        self.admin_ids[guild_id] = admin_ids
+        self.muted_id[guild.id] = muted_id
+
+    def update_helper_ids(self, guild: discord.Guild = None, helper_ids: list[int] = None):
+        self.cur.execute('UPDATE v2constants SET helper_ids = %s WHERE guild_id = %s', (helper_ids, guild.id))
+        self.db.commit()
+        self.helper_ids[guild.id] = helper_ids
+
+    def update_mod_ids(self, guild: discord.Guild = None, mod_ids: list[int] = None):
+        self.cur.execute('UPDATE v2constants SET mod_ids = %s WHERE guild_id = %s', (mod_ids, guild.id))
+        self.db.commit()
+        self.mod_ids[guild.id] = mod_ids
+
+    def update_admin_ids(self, guild: discord.Guild = None, admin_ids: list[int] = None):
+        self.cur.execute('UPDATE v2constants SET admin_ids = %s WHERE guild_id = %s', (admin_ids, guild.id))
+        self.db.commit()
+        self.admin_ids[guild.id] = admin_ids
+
+    def update_logs_id(self, guild: discord.Guild = None, logs_id: int = None):
+        self.cur.execute('UPDATE v2constants SET logs_id = %s WHERE guild_id = %s', (logs_id, guild.id))
+        self.db.commit()
+        self.logs_id[guild.id] = logs_id
+
+    def update_mod_logs_id(self, guild: discord.Guild = None, mod_logs_id: int = None):
+        self.cur.execute('UPDATE v2constants SET mod_logs_id = %s WHERE guild_id = %s', (mod_logs_id, guild.id))
+        self.db.commit()
+        self.mod_logs_id[guild.id] = mod_logs_id

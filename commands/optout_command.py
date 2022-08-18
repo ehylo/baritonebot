@@ -18,7 +18,6 @@ class OptOut(commands.Cog):
         self,
         ctx,
         confirm: Option(
-            str,
             name='confirmation',
             description='Type "I am sure" to confirm you want to ban yourself, this cannot be undone',
             required=True
@@ -28,7 +27,8 @@ class OptOut(commands.Cog):
             return await embeds.slash_embed(
                 ctx,
                 ctx.author,
-                'You will be **banned from this server** and **lose all your roles** by continuing. If you are sure this is what you desire, confirm with "I am sure".'
+                'You will be **banned from this server** and **lose all your roles** by continuing. '
+                'If you are sure this is what you desire, confirm with "I am sure".'
             )
         await embeds.slash_embed(
             ctx,

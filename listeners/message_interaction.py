@@ -1,4 +1,5 @@
 import requests
+import json
 
 import discord
 from discord.ext import commands
@@ -33,8 +34,8 @@ class MessageInteraction(commands.Cog):
     @discord.message_command(name='embed json', guild_ids=[GUILD_ID])
     async def embed_json(self, ctx, message):
         if len(message.embeds) < 1:
-            return slash_embed(ctx, ctx.author, 'There are no embeds on the message you selected', 'No embeds')
-        embed_list = list(embed.to_dict() for embed in message.embeds)
+            return await slash_embed(ctx, ctx.author, 'There are no embeds on the message you selected', 'No embeds')
+        embed_list = '\n'.join(list(json.dumps(embed.to_dict(), indent=4) for embed in message.embeds))
         await slash_embed(ctx, ctx.author, f'```{embed_list}```', 'Embed Json', bot_db.embed_color[ctx.guild.id])
 
     @discord.message_command(name='member-info', guild_ids=[GUILD_ID])

@@ -1,4 +1,5 @@
-py-cord
+py-cord==2.0.1
 python-dotenv
 psycopg2
 requests
+PyGithub

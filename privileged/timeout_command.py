@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 import discord
-from discord.commands import permissions, Option
+from discord.commands import Option
 from discord.ext import commands
 
 from main import bot_db
@@ -17,16 +17,14 @@ class TimeOut(commands.Cog):
     @discord.slash_command(
         name='timeout',
         description='timeouts the specified member for the specified amount of time',
-        guild_ids=[GUILD_ID],
-        default_permissions=False
+        guild_ids=[GUILD_ID]
     )
-    @permissions.has_any_role(*sum((bot_db.helper_ids | bot_db.mod_ids | bot_db.admin_ids).values(), []))
+    @discord.default_permissions(view_audit_log=True)
     async def time_out(
         self,
         ctx,
         offender: Option(discord.Member, name='member', description='Member you wish to timeout', required=True),
         time_unit: Option(
-            str,
             name='units',
             description='unit of time',
             choices=['Seconds', 'Minutes', 'Hours', 'Days', 'Weeks'],
@@ -39,7 +37,7 @@ class TimeOut(commands.Cog):
             required=True,
             min_value=1
         ),
-        reason: Option(str, name='reason', description='The reason you are timing out this member', required=True)
+        reason: Option(name='reason', description='The reason you are timing out this member', required=True)
     ):
         time_text = f'{time_duration} {time_unit.lower()}'
         if TIME_KEYS[time_unit] * time_duration > FOUR_WEEKS:
@@ -76,10 +74,9 @@ class TimeOut(commands.Cog):
     @discord.slash_command(
         name='un-timeout',
         description='removes the timeout on the specified member',
-        guild_ids=[GUILD_ID],
-        default_permissions=False
+        guild_ids=[GUILD_ID]
     )
-    @permissions.has_any_role(*sum((bot_db.helper_ids | bot_db.mod_ids | bot_db.admin_ids).values(), []))
+    @discord.default_permissions(view_audit_log=True)
     async def un_time_out(
         self,
         ctx,
@@ -87,26 +84,17 @@ class TimeOut(commands.Cog):
     ):
         if not role_hierarchy(bot_db, ctx.guild.id, enforcer=ctx.author, offender=offender):
             return await embeds.slash_embed(ctx, ctx.author, f'You don\'t outrank {offender.mention}')
-        if offender.timed_out is None:
+        if not offender.timed_out:
             return await embeds.slash_embed(ctx, ctx.author, f'{offender.mention} is not timed out.')
         await offender.timeout(None)
         await embeds.slash_embed(
             ctx,
             ctx.author,
-            f'{offender.mention} has been un-timed-out', 'Member Un-Timed-Out',
+            f'{offender.mention} has been un-timed-out',
+            'Member Un-Timed-Out',
             bot_db.embed_color[ctx.guild.id],
             False
         )
-
-    @discord.slash_command(
-        name='timeout-list',
-        description='lists the current timed-out members',
-        guild_ids=[GUILD_ID],
-        default_permissions=False
-    )
-    @permissions.has_any_role(*sum((bot_db.helper_ids | bot_db.mod_ids | bot_db.admin_ids).values(), []))
-    async def timeout_list(self, ctx):
-        pass
 
 
 def setup(bot):
