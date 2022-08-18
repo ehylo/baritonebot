@@ -1,23 +1,28 @@
 # Baritone Discord Bot
-The bot for the Baritone discord, made in python cause that's all I know.
+The bot for the Baritone discord, made in python because you can type fast.
 
-Please submit prs cause this is probably really poorly made. (see [help.py](cogs/help.py) for all commands)
-
-Links to [Baritone discord invite](https://discord.gg/s6fRBAUpmr) and [Main Baritone repo](https://github.com/cabaletta/baritone)
+Links: 
+*   [Baritone discord invite](https://discord.gg/s6fRBAUpmr)
+*   [Main Baritone repo](https://github.com/cabaletta/baritone)
 ## Things to-do
-*   support gifs in emote command
-*   Add more options to the embed command (field, footer, author, image, etc.) also be able to edit it
-*   Add some commands to change the roles/channels, preped for this by storing the ids in a db instead of hard coded
-*   Add subrules to the rule command (like b?rule 4a)
-*   For the info command, store the information in a db and when the command is used, show that info and AFTER, update the db to the new info, so it loads a lot faster
-*   Redo everything to have buttons/slash commands
-*   re-arange the files so it looks more organized
-*   Add time to ban, not sure how this is going to work with purge/time that's why I skipped adding it for now
-*   check for tokens, disable the function if it does not exist
-*   go to all the reaction waiting parts and change to make them use while loops so a wrong reaction doesn't break it
+*   Add an `on_error` listener to all buttons
+*   Create an extension command to allow me to control extensions to fix them
+*   Find out how to catch the rare cursor db problem and deal with it
+*   Add logging to everything, currently there is none
+*   Make the response list command have pages so the embed limit isn't reached with lots of responses
+*   For the ban command add the ability to set a time, so it can be a temporary ban
+*   Be able to edit the rules with a rule edit command
+*   Have the bot control the rules embed and match the rules
+*   Ability to change the channel and role ids, currently just manually in the db
+*   Make the main db hold objects not ids, might be limited with what I can do but try to do roles/channels
+*   Make the db create tables and a default db if nothing is there, allows others besides me to test things
+*   Add comment stuff to the GitHub commands
+*   Edit-embed command to edit embeds the bot sent (besides the rules)
+*   Banner and accent color could be added to the info command, just need to deal with people who don't have those
+*   Make the help command much better, pages for the different levels of commands, and descriptions with what each does
 ## How to run
 Requires:
-*   [Python 3.9](https://www.python.org/downloads/)
+*   [Python 3.10.1](https://www.python.org/downloads/)
 *   [Pip](https://pip.pypa.io/en/stable/installing/)
 *   [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 *   [PostgreSQL database](https://www.postgresql.org/download/)
@@ -28,12 +33,13 @@ git clone https://github.com/Flurrrr/baritonebot.git
 cd baritonebot
 pip install -r requirements.txt
 ```
-Then, make a `.env` file and add the variables, make sure to add the tokens/url aswell:
+Then, make a `.env` file and add these variables:
 ```dotenv
-DATABASE_URL =
-paste_token =
-discord_token =
-github_token = 
+DATABASE_URL=
+GUILD_ID=
+DISCORD_TOKEN=
+PASTE_TOKEN=
+GITHUB_TOKEN=
 ```
 Finally, start the bot:
 ```bash

@@ -1,6 +1,5 @@
-discord.py
+py-cord==2.0.1
 python-dotenv
-Pillow
-requests
 psycopg2
+requests
 PyGithub
