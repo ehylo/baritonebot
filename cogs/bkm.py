@@ -13,20 +13,20 @@ def role_hierarchy(punisher, against):
         punisher_roles.append(role.id)
     for role in against.roles:
         against_roles.append(role.id)
-    if any(i in [main.ids(8), main.ids(10), main.ids(7)] for i in against_roles) is True:  # checks if the against person has dev/admin/bypassed
+    if any(i in [main.ids(8), main.ids(10), main.ids(7)] for i in against_roles):  # checks if the against person has dev/admin/bypassed
         return False
     if main.ids(9) in against_roles:  # checks if the against person has mod
-        if any(i in [main.ids(8), main.ids(10), main.ids(7)] for i in punisher_roles) is True:
+        if any(i in [main.ids(8), main.ids(10), main.ids(7)] for i in punisher_roles):
             return True
     elif main.ids(6) in against_roles:  # checks if the against person has helper
-        if any(i in [main.ids(8), main.ids(10), main.ids(7), main.ids(9)] for i in punisher_roles) is True:
+        if any(i in [main.ids(8), main.ids(10), main.ids(7), main.ids(9)] for i in punisher_roles):
             return True
     else:
-        return True if any(i in [main.ids(8), main.ids(10), main.ids(7), main.ids(9), main.ids(6)] for i in punisher_roles) is True else False
+        return True if any(i in [main.ids(8), main.ids(10), main.ids(7), main.ids(9), main.ids(6)] for i in punisher_roles) else False
 
 
 time_regex = re.compile(r'^(\d+)([a-z])$')
-time_dict = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800, "y": 31536000}
+time_dict = {'s': 1, 'm': 60, 'h': 3600, "d": 86400, 'w': 604800, 'y': 31536000}
 
 
 class TimeConverter(commands.Converter):
@@ -60,7 +60,7 @@ class Bkm(commands.Cog):
             await self.bot.get_guild(main.ids(1)).unban(user)
             await main.channel_embed(ctx, 'User Unbanned', f'{user.mention} has been unbanned')
             print(f'{ctx.author.id} unbanned {user.id}')
-            channel = await self.bot.fetch_channel(main.ids(5))
+            channel = self.bot.get_channel(main.ids(5))
             await main.log_embed(ctx, 'User Unbanned', f'{user.mention} has been unbanned', channel, user)
         except discord.NotFound:
             await main.error_embed(ctx, 'That user is not banned')
@@ -71,8 +71,8 @@ class Bkm(commands.Cog):
         if user is None:
             return await Help.unmute(self, ctx)
         try:
-            saver = await self.bot.get_guild(main.ids(1)).fetch_member(ctx.author.id)
-            unmuted_user = await self.bot.get_guild(main.ids(1)).fetch_member(user.id)
+            saver = self.bot.get_guild(main.ids(1)).get_member(ctx.author.id)
+            unmuted_user = self.bot.get_guild(main.ids(1)).get_member(user.id)
             if role_hierarchy(saver, unmuted_user) is not True:
                 return await main.error_embed(ctx, f'You don\'t outrank {unmuted_user.mention}')
             if self.bot.get_guild(main.ids(1)).get_role(main.ids(12)) not in unmuted_user.roles:
@@ -85,7 +85,7 @@ class Bkm(commands.Cog):
             except (discord.Forbidden, discord.errors.HTTPException):
                 pass
             print(f'{ctx.author.id} unmuted {unmuted_user.id}')
-            channel = await self.bot.fetch_channel(main.ids(5))
+            channel = self.bot.get_channel(main.ids(5))
             await main.log_embed(ctx, 'User Unmuted', f'{unmuted_user.mention} has been unmuted', channel, unmuted_user)
             main.cur.execute('DELETE FROM rekt WHERE user_id=%s', (user.id,))
             main.db.commit()
@@ -100,8 +100,8 @@ class Bkm(commands.Cog):
         if (do_purge is None) or ((do_purge.lower() == 'purge') and (reason is None)):
             return await main.error_embed(ctx, 'You need to give a reason')
         try:
-            punisher = await self.bot.get_guild(main.ids(1)).fetch_member(ctx.author.id)
-            banned_user = await self.bot.get_guild(main.ids(1)).fetch_member(user.id)
+            punisher = self.bot.get_guild(main.ids(1)).get_member(ctx.author.id)
+            banned_user = self.bot.get_guild(main.ids(1)).get_member(user.id)
             if role_hierarchy(punisher, banned_user) is not True:
                 return await main.error_embed(ctx, f'You don\'t outrank {banned_user.mention}')
             reason = '' if reason is None else reason
@@ -113,7 +113,7 @@ class Bkm(commands.Cog):
             except (discord.Forbidden, discord.errors.HTTPException):
                 pass
             print(f'{ctx.author.id} banned {banned_user.id} for reason: {ban_reason}')
-            channel = await self.bot.fetch_channel(main.ids(5))
+            channel = self.bot.get_channel(main.ids(5))
             await main.log_embed(ctx, 'Member Banned', f'{banned_user.mention} has been banned for reason: ```{ban_reason}```', channel, banned_user)
             purge_days = 7 if do_purge.lower() == 'purge' else 0
             await banned_user.ban(reason=ban_reason, delete_message_days=purge_days)
@@ -128,8 +128,8 @@ class Bkm(commands.Cog):
         if mute_time is None:
             return await main.error_embed(ctx, 'You need to give a reason or time')
         try:
-            punisher = await self.bot.get_guild(main.ids(1)).fetch_member(ctx.author.id)
-            muted_user = await self.bot.get_guild(main.ids(1)).fetch_member(user.id)
+            punisher = self.bot.get_guild(main.ids(1)).get_member(ctx.author.id)
+            muted_user = self.bot.get_guild(main.ids(1)).get_member(user.id)
             if role_hierarchy(punisher, muted_user) is not True:  # check if they have the correct roles
                 return await main.error_embed(ctx, f'You don\'t outrank {muted_user.mention}')
             if self.bot.get_guild(main.ids(1)).get_role(main.ids(12)) in muted_user.roles:  # check if they are already muted
@@ -138,7 +138,7 @@ class Bkm(commands.Cog):
                 return await main.error_embed(ctx, 'Only use `s`(seconds), `m`(minutes), `h`(hours), `d`(days), `w`(weeks), or `y`(years).')
             if mute_time[3] == 2:  # check if someone is trying to break the bot
                 return await main.error_embed(ctx, 'That time in seconds is larger than 64 bits which isn\'t supported by postgreSQL, please chose a shorter time')
-            if mute_time[2] is True:  # check if a correct mute time argument was given
+            if mute_time[2]:  # check if a correct mute time argument was given
                 if (reason is None) and (mute_time[0] != 0):  # make sure they provide a reason if they gave a time
                     return await main.error_embed(ctx, 'You need to give a reason')
                 await muted_user.add_roles(self.bot.get_guild(main.ids(1)).get_role(main.ids(12)))  # add the mute role
@@ -156,7 +156,7 @@ class Bkm(commands.Cog):
                 except (discord.Forbidden, discord.errors.HTTPException):
                     pass
                 print(f'{ctx.author.id} muted {muted_user.id} {amount} for reason: {mute_reason}')
-                channel = await self.bot.fetch_channel(main.ids(5))
+                channel = self.bot.get_channel(main.ids(5))
                 await main.log_embed(ctx, 'Member Muted', f'{muted_user.mention} has been muted {amount} for reason: ```{mute_reason}```', channel, muted_user)
                 main.cur.execute('INSERT INTO rekt(user_id, action, expiry, punisher) VALUES(%s, %s, %s, %s)', (muted_user.id, 'muted', int(mute_time[0]), ctx.author.id))
                 main.db.commit()
@@ -183,8 +183,8 @@ class Bkm(commands.Cog):
         if reason is None:
             return await main.error_embed(ctx, 'You need to give a reason')
         try:
-            punisher = await self.bot.get_guild(main.ids(1)).fetch_member(ctx.author.id)
-            kicked_user = await self.bot.get_guild(main.ids(1)).fetch_member(user.id)
+            punisher = self.bot.get_guild(main.ids(1)).get_member(ctx.author.id)
+            kicked_user = self.bot.get_guild(main.ids(1)).get_member(user.id)
             if role_hierarchy(punisher, kicked_user) is not True:
                 return await main.error_embed(ctx, f'You don\'t outrank {kicked_user.mention}')
             await main.channel_embed(ctx, 'Member Kicked', f'{kicked_user.mention} has been kicked for reason: ```{reason}```')
@@ -194,7 +194,7 @@ class Bkm(commands.Cog):
             except (discord.Forbidden, discord.errors.HTTPException):
                 pass
             print(f'{ctx.author.id} kicked {kicked_user.id} for reason: {reason}')
-            channel = await self.bot.fetch_channel(main.ids(5))
+            channel = self.bot.get_channel(main.ids(5))
             await main.log_embed(ctx, 'Member Kicked', f'{kicked_user.mention} has been kicked for reason: ```{reason}```', channel, kicked_user)
             await kicked_user.kick(reason=reason)
         except discord.NotFound:
@@ -217,7 +217,7 @@ class Bkm(commands.Cog):
             except (discord.Forbidden, discord.errors.HTTPException):
                 pass
             print(f'{opter.id} has been banned for reason: Opted out')
-            channel = await self.bot.fetch_channel(main.ids(5))
+            channel = self.bot.get_channel(main.ids(5))
             await main.log_embed(ctx, 'Member Opted out', f'{opter.mention} has been banned', channel, opter)
             await self.bot.get_guild(main.ids(1)).ban(user=opter, reason='Opted out and banned', delete_message_days=7)
         else:

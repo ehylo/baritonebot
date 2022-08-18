@@ -8,8 +8,8 @@ from cogs.help import Help
 
 async def info_embed(ctx, member, title, field1, field2, field3, value):
     em_v = discord.Embed(color=int(main.values(1), 16),  title=title)
-    em_v.add_field(name='Mention:', value=member.mention, inline=True)
-    em_v.add_field(name='Status:', value=field1, inline=True)
+    em_v.add_field(name='Mention:', value=member.mention)
+    em_v.add_field(name='Status:', value=field1)
     em_v.add_field(name='Created:', value=member.created_at.strftime('%B %d, %Y at %I:%M:%S %p').lstrip('0').replace(' 0', ' '), inline=False)
     em_v.add_field(name='Joined:', value=field2, inline=False)
     em_v.add_field(name=field3, value=value, inline=False)
@@ -20,9 +20,9 @@ async def info_embed(ctx, member, title, field1, field2, field3, value):
 
 
 async def varistuff(ctx, member, ismember):
-    if ismember is True:
+    if ismember:
         await info_embed(ctx, member, 'Member Information:', member.status, member.joined_at.strftime('%B %d, %Y at %I:%M:%S %p').lstrip('0').replace(' 0', ' '), f'Roles ({len(member.roles)-1}):', (' '.join([str(r.mention) for r in member.roles][1:])+'\u200b'))
-    elif ismember is False:
+    elif not ismember:
         await info_embed(ctx, member, 'User Information:', 'API doesn\'t support this yet', 'User has not joined the baritone server yet', 'Default avatar color:', member.default_avatar)
 
 
@@ -83,29 +83,21 @@ class Info(commands.Cog):
         await main.channel_embed(ctx, f'Pong! 🏓 ({round(self.bot.latency * 1000)}ms)', None)
 
     @commands.group(invoke_without_command=True, case_insensitive=True, aliases=['ui'])
-    async def userinfo(self, ctx, user_id=None):
-        b_guild = self.bot.get_guild(main.ids(1))
-        try:
-            user_men = str(ctx.message.raw_mentions[0])
-        except IndexError:
-            user_men = ''
-        if user_id is None:
+    async def userinfo(self, ctx, num=None):
+        if num is None:
             return await Help.userinfo(self, ctx)
-        if user_men != '':
-            clear_member = await self.bot.fetch_user(int(user_men))  # get the user if they mentioned
-        elif (user_id.isdigit()) and (len(user_id) == 18):
-            clear_member = await self.bot.fetch_user(int(user_id))  # get the user if they gave an ID
-        else:
-            clear_member = b_guild.get_member_named(user_id)  # get the member if they gave a name with/without discrimitor
-        if clear_member is None:
-            await main.error_embed(ctx, 'The user you gave is invalid')
-        else:
-            if b_guild.get_member(clear_member.id) is not None:
-                member = b_guild.get_member(clear_member.id)
-                await varistuff(ctx, member, ismember=True)
-            else:
-                member = await self.bot.fetch_user(clear_member.id)
-                await varistuff(ctx, member, ismember=False)
+        args = await main.mem_check(self, num)
+        if not args[0]:
+            if num.isdigit():
+                if num > 0:
+                    try:
+                        non_member = await self.bot.fetch_user(num)
+                        return await varistuff(ctx, non_member, ismember=False)
+                    except discord.HTTPException:
+                        pass
+            return await main.error_embed(ctx, 'The user you gave is invalid')
+        if args[0]:
+            return await varistuff(ctx, args[1], ismember=True)
 
     @userinfo.command()
     async def me(self, ctx):
@@ -125,9 +117,9 @@ class Info(commands.Cog):
         em_v.add_field(name='Created:', value=b_guild.created_at.strftime('%B %d, %Y at %I:%M:%S %p').lstrip('0').replace(' 0', ' '), inline=False)
         em_v.add_field(name='Region:', value=b_guild.region, inline=False)
         em_v.add_field(name=f'Roles ({len(b_guild.roles)-1}):', value=(' '.join([str(r.mention) for r in b_guild.roles][1:])+'\u200b'), inline=False)
-        em_v.add_field(name='Text Channels:', value=str(len(b_guild.text_channels)), inline=True)
-        em_v.add_field(name='Voice Channels:', value=str(len(b_guild.voice_channels)), inline=True)
-        em_v.add_field(name='Members:', value=b_guild.member_count, inline=True)
+        em_v.add_field(name='Text Channels:', value=str(len(b_guild.text_channels)))
+        em_v.add_field(name='Voice Channels:', value=str(len(b_guild.voice_channels)))
+        em_v.add_field(name='Members:', value=b_guild.member_count)
         em_v.set_footer(text=f'ID: {b_guild.id}')
         em_v.set_thumbnail(url=b_guild.icon_url)
         await ctx.send(embed=em_v)
