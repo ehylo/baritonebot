@@ -38,7 +38,7 @@ class DeletedLogger(commands.Cog):
         )
         embed_var.set_footer(
             text=f'{message.author.name} | ID: {message.author.id}',
-            icon_url=message.author.avatar.url
+            icon_url=message.author.display_avatar.url
         )
         await log_channel.send(embed=embed_var)
 

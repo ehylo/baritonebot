@@ -22,10 +22,7 @@ class Trash(discord.ui.Button):
         for role in inter.user.roles:
             if role.id in staff_roles or inter.user.id == int(inter.message.embeds[0].footer.text.split('ID: ')[1]):
                 return await inter.message.delete()
-        else:
-            return await slash_embed(
-                inter, inter.user, 'You did not trigger this response!', 'Unable to delete', interaction_response=True
-            )
+        return await slash_embed(inter, inter.user, 'You did not trigger this response!', 'Unable to delete')
 
 
 class Response(commands.Cog):
@@ -97,7 +94,7 @@ class Response(commands.Cog):
                                 )
                                 embed_var.set_footer(
                                     text=f'{message.author.name} | ID: {message.author.id}',
-                                    icon_url=message.author.avatar.url
+                                    icon_url=message.author.display_avatar.url
                                 )
                                 await message.channel.send(embed=embed_var)
                     if self.bot in message.mentions or message.content.startswith('!'):
@@ -111,7 +108,7 @@ class Response(commands.Cog):
                         description=responses.descriptions[index]
                     )
                     embed_var.set_footer(
-                        text=f'{message.author.name} | ID: {message.author.id}', icon_url=message.author.avatar.url
+                        text=f'{message.author.name} | ID: {message.author.id}', icon_url=message.author.display_avatar.url
                     )
                     await message.channel.send(embed=embed_var, view=view)
 
@@ -282,7 +279,7 @@ class Response(commands.Cog):
         title = 'none' if responses.titles[response_num - 1] == '' else responses.titles[response_num - 1]
         description = 'none' if responses.descriptions[response_num-1] == '' else responses.descriptions[response_num-1]
         embed_var.add_field(name=title, value=description)
-        embed_var.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar.url)
+        embed_var.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.display_avatar.url)
         await ctx.respond(embed=embed_var, ephemeral=True)
 
 

@@ -61,7 +61,7 @@ class GithubCommand(commands.Cog):
         )
         embed_var.add_field(name='Created', value=f'<t:{int(self.baritone_repo.created_at.timestamp())}:F>')
         embed_var.set_thumbnail(url=self.github.get_organization('cabaletta').avatar_url)
-        embed_var.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar.url)
+        embed_var.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.display_avatar.url)
         await message.edit(embed=embed_var)
 
     @discord.slash_command(name='github-search', description='search for pull requests or issues', guild_ids=[GUILD_ID])
@@ -116,12 +116,12 @@ class GithubCommand(commands.Cog):
             else 'issue(s)' if search_type == 'Issue' else 'issue(s) and pull request(s)'
         title += f' for 🔍`{query}`'
         embed_var.title = title
-        embed_var.description = description
+        embed_var.description = description[:4096]
         url = 'https://github.com/cabaletta/baritone/issues?q='
         url += 'is%3A' + state.lower() if state != 'Both' else ''
         url += '+is%3Aissue' if search_type == 'Issue' else '+is%3Apr' if search_type == 'Pull Request' else ''
         embed_var.url = f'{url}+{query.replace(" ", "+")}'
-        embed_var.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar.url)
+        embed_var.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.display_avatar.url)
         await message.edit(embed=embed_var)
     """
     @discord.slash_command(

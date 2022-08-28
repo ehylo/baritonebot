@@ -62,7 +62,7 @@ class Clear(commands.Cog):
             )
             embed_var.set_footer(
                 text=f'{ctx.author.name} | ID: {ctx.author.id}',
-                icon_url=ctx.author.avatar.url
+                icon_url=ctx.author.display_avatar.url
             )
             await log_channel.send(embed=embed_var)
             await slash_embed(
@@ -80,7 +80,7 @@ class Clear(commands.Cog):
             )
             embed_var.set_footer(
                 text=f'{ctx.author.name} | ID: {ctx.author.id}',
-                icon_url=ctx.author.avatar.url
+                icon_url=ctx.author.display_avatar.url
             )
             await log_channel.send(embed=embed_var)
             await slash_embed(

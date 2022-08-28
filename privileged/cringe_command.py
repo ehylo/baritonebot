@@ -15,7 +15,7 @@ class ReCringe(discord.ui.View):
     async def button_callback(self, _button, inter):
         embed_var = discord.Embed(color=bot_db.embed_color[inter.guild.id], title=':camera_with_flash:')
         embed_var.set_image(url=get_random_cringe(bot_db, inter))
-        embed_var.set_footer(text=f'{inter.user.name} | ID: {inter.user.id}', icon_url=inter.user.avatar.url)
+        embed_var.set_footer(text=f'{inter.user.name} | ID: {inter.user.id}', icon_url=inter.user.display_avatar.url)
         await inter.response.edit_message(embed=embed_var, view=self)
 
 
@@ -31,7 +31,7 @@ class Cringe(commands.Cog):
     async def cringe(self, ctx):
         embed_var = discord.Embed(color=bot_db.embed_color[ctx.guild.id], title=':camera_with_flash:')
         embed_var.set_image(url=get_random_cringe(bot_db, ctx))
-        embed_var.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar.url)
+        embed_var.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.display_avatar.url)
         await ctx.respond(embed=embed_var, view=ReCringe(timeout=None))
 
     @discord.slash_command(

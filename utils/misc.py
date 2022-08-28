@@ -23,8 +23,7 @@ def role_hierarchy(bot_db, guild_id, enforcer, offender):
             for offender_role_id in offender_roles:
                 if offender_role_id in bot_db.admin_ids[guild_id]:
                     return False
-            else:
-                return True
+            return True
 
     for enforcer_role_id in enforcer_roles:
         if enforcer_role_id in bot_db.mod_ids[guild_id]:
@@ -84,9 +83,9 @@ def info_embed(bot_db, ctx, user):
         embed_var.title = 'User Information:'
     embed_var.add_field(name='Default Avatar Color', value=user.default_avatar.key)
     embed_var.add_field(name='ID: ', value=user.id)
-    embed_var.set_author(name=f'{user.name}#{user.discriminator}', icon_url=user.avatar.url)
-    embed_var.set_image(url=user.avatar.url)
-    embed_var.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.avatar.url)
+    embed_var.set_author(name=f'{user.name}#{user.discriminator}', icon_url=user.display_avatar.url)
+    embed_var.set_image(url=user.display_avatar.url)
+    embed_var.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.display_avatar.url)
     return embed_var
 
 

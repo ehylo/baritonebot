@@ -40,7 +40,7 @@ class EditedLogger(commands.Cog):
         embed_var.add_field(name='After Edit:', value=message_after.content, inline=False)
         embed_var.set_footer(
             text=f'{message_after.author.name} | ID: {message_after.author.id}',
-            icon_url=message_after.author.avatar.url
+            icon_url=message_after.author.display_avatar.url
         )
         channel = await get_channel(self.bot, bot_db.logs_id[message_after.guild.id])
         await channel.send(embed=embed_var, view=EditedMessageJump(message_after.jump_url))

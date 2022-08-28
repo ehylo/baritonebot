@@ -19,7 +19,7 @@ class OptOut(commands.Cog):
         ctx,
         confirm: Option(
             name='confirmation',
-            description='Type "I am sure" to confirm you want to ban yourself, this cannot be undone',
+            description='Type \"I am sure\" to confirm you want to ban yourself, this cannot be undone',
             required=True
         )
     ):

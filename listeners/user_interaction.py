@@ -18,7 +18,7 @@ class UserInteraction(commands.Cog):
     @discord.user_command(name='user-avatar', guild_ids=[GUILD_ID])
     async def user_avatar(self, ctx, member):
         embed_var = discord.Embed(color=bot_db.embed_color[ctx.guild.id], title='User Avatar')
-        embed_var.set_image(url=member.avatar.url)
+        embed_var.set_image(url=member.display_avatar.url)
         await ctx.respond(embed=embed_var)
 
     @discord.user_command(name='user-banner', guild_ids=[GUILD_ID])
