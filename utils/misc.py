@@ -30,8 +30,7 @@ def role_hierarchy(bot_db, guild_id, enforcer, offender):
             for offender_role_id in offender_roles:
                 if offender_role_id in bot_db.admin_ids[guild_id] + bot_db.mod_ids[guild_id]:
                     return False
-            else:
-                return True
+            return True
 
     for enforcer_role_id in enforcer_roles:
         if enforcer_role_id in bot_db.helper_ids[guild_id]:
@@ -39,8 +38,7 @@ def role_hierarchy(bot_db, guild_id, enforcer, offender):
                 staff_roles = bot_db.admin_ids[guild_id] + bot_db.mod_ids[guild_id] + bot_db.helper_ids[guild_id]
                 if offender_role_id in staff_roles:
                     return False
-            else:
-                return True
+            return True
 
     return True
 

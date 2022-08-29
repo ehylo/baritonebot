@@ -22,7 +22,9 @@ class Trash(discord.ui.Button):
         for role in inter.user.roles:
             if role.id in staff_roles or inter.user.id == int(inter.message.embeds[0].footer.text.split('ID: ')[1]):
                 return await inter.message.delete()
-        return await slash_embed(inter, inter.user, 'You did not trigger this response!', 'Unable to delete')
+        return await slash_embed(
+            inter, inter.user, 'You did not trigger this response!', 'Unable to delete', interaction_response=True
+        )
 
 
 class Response(commands.Cog):
