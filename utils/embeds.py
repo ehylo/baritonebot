@@ -19,21 +19,18 @@ async def mod_log_embed(bot, bot_db, guild_id, author, offender, title, descript
 
 
 async def slash_embed(
-    ctx: discord.ApplicationContext,
+    interaction,
     author: discord.User,
     description: str = '',
     title: str = '',
     color: int = RED_EMBED_COLOR,
     ephemeral: bool = True,
     view: discord.ui.View = None,
-    interaction: bool = False,
-    interaction_response: bool = False
+    is_interaction: bool = False
 ):
     embed_var = discord.Embed(color=color, title=title, description=description)
     embed_var.set_footer(text=f'{author.name} | ID: {author.id}', icon_url=author.display_avatar.url)
-    if interaction:
-        await ctx.response.edit_message(embed=embed_var, view=view)
-    elif interaction_response:
-        await ctx.response.send_message(embed=embed_var, ephemeral=ephemeral, view=view)
+    if is_interaction:
+        await interaction.response.edit_message(embed=embed_var, view=view)
     else:
-        await ctx.respond(embed=embed_var, ephemeral=ephemeral, view=view)
+        await interaction.response.send_message(embed=embed_var, ephemeral=ephemeral, view=view)
