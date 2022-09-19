@@ -17,9 +17,6 @@ class DB:
         self.presence_action = DEFAULT_PRESENCE_ACTION
         self.presence_value = DEFAULT_PRESENCE_VALUE
 
-        self.cur.execute('UPDATE v2guilds SET rules_titles[1] = %s WHERE guild_id = %s', ('Moderators have the final say', 822011099561197579))
-        self.db.commit()
-
         self.cur.execute('SELECT guild_id, cringe_list FROM v2guilds')
         self.cringe_list = dict(self.cur.fetchall())
         self.cur.execute('SELECT guild_id, embed_color FROM v2guilds')
