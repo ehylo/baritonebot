@@ -8,14 +8,16 @@ from utils import const
 from utils.baritone_settings import VersionSettings
 
 bot_db = DB()
+baritone_settings_master = VersionSettings(const.VERSION_MASTER_URL)
 baritone_settings_v2 = VersionSettings(const.VERSION_1215_URL)
 baritone_settings_v8 = VersionSettings(const.VERSION_183_URL)
 baritone_settings_v9 = VersionSettings(const.VERSION_19_URL)
 
 version_matcher = {
+    'master': baritone_settings_master,
     '1.2.15': baritone_settings_v2,
-    '1.9': baritone_settings_v9,
-    '1.8.3': baritone_settings_v8
+    '1.8.3': baritone_settings_v8,
+    '1.9': baritone_settings_v9
 }
 
 bot = commands.Bot(

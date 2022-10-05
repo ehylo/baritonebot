@@ -55,7 +55,7 @@ class Mute(commands.Cog):
                     await guild.get_member(user[0]).remove_roles(guild.get_role(bot_db.muted_id[guild_id]))
                     new_mutes = bot_db.mutes[guild_id]
                     new_mutes.remove(user)
-                    bot_db.update_mutes(guild_id, new_mutes)
+                    bot_db.update_mutes(guild, new_mutes)
 
     @loops.before_loop
     async def before_loops(self):

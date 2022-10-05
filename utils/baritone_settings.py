@@ -55,7 +55,7 @@ class VersionSettings:
         for setting_text in requests.get(url).content.decode('utf-8').split('/**')[2:-4]:
             cleaned_setting_text = ' '.join(re.sub(r'(?<!:)//.*\n', '', setting_text).split())
             # removes multi blank spaces, line ends, and comments
-            link_website = False if url != const.VERSION_1215_URL else True
+            link_website = False if url != const.VERSION_DOCS_URL else True
             self.settings.append(Setting(
                 re.findall(r'^\* (?P<description>.*) \*/', cleaned_setting_text)[0],
                 re.findall(r'Setting<.*> (?P<title>.*) = ', cleaned_setting_text)[0],
@@ -68,7 +68,7 @@ class VersionSettings:
         pages = ['']
         matched_settings = []
         for setting in self.settings:
-            if re.search(search_term, setting.title.lower()) is not None:
+            if re.search(search_term.lower(), setting.title.lower()) is not None:
                 matched_settings.append(setting)
         if len(matched_settings) > 0:
             page_index = 0

@@ -85,7 +85,7 @@ class BaritoneSettings(commands.Cog):
         version: Option(
             name='version',
             description='the baritone version you want to find settings for',
-            choices=['1.2.15', '1.8.3', '1.9'],
+            choices=list(main.version_matcher),
             required=True
         ),
         term: Option(name='term', description='The term you want to search for', required=True)

@@ -110,7 +110,8 @@ class Response(commands.Cog):
                         description=responses.descriptions[index]
                     )
                     embed_var.set_footer(
-                        text=f'{message.author.name} | ID: {message.author.id}', icon_url=message.author.display_avatar.url
+                        text=f'{message.author.name} | ID: {message.author.id}',
+                        icon_url=message.author.display_avatar.url
                     )
                     await message.channel.send(embed=embed_var, view=view)
 

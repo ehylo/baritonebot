@@ -12,7 +12,7 @@ async def remove_hoist(hoisted_chars, member):
         if name == '':
             return 'z' + member.name
         return name
-    await member.edit(nick=name_loop(member.nick))
+    await member.edit(nick=name_loop(member.display_name))
 
 
 class AntiHoist(commands.Cog):
