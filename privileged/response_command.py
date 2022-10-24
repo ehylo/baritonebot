@@ -200,7 +200,7 @@ class Response(commands.Cog):
             return await slash_embed(ctx, ctx.author, 'There are not that many responses', 'Too large')
         if title and description and regex and delete and ignored_ids is None:
             return await slash_embed(ctx, ctx.author, 'You need to specify an option to edit', 'No options chosen')
-        responses.edit_response(response_num - 1, title, description, regex, delete, ignored_ids)
+        responses.edit_response(response_num - 1, title, description.replace('\\n', '\n'), regex, delete, ignored_ids)
         await slash_embed(
             ctx,
             ctx.author,
