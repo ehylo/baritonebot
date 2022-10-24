@@ -149,7 +149,7 @@ class Response(commands.Cog):
         if not regex_verifier(regex):
             return await slash_embed(ctx, ctx.author, 'Could not verify that regex', 'Bad input')
         responses = Responses(bot_db, ctx.guild)
-        responses.new_response(title, description, regex, delete, ignored_ids)
+        responses.new_response(title, description.replace('\\n', '\n'), regex, delete, ignored_ids)
         await slash_embed(
             ctx,
             ctx.author,
