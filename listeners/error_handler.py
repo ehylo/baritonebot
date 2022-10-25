@@ -1,5 +1,6 @@
 import traceback
 
+import discord
 from discord.ext import commands
 
 
@@ -14,11 +15,11 @@ class Errors(commands.Cog):
         print(exception)
 
     @commands.Cog.listener()
-    async def on_application_command_error(self, ctx, error):
+    async def on_application_command_error(self, inter: discord.Interaction, error):
         exception = '\n'.join(traceback.format_exception(type(error), error, error.__traceback__))
         print(exception)
-        await ctx.respond('```py\n' + exception[:1990] + '```')
+        await inter.response.send_message('```py\n' + exception[:1990] + '```')
 
 
-def setup(bot):
-    bot.add_cog(Errors(bot))
+async def setup(bot):
+    await bot.add_cog(Errors(bot))

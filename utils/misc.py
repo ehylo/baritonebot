@@ -4,7 +4,7 @@ import re
 import discord
 
 
-def role_hierarchy(bot_db, guild_id, enforcer, offender):
+def role_hierarchy(db, guild_id: int, enforcer: discord.Member, offender: discord.Member):
 
     if offender.bot:
         return False
@@ -19,23 +19,23 @@ def role_hierarchy(bot_db, guild_id, enforcer, offender):
         offender_roles.append(role.id)
 
     for enforcer_role_id in enforcer_roles:
-        if enforcer_role_id in bot_db.admin_ids[guild_id]:
+        if enforcer_role_id in db.admin_ids[guild_id]:
             for offender_role_id in offender_roles:
-                if offender_role_id in bot_db.admin_ids[guild_id]:
+                if offender_role_id in db.admin_ids[guild_id]:
                     return False
             return True
 
     for enforcer_role_id in enforcer_roles:
-        if enforcer_role_id in bot_db.mod_ids[guild_id]:
+        if enforcer_role_id in db.mod_ids[guild_id]:
             for offender_role_id in offender_roles:
-                if offender_role_id in bot_db.admin_ids[guild_id] + bot_db.mod_ids[guild_id]:
+                if offender_role_id in db.admin_ids[guild_id] + db.mod_ids[guild_id]:
                     return False
             return True
 
     for enforcer_role_id in enforcer_roles:
-        if enforcer_role_id in bot_db.helper_ids[guild_id]:
+        if enforcer_role_id in db.helper_ids[guild_id]:
             for offender_role_id in offender_roles:
-                staff_roles = bot_db.admin_ids[guild_id] + bot_db.mod_ids[guild_id] + bot_db.helper_ids[guild_id]
+                staff_roles = db.admin_ids[guild_id] + db.mod_ids[guild_id] + db.helper_ids[guild_id]
                 if offender_role_id in staff_roles:
                     return False
             return True
@@ -43,28 +43,28 @@ def role_hierarchy(bot_db, guild_id, enforcer, offender):
     return True
 
 
-def get_unix(discord_id):
+def get_unix(discord_id: int):
     return int(bin(discord_id)[2:][:-22], 2) + 1420070400000
 
 
-async def get_user(bot, user_id):
+async def get_user(bot, user_id: int):
     return bot.get_user(user_id) if bot.get_user(user_id) is not None else await bot.fetch_user(user_id)
 
 
-async def get_channel(bot, ch_id):
+async def get_channel(bot, ch_id: int):
     return bot.get_channel(ch_id) if bot.get_channel(ch_id) is not None else await bot.fetch_channel(ch_id)
 
 
-def info_embed(bot_db, ctx, user):
-    embed_var = discord.Embed(color=bot_db.embed_color[ctx.guild.id])
+def info_embed(db, inter: discord.Interaction, user: discord.User):
+    embed_var = discord.Embed(color=db.embed_color[inter.guild.id])
     embed_var.add_field(name='Mention:', value=user.mention)
     embed_var.add_field(
         name='Created:',
         value=user.created_at.strftime('%B %d, %Y at %I:%M:%S %p').lstrip('0').replace(' 0', ' '),
         inline=False
     )
-    if ctx.guild.get_member(user.id) is not None:
-        member = ctx.guild.get_member(user.id)
+    if inter.guild.get_member(user.id) is not None:
+        member = inter.guild.get_member(user.id)
         embed_var.title = 'Member Information:'
         embed_var.add_field(
             name='Joined:',
@@ -83,16 +83,16 @@ def info_embed(bot_db, ctx, user):
     embed_var.add_field(name='ID: ', value=user.id)
     embed_var.set_author(name=f'{user.name}#{user.discriminator}', icon_url=user.display_avatar.url)
     embed_var.set_image(url=user.display_avatar.url)
-    embed_var.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.display_avatar.url)
+    embed_var.set_footer(text=f'{inter.user.name} | ID: {inter.user.id}', icon_url=inter.user.display_avatar.url)
     return embed_var
 
 
-def get_random_cringe(bot_db, ctx):
-    cringe_list = bot_db.cringe_list[ctx.guild.id]
+def get_random_cringe(db, inter: discord.Interaction):
+    cringe_list = db.cringe_list[inter.guild.id]
     return cringe_list[random.randint(0, len(cringe_list)) - 1]
 
 
-def ignored_id_verifier(guild, ignored_ids):
+def ignored_id_verifier(guild: discord.Guild, ignored_ids: str):
     for role_id in ignored_ids.split(' '):
         if not role_id.isnumeric():
             return False
@@ -101,7 +101,9 @@ def ignored_id_verifier(guild, ignored_ids):
     return True
 
 
-def regex_verifier(regex):
+def regex_verifier(regex: str):
+    if regex is None:
+        return True
     try:
         re.compile(regex)
     except re.error:
@@ -110,7 +112,7 @@ def regex_verifier(regex):
         return True
 
 
-def role_check(member, ignored_ids):
+def role_check(member: discord.Member, ignored_ids: str):
     for role_id in ignored_ids.split(' '):
         if member.guild.get_role(int(role_id)) in member.roles:
             return True

@@ -1,7 +1,10 @@
+import enum
 import os
 from dotenv import load_dotenv
 
 import discord
+
+from utils.baritone_settings import VersionSettings
 
 load_dotenv()
 
@@ -39,3 +42,17 @@ VERSION_DOCS_URL = VERSION_1215_URL
 DEFAULT_EMBED_COLOR = '81C3FF'
 DEFAULT_PRESENCE_ACTION = 'Watching'
 DEFAULT_PRESENCE_VALUE = 'humans interact'
+
+# baritone settings
+baritone_settings_master = VersionSettings(VERSION_MASTER_URL)
+baritone_settings_v2 = VersionSettings(VERSION_1215_URL)
+baritone_settings_v8 = VersionSettings(VERSION_183_URL)
+baritone_settings_v9 = VersionSettings(VERSION_19_URL)
+
+baritone_settings_matcher = [
+    ('master', baritone_settings_master),
+    ('1.2.15', baritone_settings_v2),
+    ('1.8.3', baritone_settings_v8),
+    ('1.9', baritone_settings_v9),
+]
+baritone_settings_versions = enum.Enum(value='version', names=baritone_settings_matcher)

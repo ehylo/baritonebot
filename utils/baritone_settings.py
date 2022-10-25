@@ -2,12 +2,11 @@ import re
 
 import requests
 
-
 from utils import const
 
 
 class Setting:
-    def __init__(self, description, title, data_type, default, link_website):
+    def __init__(self, description: str, title: str, data_type: str, default: str, link_website: bool):
 
         description = description.replace(' * <p> * ', '\n')
         # adds the newline
@@ -49,7 +48,7 @@ class Setting:
 
 
 class VersionSettings:
-    def __init__(self, url):
+    def __init__(self, url: str):
         self.settings = []
 
         for setting_text in requests.get(url).content.decode('utf-8').split('/**')[2:-4]:
