@@ -1,12 +1,12 @@
+from typing import Literal
+
 import discord
 from discord.ext import commands
-from discord.commands import Option
 from github import Github
 from github.GithubException import UnknownObjectException
 
-from main import bot_db
 from utils.embeds import slash_embed
-from utils.const import GUILD_ID, GITHUB_TOKEN
+from utils.const import GITHUB_TOKEN
 
 
 class GithubCommand(commands.Cog):
@@ -15,16 +15,12 @@ class GithubCommand(commands.Cog):
         self.github = Github(GITHUB_TOKEN)
         self.baritone_repo = self.github.get_repo('cabaletta/baritone')
 
-    @discord.slash_command(
-        name='github-info',
-        description='shows information about the baritone repo',
-        guild_ids=[GUILD_ID]
-    )
-    async def github_info(self, ctx):
+    @discord.app_commands.command(name='github-info', description='shows information about the baritone repo')
+    async def github_info(self, inter: discord.Interaction):
         embed_var = discord.Embed(
-            color=bot_db.embed_color[ctx.guild.id], title='Please wait while I gather the info'
+            color=self.bot.db.embed_color[inter.guild.id], title='Please wait while I gather the info'
         )
-        interaction = await ctx.respond(embed=embed_var)
+        interaction = await inter.response.send_message(embed=embed_var)
         message = await interaction.original_message()
         embed_var.title = 'cabaletta/baritone'
         embed_var.description = self.baritone_repo.description
@@ -61,31 +57,27 @@ class GithubCommand(commands.Cog):
         )
         embed_var.add_field(name='Created', value=f'<t:{int(self.baritone_repo.created_at.timestamp())}:F>')
         embed_var.set_thumbnail(url=self.github.get_organization('cabaletta').avatar_url)
-        embed_var.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.display_avatar.url)
+        embed_var.set_footer(text=f'{inter.user.name} | ID: {inter.user.id}', icon_url=inter.user.display_avatar.url)
         await message.edit(embed=embed_var)
 
-    @discord.slash_command(name='github-search', description='search for pull requests or issues', guild_ids=[GUILD_ID])
+    @discord.app_commands.command(name='github-search', description='search for pull requests or issues')
+    @discord.app_commands.describe(
+        query='your search string',
+        state='show open, closed, or both',
+        search_type='show issues, pull requests, or both'
+    )
+    @discord.app_commands.rename(search_type='type')
     async def github_search(
         self,
-        ctx,
-        query: Option(name='query', description='your search string', required=True),
-        state: Option(
-            name='state',
-            description='show open, closed, or both',
-            choices=['Open', 'Closed', 'Both'],
-            default='Both'
-        ),
-        search_type: Option(
-            name='type',
-            description='show issues, pull requests, or both',
-            choices=['Issue', 'Pull Request', 'Both'],
-            default='Both'
-        )
+        inter: discord.Interaction,
+        query: str,
+        state: Literal['Open', 'Closed', 'Both'] = 'Both',
+        search_type: Literal['Issue', 'Pull Request', 'Both'] = 'Both'
     ):
         embed_var = discord.Embed(
-            color=bot_db.embed_color[ctx.guild.id], title='Please wait while I gather the info'
+            color=self.bot.db.embed_color[inter.guild.id], title='Please wait while I gather the info'
         )
-        interaction = await ctx.respond(embed=embed_var)
+        interaction = await inter.response.send_message(embed=embed_var)
         message = await interaction.original_message()
         if state == 'Both':
             issues = self.github.search_issues(query=query, repo='cabaletta/baritone')
@@ -121,7 +113,7 @@ class GithubCommand(commands.Cog):
         url += 'is%3A' + state.lower() if state != 'Both' else ''
         url += '+is%3Aissue' if search_type == 'Issue' else '+is%3Apr' if search_type == 'Pull Request' else ''
         embed_var.url = f'{url}+{query.replace(" ", "+")}'
-        embed_var.set_footer(text=f'{ctx.author.name} | ID: {ctx.author.id}', icon_url=ctx.author.display_avatar.url)
+        embed_var.set_footer(text=f'{inter.user.name} | ID: {inter.user.id}', icon_url=inter.user.display_avatar.url)
         await message.edit(embed=embed_var)
     """
     @discord.slash_command(
@@ -142,7 +134,11 @@ class GithubCommand(commands.Cog):
             #return await main.error_embed(ctx, 'That issue (or pull request) does not exist')
         if 'pull' in data.html_url:
             self.baritone_repo.get_pull(number=num)
-            question = await main.channel_embed(ctx, 'Couldn\'t find that issue', 'But I did find a pull request with that nunber, would you like to see that instead?')
+            question = await main.channel_embed(
+                ctx,
+                'Couldn\'t find that issue',
+                'But I did find a pull request with that number, would you like to see that instead?'
+            )
             await question.add_reaction('✅')
 
             def check(m):
@@ -164,7 +160,9 @@ class GithubCommand(commands.Cog):
                 labels += f', {i.name}'
             labels = '(None)' if labels == '' else labels[2:]
             embed_var = discord.Embed(color=int(main.values(1), 16))
-            embed_var.set_author(name=data.user.name, url=data.user.url, icon_url=f'https://github.com/{data.user.name}.png')
+            embed_var.set_author(
+                name=data.user.name, url=data.user.url, icon_url=f'https://github.com/{data.user.name}.png'
+            )
             embed_var.description(data.body)
             embed_var.url(data.url)
             state = '🔴' if data.state == 'closed' else '🟢'
@@ -197,7 +195,11 @@ class GithubCommand(commands.Cog):
         except UnknownObjectException:
             try:
                 self.baritone_repo.get_issue(number=num)
-                question = await main.channel_embed(ctx, 'Couldn\'t find that Pull', 'But I did find a issue with that nunber, would you like to see that instead?')
+                question = await main.channel_embed(
+                    ctx,
+                    'Couldn\'t find that Pull',
+                    'But I did find a issue with that number, would you like to see that instead?'
+                )
                 await question.add_reaction('✅')
 
                 def check(m):
@@ -218,7 +220,9 @@ class GithubCommand(commands.Cog):
                 return main.error_embed(ctx, 'That pull request (or issue) does not exist')
         if c_num is None:
             embed_var = discord.Embed(color=int(main.values(1), 16))
-            embed_var.set_author(name=data.user.name, url=data.user.url, icon_url=f'https://github.com/{data.user.name}.png')
+            embed_var.set_author(
+                name=data.user.name, url=data.user.url, icon_url=f'https://github.com/{data.user.name}.png'
+            )
             embed_var.description(data.body)
             embed_var.url(data.url)
             state = '🟣' if data.merged else '🔴' if data.state == 'closed' else '🟢'
@@ -241,5 +245,6 @@ class GithubCommand(commands.Cog):
                     print('get a list of the comments')
     """
 
-def setup(bot):
-    bot.add_cog(GithubCommand(bot))
+
+async def setup(bot):
+    await bot.add_cog(GithubCommand(bot))

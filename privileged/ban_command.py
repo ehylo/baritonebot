@@ -1,10 +1,9 @@
+from typing import Literal
+
 import discord
 from discord.ext import commands
-from discord.commands import Option
 
-from main import bot_db
 from utils import embeds
-from utils.const import GUILD_ID
 from utils.misc import role_hierarchy
 
 
@@ -12,71 +11,64 @@ class Ban(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @discord.slash_command(name='ban', description='bans the specified member', guild_ids=[GUILD_ID])
-    @discord.default_permissions(ban_members=True)
+    @discord.app_commands.default_permissions(ban_members=True)
+    @discord.app_commands.command(name='ban', description='bans the specified member')
+    @discord.app_commands.rename(offender='member', purge='days')
+    @discord.app_commands.describe(
+        offender='Member you wish to ban',
+        purge='# of days you want to purge messages from this member',
+        reason='The reason you are banning this member'
+    )
     async def ban(
-        self,
-        ctx,
-        offender: Option(discord.Member, name='member', description='Member you wish to ban', required=True),
-        purge: Option(
-            int,
-            name='days',
-            description='# of days you want to purge messages from this member',
-            choices=[0, 1, 2, 3, 4, 5, 6, 7],
-            required=True
-        ),
-        reason: Option(name='reason', description='The reason you are banning this member', required=True)
+        self, inter: discord.Interaction, offender: discord.Member, purge: Literal[0, 1, 2, 3, 4, 5, 6, 7], reason: str
     ):
-        if not role_hierarchy(bot_db, ctx.guild.id, enforcer=ctx.author, offender=offender):
-            return await embeds.slash_embed(ctx, ctx.author, f'You don\'t outrank {offender.mention}')
+        if not role_hierarchy(self.bot.db, inter.guild.id, enforcer=inter.user, offender=offender):
+            return await embeds.slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
         await embeds.slash_embed(
-            ctx,
-            ctx.author,
+            inter,
+            inter.user,
             f'{offender.mention} has been banned for reason: ```{reason}```',
             'Member Banned',
-            bot_db.embed_color[ctx.guild.id],
+            self.bot.db.embed_color[inter.guild.id],
             ephemeral=False
         )
         await embeds.mod_log_embed(
             self.bot,
-            bot_db,
-            ctx.guild.id,
-            ctx.author,
+            self.bot.db,
+            inter.guild.id,
+            inter.user,
             offender,
             'Member Banned',
             f'{offender.mention} has been banned for reason: ```{reason}```'
         )
         dm_channel = await offender.create_dm()
         await embeds.dm_embed(
-            bot_db,
-            ctx.guild.id,
+            self.bot.db,
+            inter.guild.id,
             channel=dm_channel,
-            author=ctx.author,
+            author=inter.user,
             title='Banned',
             description=f'You have been banned in the baritone discord for reason: \n```{reason}```'
         )
         await offender.ban(reason=reason, delete_message_days=purge)
 
-    @discord.slash_command(name='unban', description='unbans the specified user', guild_ids=[GUILD_ID])
-    @discord.default_permissions(ban_members=True)
-    async def unban(
-        self,
-        ctx,
-        user: Option(discord.User, name='user', description='User you want to unban', required=True)
-    ):
+    @discord.app_commands.default_permissions(ban_members=True)
+    @discord.app_commands.command(name='unban', description='unbans the specified user')
+    @discord.app_commands.describe(user='User you want to unban')
+    async def unban(self, inter: discord.Interaction, user: discord.User):
         try:
-            await ctx.guild.unban(user)
+            await inter.guild.unban(user)
             await embeds.slash_embed(
-                ctx,
-                ctx.author,
+                inter,
+                inter.user,
                 f'{user.mention} has been unbanned',
                 'User Unbanned',
-                bot_db.embed_color[ctx.guild.id],
+                self.bot.db.embed_color[inter.guild.id],
                 ephemeral=False
             )
         except discord.NotFound:
-            return await embeds.slash_embed(ctx, ctx.author, 'That user is not banned', 'Not Found')
+            return await embeds.slash_embed(inter, inter.user, 'That user is not banned', 'Not Found')
 
 
-def setup(bot):
-    bot.add_cog(Ban(bot))
+async def setup(bot):
+    await bot.add_cog(Ban(bot))

@@ -60,7 +60,7 @@ class DB:
         self.cur.execute('SELECT guild_id, mod_logs_id FROM v2constants')
         self.mod_logs_id = dict(self.cur.fetchall())
 
-    def update_bot_id(self, bot_id):
+    def update_bot_id(self, bot_id: int):
         self.bot_id = bot_id
         self.cur.execute('SELECT presence_action FROM v2bots WHERE bot_id = %s', (bot_id, ))
         self.presence_action = self.cur.fetchone()[0]

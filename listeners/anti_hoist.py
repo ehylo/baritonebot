@@ -4,7 +4,7 @@ from discord.ext import commands
 from utils.const import HOISTED_CHARS
 
 
-async def remove_hoist(hoisted_chars, member):
+async def remove_hoist(hoisted_chars: tuple[str], member: discord.Member):
 
     def name_loop(name):
         if name.startswith(hoisted_chars):
@@ -20,12 +20,12 @@ class AntiHoist(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_member_join(self, member):
+    async def on_member_join(self, member: discord.Member):
         if member.name.startswith(HOISTED_CHARS):
             await remove_hoist(HOISTED_CHARS, member)
 
     @commands.Cog.listener()
-    async def on_member_update(self, before, after):
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
         try:
             if after.display_name.startswith(HOISTED_CHARS):
                 if not before.display_name.startswith(HOISTED_CHARS):
@@ -35,5 +35,5 @@ class AntiHoist(commands.Cog):
             pass  # bot doesn't have permissions to change that member's nick
 
 
-def setup(bot):
-    bot.add_cog(AntiHoist(bot))
+async def setup(bot):
+    await bot.add_cog(AntiHoist(bot))
