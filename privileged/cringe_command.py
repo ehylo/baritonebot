@@ -88,10 +88,6 @@ class Cringe(commands.Cog):
         self.bot.db.update_cringe_list(inter.guild, c_list)
         await slash_embed(inter, inter.user, 'Very Cringe', 'Added', self.bot.db.embed_color[inter.guild.id], False)
 
-    @commands.Cog.listener()
-    async def on_ready(self):
-        self.bot.add_view(ReCringe(bot=self.bot))
-
 
 async def setup(bot):
     await bot.add_cog(Cringe(bot))

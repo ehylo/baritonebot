@@ -44,7 +44,7 @@ class OptOut(commands.Cog):
             channel=dm_channel,
             author=inter.user,
             title='Banned',
-            description=f'You have been banned in the baritone discord because you chose to be'
+            description='You have been banned in the baritone discord because you chose to be'
         )
         await inter.user.ban(reason='Opted-out', delete_message_days=0)
 
