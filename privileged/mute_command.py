@@ -34,7 +34,7 @@ time_dict = enum.Enum(
         ('Kiloannums/Millenniums', 31563000000),
         ('Megaannums/Megayears (1mil Years)', 31536000000000),
         ('Galactic Years (~230mil Years)', 7253280000000000),
-        ('Cosmological Decades (varies)', 10000000000000000)
+        ('Cosmological Decades (varies)', 9007199254740991)  # 10000000000000000
     ]
 )
 
