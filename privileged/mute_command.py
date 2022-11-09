@@ -80,7 +80,7 @@ class Mute(commands.Cog):
         time_duration: discord.app_commands.Range[int, 1],
         reason: str
     ):
-        time_text = f'{time_duration} {time_unit.lower()}'
+        time_text = f'{time_duration} {time_unit.value.lower()}'
         if time_duration * time_unit.value + time.time() > 9223372036854775800:
             expiry = 0
         else:
