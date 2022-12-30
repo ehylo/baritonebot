@@ -10,7 +10,7 @@ class DB:
     def __init__(self):
 
         # connecting to the db
-        self.db = psycopg2.connect(DATABASE_URL, sslmode='require')
+        self.db = psycopg2.connect(DATABASE_URL)
         self.cur = self.db.cursor()
 
         self.bot_id = None
