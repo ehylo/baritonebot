@@ -57,7 +57,7 @@ class Mute(commands.Cog):
                     await guild.get_member(user[0]).remove_roles(guild.get_role(self.bot.db.muted_id[guild_id]))
                     new_mutes = self.bot.db.mutes[guild_id]
                     new_mutes.remove(user)
-                    self.bot.db.update_mutes(guild, new_mutes)
+                    await self.bot.db.update_mutes(guild, new_mutes)
 
     @loops.before_loop
     async def before_loops(self):
@@ -91,7 +91,7 @@ class Mute(commands.Cog):
             return await embeds.slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
         new_mutes = self.bot.db.mutes[inter.guild.id]
         new_mutes.append([offender.id, expiry])
-        self.bot.db.update_mutes(inter.guild, new_mutes)
+        await self.bot.db.update_mutes(inter.guild, new_mutes)
         await offender.add_roles(inter.guild.get_role(self.bot.db.muted_id[inter.guild.id]))
         await embeds.slash_embed(
             inter,
@@ -132,7 +132,7 @@ class Mute(commands.Cog):
             if mutes_list[0] == offender.id:
                 new_mutes = self.bot.db.mutes[inter.guild.id]
                 new_mutes.remove(mutes_list)
-                self.bot.db.update_mutes(inter.guild, new_mutes)
+                await self.bot.db.update_mutes(inter.guild, new_mutes)
                 break
         await offender.remove_roles(inter.guild.get_role(self.bot.db.muted_id[inter.guild.id]))
         await embeds.slash_embed(

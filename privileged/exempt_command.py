@@ -23,7 +23,7 @@ class UndoAddExempt(discord.ui.View):
         if channel.id not in self.bot.db.exempted_ids[inter.guild.id]:
             return await slash_embed(inter, inter.user, 'That channel isn\'t exempted', view=self, is_interaction=True)
         exempt_list.remove(channel.id)
-        self.bot.db.update_exempted_ids(inter.guild.id, exempt_list)
+        await self.bot.db.update_exempted_ids(inter.guild, exempt_list)
         await slash_embed(
             inter,
             inter.user,
@@ -51,7 +51,7 @@ class UndoRemoveExempt(discord.ui.View):
             return await slash_embed(
                 inter, inter.user, 'That channel is exempted already', view=self, is_interaction=True
             )
-        self.bot.db.update_exempted_ids(inter.guild.id, self.bot.db.exempted_ids[inter.guild.id] + [channel.id])
+        await self.bot.db.update_exempted_ids(inter.guild, self.bot.db.exempted_ids[inter.guild.id] + [channel.id])
         await slash_embed(
             inter,
             inter.user,
@@ -76,7 +76,7 @@ class Exempt(commands.Cog):
         if action == 'Add':
             if channel.id in self.bot.db.exempted_ids[inter.guild.id]:
                 return await slash_embed(inter, inter.user, 'That channel is exempted already')
-            self.bot.db.update_exempted_ids(inter.guild, self.bot.db.exempted_ids[inter.guild.id] + [channel.id])
+            await self.bot.db.update_exempted_ids(inter.guild, self.bot.db.exempted_ids[inter.guild.id] + [channel.id])
             await slash_embed(
                 inter,
                 inter.user,
@@ -90,7 +90,7 @@ class Exempt(commands.Cog):
                 return await slash_embed(inter, inter.user, 'That channel isn\'t exempted')
             exempt_list = self.bot.db.exempted_ids[inter.guild.id]
             exempt_list.remove(channel.id)
-            self.bot.db.update_exempted_ids(inter.guild, exempt_list)
+            await self.bot.db.update_exempted_ids(inter.guild, exempt_list)
             await slash_embed(
                 inter,
                 inter.user,

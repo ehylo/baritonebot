@@ -24,7 +24,7 @@ class EmbedColor(commands.Cog):
                 inter.user,
                 r'That is not a valid hex-code, it **must** match this regex: `^#[A-Fa-f\d]{6}|[A-Fa-f\d]{3}$`'
             )
-        self.bot.db.update_embed_color(inter.guild, value)
+        await self.bot.db.update_embed_color(inter.guild, value)
         return await slash_embed(
             inter,
             inter.user,

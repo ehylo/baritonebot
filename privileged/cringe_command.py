@@ -65,7 +65,7 @@ class Cringe(commands.Cog):
         cringe_list = self.bot.db.cringe_list[inter.guild.id]
         if url in cringe_list:
             cringe_list.remove(url)
-            self.bot.db.update_cringe_list(inter.guild, cringe_list)
+            await self.bot.db.update_cringe_list(inter.guild, cringe_list)
             await slash_embed(
                 inter,
                 inter.user,
@@ -85,7 +85,7 @@ class Cringe(commands.Cog):
             return await slash_embed(inter, inter.user, 'That attachment is not an image', 'Not an Image')
         c_list = self.bot.db.cringe_list[inter.guild.id]
         c_list.append(image.url)
-        self.bot.db.update_cringe_list(inter.guild, c_list)
+        await self.bot.db.update_cringe_list(inter.guild, c_list)
         await slash_embed(inter, inter.user, 'Very Cringe', 'Added', self.bot.db.embed_color[inter.guild.id], False)
 
 

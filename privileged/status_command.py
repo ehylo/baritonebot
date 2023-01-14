@@ -26,8 +26,8 @@ class Status(commands.Cog):
     ):
         if value.lower() == 'default':
             value = const.DEFAULT_PRESENCE_VALUE
-        self.bot.db.update_presence_value(value)
-        self.bot.db.update_presence_action(action)
+        await self.bot.db.update_presence_value(value)
+        await self.bot.db.update_presence_action(action)
         await self.bot.change_presence(
             activity=discord.Activity(
                 type=const.PRESENCE_ACTION_KEY[self.bot.db.presence_action], name=self.bot.db.presence_value

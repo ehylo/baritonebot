@@ -13,6 +13,7 @@ class Bot(commands.Bot):
         self.db = DB()
 
     async def setup_hook(self):
+        await bot.db.connect_to_db()
         # load extensions
         for folder_name in glob.glob('*/'):
             for file_name in glob.glob(folder_name + '/*'):
@@ -27,7 +28,7 @@ bot = Bot()
 
 @bot.event
 async def on_ready():
-    bot.db.update_bot_id(bot.user.id)
+    await bot.db.update_bot_id(bot.user.id)
     await bot.change_presence(
         activity=discord.Activity(type=const.PRESENCE_ACTION_KEY[bot.db.presence_action], name=bot.db.presence_value)
     )
