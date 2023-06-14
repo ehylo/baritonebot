@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+
+import discord.errors
 from discord.ext import commands, tasks
 
 from utils.misc import get_channel
@@ -17,9 +19,12 @@ class LogClear(commands.Cog):
         for guild_id in self.bot.db.logs_id:
             if self.bot.get_guild(guild_id) is not None:
                 log_channel = await get_channel(self.bot, self.bot.db.logs_id[guild_id])
-                async for message in log_channel.history(limit=1000):
-                    if (message.created_at.replace(tzinfo=None) + timedelta(hours=24)) < datetime.utcnow():
-                        await message.delete()
+                try:
+                    async for message in log_channel.history(limit=1000):
+                        if (message.created_at.replace(tzinfo=None) + timedelta(hours=24)) < datetime.utcnow():
+                            await message.delete()
+                except discord.errors.DiscordServerError:
+                    pass
 
     @loops.before_loop
     async def before_loops(self):

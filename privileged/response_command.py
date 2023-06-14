@@ -174,7 +174,9 @@ class Response(commands.Cog):
             return await slash_embed(inter, inter.user, 'There are not that many responses', 'Too large')
         if title and description and regex and delete and ignored_ids is None:
             return await slash_embed(inter, inter.user, 'You need to specify an option to edit', 'No options chosen')
-        responses.edit_response(response_num - 1, title, description.replace('\\n', '\n'), regex, delete, ignored_ids)
+        if description is not None:
+            description = description.replace('\\n', '\n')
+        responses.edit_response(response_num - 1, title, description, regex, delete, ignored_ids)
         await slash_embed(
             inter,
             inter.user,
@@ -234,8 +236,14 @@ class Response(commands.Cog):
         embed_var.description = f'\u2022 Regex: `{responses.regexes[response_num - 1]}` ' \
                                 f'\n\u2022 Deletes message? {responses.deletes[response_num - 1]} ' \
                                 f'\n\u2022 Ignored roles: \n{ignored_roles[2:]}'
+        if len(embed_var.description) > 4095:
+            embed_var.description = embed_var.description[:4090] + '...'
         title = 'none' if responses.titles[response_num - 1] == '' else responses.titles[response_num - 1]
         description = 'none' if responses.descriptions[response_num-1] == '' else responses.descriptions[response_num-1]
+        if len(title) > 255:
+            title = title[:250] + '...'
+        if len(description) > 1023:
+            description = description[:1018] + '...'
         embed_var.add_field(name=title, value=description)
         embed_var.set_footer(text=f'{inter.user.name} | ID: {inter.user.id}', icon_url=inter.user.display_avatar.url)
         await inter.response.send_message(embed=embed_var, ephemeral=True)

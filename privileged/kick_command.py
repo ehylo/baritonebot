@@ -16,6 +16,7 @@ class Kick(commands.Cog):
     async def kick(self, inter: discord.Interaction, offender: discord.Member, reason: str):
         if not role_hierarchy(self.bot.db, inter.guild.id, enforcer=inter.user, offender=offender):
             return await embeds.slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
+        await offender.kick(reason=reason)
         await embeds.slash_embed(
             inter,
             inter.user,
@@ -42,7 +43,6 @@ class Kick(commands.Cog):
             title='Kicked',
             description=f'You have been kicked from the baritone discord for reason: \n```{reason}```'
         )
-        await offender.kick(reason=reason)
 
 
 async def setup(bot):

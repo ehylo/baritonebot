@@ -78,8 +78,13 @@ class DB:
         self.embed_color[guild.id] = int(str(embed_color), 16)
 
     async def update_cringe_list(self, guild: discord.Guild = None, cringe_list: list[str] = None):
-        await self.db.execute('UPDATE v2guilds SET cringe_list = $1 WHERE guild_id = $2', cringe_list, guild.id)
-        self.cringe_list[guild.id] = cringe_list
+        try:
+            await self.db.execute('UPDATE v2guilds SET cringe_list = $1 WHERE guild_id = $2', cringe_list, guild.id)
+            self.cringe_list[guild.id] = cringe_list
+        except asyncpg.exceptions.InterfaceError:
+            await self.connect_to_db()
+            await self.db.execute('UPDATE v2guilds SET cringe_list = $1 WHERE guild_id = $2', cringe_list, guild.id)
+            self.cringe_list[guild.id] = cringe_list
 
     async def update_exempted_ids(self, guild: discord.Guild = None, exempted_ids: list[int] = None):
         await self.db.execute('UPDATE v2guilds SET exempt_ids = $1 WHERE guild_id = $2', exempted_ids, guild.id)

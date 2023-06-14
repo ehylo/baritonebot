@@ -12,6 +12,8 @@ class Errors(commands.Cog):
     async def on_error(self, error):
         exception = '\n'.join(traceback.format_exception(type(error), error, error.__traceback__))
         exception = f'```py\n{exception}```'
+        ehylo_dm = await self.bot.get_user(747282743246848150).create_dm()
+        await ehylo_dm.send(exception[:1995])
         print(exception)
 
     @commands.Cog.listener()

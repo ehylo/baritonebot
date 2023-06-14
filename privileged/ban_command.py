@@ -24,6 +24,7 @@ class Ban(commands.Cog):
     ):
         if not role_hierarchy(self.bot.db, inter.guild.id, enforcer=inter.user, offender=offender):
             return await embeds.slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
+        await offender.ban(reason=reason, delete_message_days=purge)
         await embeds.slash_embed(
             inter,
             inter.user,
@@ -50,7 +51,6 @@ class Ban(commands.Cog):
             title='Banned',
             description=f'You have been banned in the baritone discord for reason: \n```{reason}```'
         )
-        await offender.ban(reason=reason, delete_message_days=purge)
 
     @discord.app_commands.default_permissions(ban_members=True)
     @discord.app_commands.command(name='unban', description='unbans the specified user')

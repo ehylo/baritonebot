@@ -31,6 +31,10 @@ async def slash_embed(
     view: discord.ui.View = None,
     is_interaction: bool = False
 ):
+    if len(title) > 255:
+        title = title[:250] + '...'
+    if len(description) > 4095:
+        description = description[:4090] + '...'
     embed_var = discord.Embed(color=color, title=title, description=description)
     embed_var.set_footer(text=f'{author.name} | ID: {author.id}', icon_url=author.display_avatar.url)
     if is_interaction:

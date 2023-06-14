@@ -18,7 +18,7 @@ class GithubCommand(commands.Cog):
     @discord.app_commands.command(name='github-info', description='shows information about the baritone repo')
     async def github_info(self, inter: discord.Interaction):
         embed_var = discord.Embed(
-            color=self.bot.db.embed_color[inter.guild.id], title='Please wait while I gather the info'
+            color=self.bot.db.embed_color[inter.guild.id], title='this command is broken, nothing will probably happen'  # 'Please wait while I gather the info'
         )
         interaction = await inter.response.send_message(embed=embed_var)
         message = await interaction.original_message()
@@ -75,7 +75,7 @@ class GithubCommand(commands.Cog):
         search_type: Literal['Issue', 'Pull Request', 'Both'] = 'Both'
     ):
         embed_var = discord.Embed(
-            color=self.bot.db.embed_color[inter.guild.id], title='Please wait while I gather the info'
+            color=self.bot.db.embed_color[inter.guild.id], title='this command is broken, nothing will probably happen'  # 'Please wait while I gather the info'
         )
         interaction = await inter.response.send_message(embed=embed_var)
         message = await interaction.original_message()

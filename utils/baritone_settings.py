@@ -51,7 +51,7 @@ class VersionSettings:
     def __init__(self, url: str):
         self.settings = []
 
-        for setting_text in requests.get(url).content.decode('utf-8').split('/**')[2:-4]:
+        for setting_text in requests.get(url).content.decode('utf-8').split('/**')[2:-6]:
             cleaned_setting_text = ' '.join(re.sub(r'(?<!:)//.*\n', '', setting_text).split())
             # removes multi blank spaces, line ends, and comments
             link_website = False if url != const.VERSION_DOCS_URL else True
