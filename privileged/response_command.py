@@ -134,7 +134,7 @@ class Response(commands.Cog):
         if not regex_verifier(regex):
             return await slash_embed(inter, inter.user, 'Could not verify that regex', 'Bad input')
         responses = Responses(self.bot.db, inter.guild)
-        responses.new_response(title, description.replace('\\n', '\n'), regex, delete, ignored_ids)
+        await responses.new_response(title, description.replace('\\n', '\n'), regex, delete, ignored_ids)
         await slash_embed(
             inter,
             inter.user,
@@ -176,7 +176,7 @@ class Response(commands.Cog):
             return await slash_embed(inter, inter.user, 'You need to specify an option to edit', 'No options chosen')
         if description is not None:
             description = description.replace('\\n', '\n')
-        responses.edit_response(response_num - 1, title, description, regex, delete, ignored_ids)
+        await responses.edit_response(response_num - 1, title, description, regex, delete, ignored_ids)
         await slash_embed(
             inter,
             inter.user,
@@ -194,7 +194,7 @@ class Response(commands.Cog):
         responses = Responses(self.bot.db, inter.guild)
         if len(responses.titles) < response_num:
             return await slash_embed(inter, inter.user, 'There are not that many responses', 'Too large')
-        responses.delete_response(response_num - 1)
+        await responses.delete_response(response_num - 1)
         await slash_embed(
             inter,
             inter.user,
