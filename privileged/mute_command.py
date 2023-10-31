@@ -96,7 +96,8 @@ class Mute(commands.Cog):
         await embeds.slash_embed(
             inter,
             inter.user,
-            f'{offender.mention} has been muted for {time_text}, Reason: ```{reason}```', 'Member Muted',
+            f'{offender.mention} has been muted for {time_text}, Reason: ```{reason}```',
+            'Member Muted',
             self.bot.db.embed_color[inter.guild.id],
             False
         )

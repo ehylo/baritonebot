@@ -17,10 +17,9 @@ Links:
 *   Make the main db hold objects not ids, might be limited with what I can do but try to do roles/channels
 *   Make the db create tables and a default db if nothing is there, allows others besides me to test things
 *   Add comment stuff to the GitHub commands
-*   Try to make env variables semi-optional in the way that some things are disabled when a specific one isn't present
 *   Edit-embed command to edit embeds the bot sent (besides the rules)
 *   Change all of the `Literal` code to choices, so it's less this equals that
-*   Banner and accent color could be added to the info command, just need to deal with people who don't have those
+*   Update info command so there is banner, accent color, pronouns, about me, avatar decorations, display name, username instead of discriminator
 *   Make the help command much better, pages for the different levels of commands, and descriptions with what each does
 ## How to run
 Requires:
@@ -40,6 +39,9 @@ Then, make a `.env` file and add these variables:
 DATABASE_URL=
 GUILD_ID=
 DISCORD_TOKEN=
+```
+(optional)
+```dotenv
 PASTE_TOKEN=
 GITHUB_TOKEN=
 ```

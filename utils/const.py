@@ -41,11 +41,11 @@ DEFAULT_PRESENCE_VALUE = 'humans interact'
 
 baritone_settings_master = VersionSettings(VERSION_MASTER_URL)
 baritone_settings_v2 = VersionSettings(VERSION_12_URL)
-baritone_settings_vlatest = VersionSettings(VERSION_LATEST_URL)
+baritone_settings_latest = VersionSettings(VERSION_LATEST_URL)
 
 baritone_settings_matcher = [
     ('master', baritone_settings_master),
     ('1.2', baritone_settings_v2),
-    ('1.10', baritone_settings_vlatest),
+    ('1.10', baritone_settings_latest),
 ]
 baritone_settings_versions = enum.Enum(value='version', names=baritone_settings_matcher)

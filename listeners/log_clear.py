@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import asyncio
 
 import discord.errors
 from discord.ext import commands, tasks
@@ -24,7 +25,8 @@ class LogClear(commands.Cog):
                         if (message.created_at.replace(tzinfo=None) + timedelta(hours=24)) < datetime.utcnow():
                             await message.delete()
                 except discord.errors.DiscordServerError:
-                    pass
+                    # These are normally rate limit problems so sleeping should someone limit this
+                    await asyncio.sleep(2)
 
     @loops.before_loop
     async def before_loops(self):

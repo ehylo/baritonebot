@@ -38,6 +38,11 @@ class Cringe(commands.Cog):
 
     @discord.app_commands.command(name='cringe-dump', description='dumps all cringe images into a paste.ee link')
     async def cringe_dump(self, inter: discord.Interaction):
+        if not PASTE_TOKEN:
+            # TODO: Log that the paste could not be made due to no token
+            return await slash_embed(
+                inter, inter.user, 'The bot does not have a paste token, unable to access paste.ee api.'
+            )
         paste = requests.post(
             url='https://api.paste.ee/v1/pastes',
             json={

@@ -28,6 +28,11 @@ class MessageInteraction(commands.Cog):
         self.bot.tree.remove_command(self.ctx_menu_4.name, type=self.ctx_menu_4.type)
 
     async def paste(self, inter: discord.Interaction, message: discord.Message):
+        if not PASTE_TOKEN:
+            # TODO: Log that the paste could not be made due to no token
+            return await slash_embed(
+                inter, inter.user, 'The bot does not have a paste token, unable to access paste.ee api.'
+            )
         paste = requests.post(
             url='https://api.paste.ee/v1/pastes',
             json={'sections': [{'name': 'Paste from ' + message.author.name, 'contents': message.content}]},
