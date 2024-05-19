@@ -29,9 +29,9 @@ FOUR_WEEKS = 2419200
 RED_EMBED_COLOR = 16711680
 HOISTED_CHARS = ('!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/')
 
-VERSION_MASTER_URL = 'https://raw.githubusercontent.com/cabaletta/baritone/master/src/api/java/baritone/api/Settings.java'
-VERSION_12_URL = 'https://raw.githubusercontent.com/cabaletta/baritone/v1.2.17/src/api/java/baritone/api/Settings.java'
-VERSION_LATEST_URL = 'https://raw.githubusercontent.com/cabaletta/baritone/1.20.1/src/api/java/baritone/api/Settings.java'
+VERSION_MASTER_URL = 'https://raw.githubusercontent.com/cabaletta/baritone/1.19.4/src/api/java/baritone/api/Settings.java'
+VERSION_12_URL = 'https://raw.githubusercontent.com/cabaletta/baritone/v1.2.19/src/api/java/baritone/api/Settings.java'
+VERSION_LATEST_URL = 'https://raw.githubusercontent.com/cabaletta/baritone/1.20.4/src/api/java/baritone/api/Settings.java'
 VERSION_DOCS_URL = VERSION_12_URL
 
 DEFAULT_EMBED_COLOR = '81C3FF'

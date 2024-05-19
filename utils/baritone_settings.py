@@ -12,10 +12,19 @@ log = logging.getLogger('utils.baritone_settings')
 class Setting:
     def __init__(self, description: str, title: str, data_type: str, default: str, link_website: bool):
 
-        description = description.replace(' * <p> * ', '\n')
         # adds the newline
-        description = description.replace('* ', '')
+        description = description.replace(' * <p> * ', '\n')
+
         # removes the star which isn't needed
+        description = description.replace(' * ', '\n')
+
+        # prevent _ in descriptions ruining the formatting
+        description = description.replace('_', r'\_')
+
+        # make the code blocks work
+        description = description.replace('<pre>', '```')
+        description = description.replace('</pre>', '```')
+
         log.info('checking for html hyperlinks and converting them to discord markdown hyperlinks')
         if '<a href="' in description:
             hyperlink = re.findall(r'<a href="(?P<link>.*)">(?P<text>.*)</a>', description)[0]
@@ -25,22 +34,33 @@ class Setting:
         # change the html `@see` to actual text
 
         log.info('removing all java types from documentation')
-        default = default.replace('Blocks.', '')
+
         # remove 'Blocks.'
-        default = default.replace('Color.', '')
+        default = default.replace('Blocks.', '')
+
         # remove 'Color.'
-        default = default.replace('new ArrayList<>( )', '')
+        default = default.replace('Color.', '')
+
         # remove 'new ArrayList<>( )'
-        default = default.replace('new HashMap<>()', '')
+        default = default.replace('new ArrayList<>( )', '')
+
         # remove 'new HashMap<>()'
-        default = default.replace('new ArrayList<>(Arrays.asList( ', '')
+        default = default.replace('new HashMap<>()', '')
+
         # remove 'new ArrayList<>(Arrays.asList('
-        default = default.replace('Item.getItemFromBlock(', '')
+        default = default.replace('new ArrayList<>(Arrays.asList( ', '')
+
         # remove 'Item.GetItemFromBlock('
-        default = default.replace('new Vec3i(', '')
+        default = default.replace('Item.getItemFromBlock(', '')
+
         # remove 'new Vec3i('
-        default = re.sub(r'[()]', '', default)
+        default = default.replace('new Vec3i(', '')
+
+        # remove '.asItem'
+        default = default.replace('.asItem', '')
+
         # remove any ')'
+        default = re.sub(r'[()]', '', default)
 
         self.description = description
         self.title = title
@@ -59,9 +79,16 @@ class VersionSettings:
 
         log.info(f'generating VersionSetting object from url: {url}')
         for setting_text in requests.get(url).content.decode().split('/**')[2:-6]:
-            cleaned_setting_text = ' '.join(re.sub(r'(?<!:)//.*\n', '', setting_text).split())
+
+            # skip settings that the user can't use
+            if '@JavaOnly' in setting_text:
+                continue
+
             # removes multi blank spaces, line ends, and comments
+            cleaned_setting_text = ' '.join(re.sub(r'(?<!:)//.*\n', '', setting_text).split())
+
             link_website = False if url != VERSION_DOCS_URL else True
+
             self.settings.append(Setting(
                 re.findall(r'^\* (?P<description>.*) \*/', cleaned_setting_text)[0],
                 re.findall(r'Setting<.*> (?P<title>.*) = ', cleaned_setting_text)[0],

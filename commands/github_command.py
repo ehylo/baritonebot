@@ -20,7 +20,7 @@ class GithubCommand(commands.Cog):
     @discord.app_commands.command(name='github-info', description='shows information about the baritone repo')
     async def github_info(self, inter: discord.Interaction):
         embed_var = discord.Embed(
-            color=self.bot.db.get_embed_color(inter.guild.id), title='Please wait while I gather the info'
+            color=self.bot.db.get_embed_color(inter.guild.id), title='Please wait while I gather the information'
         )
         await inter.response.send_message(embed=embed_var)
         message = await inter.original_response()
@@ -78,7 +78,7 @@ class GithubCommand(commands.Cog):
     ):
         log.info(f'{inter.user.id} searched for {query} with state as {state} and type {search_type}')
         embed_var = discord.Embed(
-            color=self.bot.db.get_embed_color(inter.guild.id), title='Please wait while I gather the info'
+            color=self.bot.db.get_embed_color(inter.guild.id), title='Please wait while I gather the information'
         )
         await inter.response.send_message(embed=embed_var)
         message = await inter.original_response()
@@ -94,13 +94,13 @@ class GithubCommand(commands.Cog):
                 continue
             merge = False
             if 'pull' in issue.html_url and search_type != 'Issue':
-                description += '<:pr:1018604923849547979>'
+                description += '<:pr:1241674718151577620>'  # '<:pr:1018604923849547979>'
                 data = self.baritone_repo.get_pull(number=issue.number)
                 if data.state == 'closed':
                     if data.merged:
                         merge = True
             elif 'pull' not in issue.html_url and search_type != 'Pull Request':
-                description += '<:issue:1018604945408278629>'
+                description += '<:issue:1241674695347011594>'  # '<:issue:1018604945408278629>'
             description += f' [#{issue.number}]({issue.html_url}) '
             description += '🟣 ' if merge else '🔴 ' if issue.state == 'closed' else '🟢 '
             description += f'{issue.title}\n'
@@ -118,6 +118,9 @@ class GithubCommand(commands.Cog):
         embed_var.url = f'{url}+{query.replace(" ", "+")}'
         embed_var.set_footer(text=f'{inter.user.name} | ID: {inter.user.id}', icon_url=inter.user.display_avatar.url)
         await message.edit(embed=embed_var)
+
+    # TODO: fix the github-issue command and github-pull-request command
+    # for now they will be commented out because of the horrible state it is in
     """
     @discord.slash_command(
         name='github-issue',
