@@ -1,9 +1,12 @@
 import re
 import enum
+import logging
 
 import requests
 
 from utils import VERSION_DOCS_URL, VERSION_12_URL, VERSION_LATEST_URL, VERSION_MASTER_URL
+
+log = logging.getLogger('utils.baritone_settings')
 
 
 class Setting:
@@ -13,6 +16,7 @@ class Setting:
         # adds the newline
         description = description.replace('* ', '')
         # removes the star which isn't needed
+        log.info('checking for html hyperlinks and converting them to discord markdown hyperlinks')
         if '<a href="' in description:
             hyperlink = re.findall(r'<a href="(?P<link>.*)">(?P<text>.*)</a>', description)[0]
             description = re.sub(r'<a href=".*">.*</a>', f'[{hyperlink[1]}]({hyperlink[0]})', description)
@@ -20,6 +24,7 @@ class Setting:
         description = description.replace(' @see', '\n**See Also:**')
         # change the html `@see` to actual text
 
+        log.info('removing all java types from documentation')
         default = default.replace('Blocks.', '')
         # remove 'Blocks.'
         default = default.replace('Color.', '')
@@ -52,6 +57,7 @@ class VersionSettings:
     def __init__(self, url: str):
         self.settings = []
 
+        log.info(f'generating VersionSetting object from url: {url}')
         for setting_text in requests.get(url).content.decode().split('/**')[2:-6]:
             cleaned_setting_text = ' '.join(re.sub(r'(?<!:)//.*\n', '', setting_text).split())
             # removes multi blank spaces, line ends, and comments
@@ -84,6 +90,7 @@ class VersionSettings:
 baritone_settings_master = VersionSettings(VERSION_MASTER_URL)
 baritone_settings_v2 = VersionSettings(VERSION_12_URL)
 baritone_settings_latest = VersionSettings(VERSION_LATEST_URL)
+log.info('all baritone setting objects have been created')
 
 baritone_settings_matcher = [
     ('master', baritone_settings_master),

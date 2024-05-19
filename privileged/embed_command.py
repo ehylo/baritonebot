@@ -1,10 +1,13 @@
 from typing import Optional
 import re
+import logging
 
 import discord
 from discord.ext import commands
 
 from utils import slash_embed
+
+log = logging.getLogger('privileged.embed_command')
 
 
 class Embed(commands.Cog):
@@ -67,6 +70,7 @@ class Embed(commands.Cog):
             if field is not None:
                 embed_var.add_field(name=field.split('||')[0], value=field.split('||')[1])
         await channel.send(embed=embed_var)
+        log.info(f'{inter.user.id} sent and embed to {channel.id}')
         await slash_embed(
             inter, inter.user, 'Sent the embed to ' + channel.mention, 'Sent', self.bot.db.get_embed_color(
                 inter.guild.id

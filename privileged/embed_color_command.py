@@ -1,9 +1,12 @@
 import re
+import logging
 
 import discord
 from discord.ext import commands
 
 from utils import slash_embed, DEFAULT_EMBED_COLOR
+
+log = logging.getLogger('privileged.embed_color_command')
 
 
 class EmbedColor(commands.Cog):
@@ -24,6 +27,7 @@ class EmbedColor(commands.Cog):
                 r'That is not a valid hex-code, it **must** match this regex: `^#[A-Fa-f\d]{6}|[A-Fa-f\d]{3}$`'
             )
         await self.bot.db.edit_embed_color(inter.guild.id, value)
+        log.info(f'{inter.user.id} changed the embed color in {inter.guild.id} to {value}')
         return await slash_embed(
             inter,
             inter.user,

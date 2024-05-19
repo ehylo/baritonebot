@@ -1,10 +1,13 @@
 import enum
 import time
+import logging
 
 import discord
 from discord.ext import commands, tasks
 
 from utils import role_hierarchy, get_user, slash_embed, mod_log_embed, dm_embed
+
+log = logging.getLogger('privileged.mute_command')
 
 time_dict = enum.Enum(
     value='time_dict',
@@ -56,6 +59,7 @@ class Mute(commands.Cog):
                         guild.get_role(self.bot.db.get_muted_role_id(guild.id))
                     )
                     await self.bot.db.delete_mute(guild.id, user['user_id'])
+                    log.info(f'unmuted {user["user_id"]} from {guild.id}')
 
     @loops.before_loop
     async def before_loops(self):
@@ -116,6 +120,7 @@ class Mute(commands.Cog):
             title='Muted',
             description=f'You have been muted in the baritone discord for {time_text}, Reason: \n```{reason}```'
         )
+        log.info(f'{inter.user.id} muted {offender.id} for {time_text} with reason: {reason}')
 
     @discord.app_commands.command(description='un-mutes the specified member')
     @discord.app_commands.default_permissions(view_audit_log=True)
@@ -140,6 +145,7 @@ class Mute(commands.Cog):
             self.bot.db.get_embed_color(inter.guild.id),
             False
         )
+        log.info(f'{inter.user.id} unmuted {offender.id}')
 
     @discord.app_commands.command(name='mute-list', description='lists the current muted members')
     @discord.app_commands.default_permissions(view_audit_log=True)

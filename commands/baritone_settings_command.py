@@ -1,7 +1,11 @@
+import logging
+
 import discord
 from discord.ext import commands
 
 from utils import slash_embed, baritone_settings_versions
+
+log = logging.getLogger('commands.baritone_settings_command')
 
 
 class BackwardButton(discord.ui.Button):
@@ -80,6 +84,7 @@ class BaritoneSettings(commands.Cog):
         term='The term you want to search for'
     )
     async def setting_searcher(self, inter: discord.Interaction, version: baritone_settings_versions, term: str):
+        log.info(f'{inter.user.id} searched in {version.name} for {term}')
         content = version.value.search(term)
         if content == ['']:
             return await slash_embed(

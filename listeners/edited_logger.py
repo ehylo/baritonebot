@@ -1,7 +1,11 @@
+import logging
+
 import discord
 from discord.ext import commands
 
 from utils import get_channel
+
+log = logging.getLogger('listeners.edited_logger')
 
 
 class EditedMessageJump(discord.ui.View):
@@ -41,6 +45,8 @@ class EditedLogger(commands.Cog):
             text=f'{message_after.author.name} | ID: {message_after.author.id}',
             icon_url=message_after.author.display_avatar.url
         )
+        log.info(f'message edited in {message_after.channel.id}, '
+                 f'before: {message_before.content}\n\nafter: {message_after.content}')
         channel = await get_channel(self.bot, self.bot.db.get_logs_channel_id(message_after.guild.id))
         await channel.send(embed=embed_var, view=EditedMessageJump(message_after.jump_url))
 

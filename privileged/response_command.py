@@ -1,11 +1,13 @@
 import re
-import mimetypes
+import logging
 
 import discord
 import requests
 from discord.ext import commands
 
 from utils import ignored_id_verifier, regex_verifier, role_check, slash_embed, dm_embed, PASTE_TOKEN
+
+log = logging.getLogger('privileged.response_command')
 
 
 class Trash(discord.ui.Button):
@@ -56,45 +58,14 @@ class Response(commands.Cog):
                             title=response['title'],
                             description=response['description']
                         )
+                        log.info(f'{message.author.id} sent a message that matched a deletion response, '
+                                 f'regex: {response["regex"]}')
                     except (discord.NotFound, discord.Forbidden, discord.errors.HTTPException):
                         pass
                 elif not role_check(message.author, response['ignored_response_ids']) or \
                         self.bot in message.mentions or message.content.startswith('!'):
                     view = discord.ui.View(timeout=None)
                     view.add_item(Trash(bot=self.bot))
-                    if len(message.attachments) > 0:
-                        for attachment in message.attachments:
-                            file_type = mimetypes.guess_type(attachment.url)
-                            if file_type[0] is not None:
-                                file_type = file_type[0].split('/')[0]
-                            if attachment.url.lower().endswith(
-                                (
-                                    '.log', '.json5', '.json', '.py', '.sh', '.config', '.toml', '.bat', '.cfg'
-                                )
-                            ) or file_type == 'text':
-                                text = await discord.Attachment.read(attachment)
-                                paste_response = requests.post(
-                                    url='https://api.paste.ee/v1/pastes',
-                                    json={
-                                        'sections': [
-                                            {
-                                                'name': 'Paste from ' + str(message.author),
-                                                'contents': ('\n'.join((text.decode('UTF-8')).splitlines()))
-                                            }
-                                        ]
-                                    },
-                                    headers={'X-Auth-Token': PASTE_TOKEN}
-                                )
-                                embed_var = discord.Embed(
-                                    color=self.bot.db.get_embed_color(message.guild.id),
-                                    title='Contents uploaded to paste.ee',
-                                    description=paste_response.json()['link']
-                                )
-                                embed_var.set_footer(
-                                    text=f'{message.author.name} | ID: {message.author.id}',
-                                    icon_url=message.author.display_avatar.url
-                                )
-                                await message.channel.send(embed=embed_var)
                     if self.bot in message.mentions or message.content.startswith('!'):
                         try:
                             await message.delete()
@@ -110,6 +81,38 @@ class Response(commands.Cog):
                         icon_url=message.author.display_avatar.url
                     )
                     await message.channel.send(embed=embed_var, view=view)
+                    log.info(f'{message.author.id} triggered a response with regex: {response["regex"]}')
+
+        if len(message.attachments) > 0:
+            for attachment in message.attachments:
+                if 'text' in attachment.content_type:
+                    text = await discord.Attachment.read(attachment)
+                    paste_response = requests.post(
+                        url='https://api.paste.ee/v1/pastes',
+                        json={
+                            'sections': [
+                                {
+                                    'name': 'Paste from ' + str(message.author),
+                                    'contents': ('\n'.join((text.decode('UTF-8')).splitlines()))
+                                }
+                            ]
+                        },
+                        headers={'X-Auth-Token': PASTE_TOKEN}
+                    )
+                    embed_var = discord.Embed(
+                        color=self.bot.db.get_embed_color(message.guild.id),
+                        title='Contents uploaded to paste.ee',
+                        description=paste_response.json()['link']
+                    )
+                    embed_var.set_footer(
+                        text=f'{message.author.name} | ID: {message.author.id}',
+                        icon_url=message.author.display_avatar.url
+                    )
+                    await message.channel.send(embed=embed_var)
+                    log.info(
+                        f'{message.author.id} sent an attachment and its contents were uploaded to paste.ee'
+                        f' with url: {paste_response.json()["link"]}'
+                    )
 
     @discord.app_commands.command(name='response-new', description='create a new response')
     @discord.app_commands.describe(
@@ -130,6 +133,7 @@ class Response(commands.Cog):
             return await slash_embed(inter, inter.user, 'Could not verify those role ids', 'Bad input')
         if not regex_verifier(regex):
             return await slash_embed(inter, inter.user, 'Could not verify that regex', 'Bad input')
+        ignored_ids = [int(a) for a in ignored_ids.split(' ')]
         await self.bot.db.new_response(
             inter.guild.id, title, description.replace('\\n', '\n'), regex, delete, ignored_ids
         )
@@ -141,6 +145,7 @@ class Response(commands.Cog):
             self.bot.db.get_embed_color(inter.guild.id),
             False
         )
+        log.info(f'{inter.user.id} created a new response in {inter.guild.id}')
 
     @discord.app_commands.command(name='response-edit', description='edit a response')
     @discord.app_commands.default_permissions(ban_members=True)
@@ -185,6 +190,7 @@ class Response(commands.Cog):
             self.bot.db.get_embed_color(inter.guild.id),
             False
         )
+        log.info(f'{inter.user.id} edited a response in {inter.guild.id}')
 
     @discord.app_commands.command(name='response-delete', description='delete a response')
     @discord.app_commands.describe(response_num='which response you want to delete')
@@ -203,6 +209,7 @@ class Response(commands.Cog):
             self.bot.db.get_embed_color(inter.guild.id),
             False
         )
+        log.info(f'{inter.user.id} deleted a response in {inter.guild.id}')
 
     @discord.app_commands.command(name='response-list', description='shows a list of all the current response')
     @discord.app_commands.default_permissions(view_audit_log=True)

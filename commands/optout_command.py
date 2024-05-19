@@ -1,7 +1,11 @@
+import logging
+
 import discord
 from discord.ext import commands
 
 from utils import slash_embed, dm_embed, mod_log_embed
+
+log = logging.getLogger('commands.optout_command')
 
 
 class OptOut(commands.Cog):
@@ -13,6 +17,7 @@ class OptOut(commands.Cog):
         confirmation='Type \"I am sure\" to confirm you want to ban yourself, this cannot be undone'
     )
     async def opt_out(self, inter: discord.Interaction, confirmation: str):
+        log.info(f'{inter.user.id} has opted out of the server')
         if confirmation != 'I am sure':
             return await slash_embed(
                 inter,

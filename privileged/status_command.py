@@ -1,9 +1,12 @@
 from typing import Literal
+import logging
 
 import discord
 from discord.ext import commands
 
 from utils import slash_embed, DEFAULT_PRESENCE_VALUE, PRESENCE_ACTION_KEY
+
+log = logging.getLogger('privileged.status_command')
 
 
 class Status(commands.Cog):
@@ -32,6 +35,7 @@ class Status(commands.Cog):
                 type=PRESENCE_ACTION_KEY[self.bot.db.presence_action], name=self.bot.db.presence_value
             )
         )
+        log.info(f'{inter.user.id} changed the bot\'s presence action to {action} and value to {value}')
         return await slash_embed(
             inter,
             inter.user,

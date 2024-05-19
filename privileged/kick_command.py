@@ -1,7 +1,11 @@
+import logging
+
 import discord
 from discord.ext import commands
 
 from utils import role_hierarchy, slash_embed, dm_embed, mod_log_embed
+
+log = logging.getLogger('privileged.kick_command')
 
 
 class Kick(commands.Cog):
@@ -42,6 +46,7 @@ class Kick(commands.Cog):
             title='Kicked',
             description=f'You have been kicked from the baritone discord for reason: \n```{reason}```'
         )
+        log.info(f'{inter.user.id} has kicked {offender.id} for reason: {reason}')
 
 
 async def setup(bot):

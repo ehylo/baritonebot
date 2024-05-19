@@ -1,7 +1,11 @@
+import logging
+
 import discord
 from discord.ext import commands
 
 from utils import slash_embed, get_channel
+
+log = logging.getLogger('privileged.clear_command')
 
 
 class Clear(commands.Cog):
@@ -54,6 +58,7 @@ class Clear(commands.Cog):
                 'Bulk messages deleted',
                 self.bot.db.get_embed_color(inter.guild.id),
             )
+            log.info(f'{inter.user.id} has purged {number} messages from {member.id}')
         else:
             await channel.purge(limit=number)
             embed_var = discord.Embed(
@@ -72,6 +77,7 @@ class Clear(commands.Cog):
                 'Bulk messages deleted',
                 self.bot.db.get_embed_color(inter.guild.id),
             )
+            log.info(f'{inter.user.id} has purged {number} messages from {channel.id}')
 
 
 async def setup(bot):

@@ -1,9 +1,12 @@
+import logging
 from typing import Literal
 
 import discord
 from discord.ext import commands
 
 from utils import slash_embed, role_hierarchy, mod_log_embed, dm_embed
+
+log = logging.getLogger('privileged.ban_command')
 
 
 class Ban(commands.Cog):
@@ -24,6 +27,7 @@ class Ban(commands.Cog):
         if not role_hierarchy(self.bot.db, inter.guild.id, enforcer=inter.user, offender=offender):
             return await slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
         await offender.ban(reason=reason, delete_message_days=purge)
+        log.info(f'{inter.user.id} has banned {offender.id}, purging {purge} with reason: {reason}')
         await slash_embed(
             inter,
             inter.user,
@@ -57,6 +61,7 @@ class Ban(commands.Cog):
     async def unban(self, inter: discord.Interaction, user: discord.User):
         try:
             await inter.guild.unban(user)
+            log.info(f'{inter.user.id} has unbanned {user.id}')
             await slash_embed(
                 inter,
                 inter.user,

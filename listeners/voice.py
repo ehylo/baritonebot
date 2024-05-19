@@ -1,5 +1,9 @@
+import logging
+
 import discord
 from discord.ext import commands
+
+log = logging.getLogger('listeners.voice')
 
 
 class Voice(commands.Cog):
@@ -12,8 +16,10 @@ class Voice(commands.Cog):
     ):
         voice_role = member.guild.get_role(self.bot.db.get_voice_role_id(member.guild.id))
         if before.channel is None and voice_role not in member.roles:
+            log.info(f'{member.id} joined the voice channel {after.channel.id}')
             return await member.add_roles(voice_role)
         if after.channel is None and voice_role in member.roles:
+            log.info(f'{member.id} left the voice channel {before.channel.id}')
             return await member.remove_roles(voice_role)
 
 

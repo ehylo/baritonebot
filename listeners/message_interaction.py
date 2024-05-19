@@ -1,10 +1,13 @@
 import requests
 import json
+import logging
 
 import discord
 from discord.ext import commands
 
 from utils import PASTE_TOKEN, info_embed, slash_embed
+
+log = logging.getLogger('listeners.message_interaction')
 
 
 class MessageInteraction(commands.Cog):
@@ -27,15 +30,18 @@ class MessageInteraction(commands.Cog):
 
     async def paste(self, inter: discord.Interaction, message: discord.Message):
         if not PASTE_TOKEN:
-            # TODO: Log that the paste could not be made due to no token
+            log.warning('the bot does not have a paste.ee token, so I can\'t upload the message to paste.ee')
             return await slash_embed(
                 inter, inter.user, 'The bot does not have a paste token, unable to access paste.ee api.'
             )
+        if message.content == '':
+            return await slash_embed(inter, inter.user, 'There is no content in this message')
         paste = requests.post(
             url='https://api.paste.ee/v1/pastes',
             json={'sections': [{'name': 'Paste from ' + message.author.name, 'contents': message.content}]},
             headers={'X-Auth-Token': PASTE_TOKEN}
         )
+        log.info(f'uploaded contents of message {message.id} to paste.ee with url: {paste.json()["link"]}')
         await slash_embed(
             inter,
             inter.user,
@@ -57,8 +63,8 @@ class MessageInteraction(commands.Cog):
             inter, inter.user, f'```{embed_list}```', 'Embed Json', self.bot.db.get_embed_color(inter.guild.id)
         )
 
-    async def member_info(self, inter: discord.Interaction, _message: discord.Message):
-        await inter.response.send_message(embed=info_embed(self.bot.db, inter, inter.user))
+    async def member_info(self, inter: discord.Interaction, message: discord.Message):
+        await inter.response.send_message(embed=info_embed(self.bot.db, inter, message.author))
 
 
 async def setup(bot):

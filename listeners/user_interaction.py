@@ -19,8 +19,8 @@ class UserInteraction(commands.Cog):
         self.bot.tree.remove_command(self.ctx_menu_2.name, type=self.ctx_menu_2.type)
         self.bot.tree.remove_command(self.ctx_menu_3.name, type=self.ctx_menu_3.type)
 
-    async def member_info(self, inter: discord.Interaction, _member: discord.Member):
-        await inter.response.send_message(embed=info_embed(self.bot.db, inter, inter.user))
+    async def member_info(self, inter: discord.Interaction, member: discord.User):
+        await inter.response.send_message(embed=info_embed(self.bot.db, inter, member))
 
     async def user_avatar(self, inter: discord.Interaction, member: discord.Member):
         embed_var = discord.Embed(color=self.bot.db.get_embed_color(inter.guild.id), title='User Avatar')

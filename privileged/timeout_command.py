@@ -1,10 +1,13 @@
 from typing import Literal
 from datetime import timedelta
+import logging
 
 import discord
 from discord.ext import commands
 
 from utils import role_hierarchy, TIME_KEYS, FOUR_WEEKS, dm_embed, mod_log_embed, slash_embed
+
+log = logging.getLogger('privileged.timeout_command')
 
 
 class TimeOut(commands.Cog):
@@ -61,6 +64,7 @@ class TimeOut(commands.Cog):
             title='Timed Out',
             description=f'You have been timed out in the baritone discord for {time_text}, Reason: \n```{reason}```'
         )
+        log.info(f'{inter.user.id} timed out {offender.id} for {time_text} with reason {reason}')
 
     @discord.app_commands.command(name='un-timeout', description='removes the timeout on the specified member')
     @discord.app_commands.describe(offender='Member you wish to un-timeout')
@@ -80,6 +84,7 @@ class TimeOut(commands.Cog):
             self.bot.db.get_embed_color(inter.guild.id),
             False
         )
+        log.info(f'{inter.user.id} removed the timeout from {offender.id}')
 
 
 async def setup(bot):

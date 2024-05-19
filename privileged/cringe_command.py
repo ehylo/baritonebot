@@ -1,9 +1,12 @@
 import requests
+import logging
 
 import discord
 from discord.ext import commands
 
 from utils import PASTE_TOKEN, slash_embed, get_random_cringe
+
+log = logging.getLogger('privileged.cringe_command')
 
 
 class ReCringe(discord.ui.View):
@@ -37,7 +40,7 @@ class Cringe(commands.Cog):
     @discord.app_commands.command(name='cringe-dump', description='dumps all cringe images into a paste.ee link')
     async def cringe_dump(self, inter: discord.Interaction):
         if not PASTE_TOKEN:
-            # TODO: Log that the paste could not be made due to no token
+            log.warning('the bot does not have a paste.ee token, so I can\'t upload the message to paste.ee')
             return await slash_embed(
                 inter, inter.user, 'The bot does not have a paste token, unable to access paste.ee api.'
             )
@@ -51,6 +54,7 @@ class Cringe(commands.Cog):
             },
             headers={'X-Auth-Token': PASTE_TOKEN}
         ).json()
+        log.info(f'{inter.user.id} dumped cringe urls to {paste["link"]}')
         await slash_embed(
             inter,
             inter.user,
@@ -76,6 +80,7 @@ class Cringe(commands.Cog):
                 color=self.bot.db.get_embed_color(inter.guild.id),
                 ephemeral=False
             )
+            log.info(f'{inter.user.id} has removed cringe url: {url}')
         else:
             await slash_embed(inter, inter.user, 'That link does not exist in the cringe db', 'Invalid link')
 
@@ -87,6 +92,7 @@ class Cringe(commands.Cog):
             return await slash_embed(inter, inter.user, 'That attachment is not an image', 'Not an Image')
         await self.bot.db.new_cringe_link(inter.guild.id, image.url)
         await slash_embed(inter, inter.user, 'Very Cringe', 'Added', self.bot.db.get_embed_color(inter.guild.id), False)
+        log.info(f'{inter.user.id} has added a new cringe with url: {image.url}')
 
 
 async def setup(bot):

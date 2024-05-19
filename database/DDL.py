@@ -63,7 +63,7 @@ CREATE TABLE ignored_response_ids (
 );
 """
 
-_create_mod_rules = """
+_create_mod_roles = """
 CREATE TABLE IF NOT EXISTS mod_roles (
     guild_id bigint  NOT NULL,
     role_id bigint  NOT NULL,
@@ -191,7 +191,7 @@ CREATES_LIST = {
     'guilds': _create_guilds,
     'helper_roles': _create_helper_roles,
     'ignored_response_ids': _create_ignored_response_ids,
-    'mod_rules': _create_mod_rules,
+    'mod_roles': _create_mod_roles,
     'mutes': _create_mutes,
     'responses': _create_responses,
     'rules': _create_rules,

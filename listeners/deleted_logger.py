@@ -1,7 +1,11 @@
+import logging
+
 import discord
 from discord.ext import commands
 
 from utils import get_channel, get_unix
+
+log = logging.getLogger('listeners.deleted_logger')
 
 
 class DeletedLogger(commands.Cog):
@@ -19,6 +23,7 @@ class DeletedLogger(commands.Cog):
                 color=self.bot.db.get_embed_color(payload.guild_id),
                 description=f'Un-cached message deleted in <#{payload.channel_id}>, it was sent on <t:{unix_time}:F>'
             )
+            log.info(f'uncached message deleted from {payload.channel_id} which was sent on {unix_time}')
             return await log_channel.send(embed=embed_var)
         message = payload.cached_message
         if message.author.discriminator == '0000':
@@ -39,6 +44,7 @@ class DeletedLogger(commands.Cog):
             text=f'{message.author.name} | ID: {message.author.id}',
             icon_url=message.author.display_avatar.url
         )
+        log.info(f'message deleted in {message.channel.id}, content: {message.content}')
         await log_channel.send(embed=embed_var)
 
 

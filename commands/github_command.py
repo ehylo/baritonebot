@@ -1,4 +1,5 @@
 from typing import Literal
+import logging
 
 import discord
 from discord.ext import commands
@@ -6,6 +7,8 @@ from github import Github
 from github.GithubException import UnknownObjectException
 
 from utils import slash_embed, GITHUB_TOKEN
+
+log = logging.getLogger('commands.github_command')
 
 
 class GithubCommand(commands.Cog):
@@ -73,6 +76,7 @@ class GithubCommand(commands.Cog):
         state: Literal['Open', 'Closed', 'Both'] = 'Both',
         search_type: Literal['Issue', 'Pull Request', 'Both'] = 'Both'
     ):
+        log.info(f'{inter.user.id} searched for {query} with state as {state} and type {search_type}')
         embed_var = discord.Embed(
             color=self.bot.db.get_embed_color(inter.guild.id), title='Please wait while I gather the info'
         )

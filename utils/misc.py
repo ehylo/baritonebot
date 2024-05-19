@@ -117,3 +117,4 @@ def role_check(member: discord.Member, ignored_ids: list[int]):
     for role_id in ignored_ids:
         if member.guild.get_role(role_id) in member.roles:
             return True
+    return False

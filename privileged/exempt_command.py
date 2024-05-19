@@ -1,9 +1,12 @@
 from typing import Literal
+import logging
 
 import discord
 from discord.ext import commands
 
 from utils import slash_embed, get_channel
+
+log = logging.getLogger('privileged.exempt_command')
 
 
 class UndoAddExempt(discord.ui.View):
@@ -30,6 +33,7 @@ class UndoAddExempt(discord.ui.View):
             view=self,
             is_interaction=True
         )
+        log.info(f'{inter.user.id} has removed the channel {channel.id} from the exempt list')
 
 
 class UndoRemoveExempt(discord.ui.View):
@@ -58,6 +62,7 @@ class UndoRemoveExempt(discord.ui.View):
             view=self,
             is_interaction=True
         )
+        log.info(f'{inter.user.id} has added the channel {channel.id} to the exempt list')
 
 
 class Exempt(commands.Cog):
@@ -83,6 +88,7 @@ class Exempt(commands.Cog):
                 self.bot.db.get_embed_color(inter.guild.id),
                 view=UndoAddExempt(bot=self.bot)
             )
+            log.info(f'{inter.user.id} has added the channel {channel.id} to the exempt list')
         if action == 'Remove':
             if channel.id not in exempted_channel_ids:
                 return await slash_embed(inter, inter.user, 'That channel isn\'t exempted')
@@ -95,6 +101,7 @@ class Exempt(commands.Cog):
                 self.bot.db.get_embed_color(inter.guild.id),
                 view=UndoRemoveExempt(bot=self.bot)
             )
+            log.info(f'{inter.user.id} has removed the channel {channel.id} from the exempt list')
 
     @discord.app_commands.command(name='exempt-list', description='lists the exempted/un-exempted channels')
     @discord.app_commands.default_permissions(administrator=True)

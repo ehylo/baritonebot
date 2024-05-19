@@ -6,9 +6,9 @@ Links:
 *   [Main Baritone repo](https://github.com/cabaletta/baritone)
 ## Things to-do
 *   Add an `on_error` listener to all buttons
+*   Be able to edit the ignored role ids on a response (got lazy)
 *   Create an extension command to allow me to control extensions to fix them
 *   Find out how to catch the rare cursor db problem and deal with it
-*   Add logging to everything, currently there is none
 *   Make the response list command have pages so the embed limit isn't reached with lots of responses
 *   For the ban command add the ability to set a time, so it can be a temporary ban
 *   Be able to edit the rules with a rule edit command
@@ -37,6 +37,7 @@ Then, make a `.env` file and add these variables:
 DATABASE_URL=
 GUILD_ID=
 DISCORD_TOKEN=
+DB_SCHEMA=public
 ```
 (optional)
 ```dotenv
