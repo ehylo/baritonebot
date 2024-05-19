@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from utils.embeds import slash_embed
+from utils import slash_embed
 
 
 class Help(commands.Cog):
@@ -18,7 +18,7 @@ class Help(commands.Cog):
             return
         if message.content.startswith('b?'):
             embed_var = discord.Embed(
-                color=self.bot.db.embed_color[message.guild.id],
+                color=self.bot.db.get_embed_color(message.guild.id),
                 title='Removed',
                 description='All commands are now slash commands'
             )
@@ -43,7 +43,7 @@ class Help(commands.Cog):
             '\n**__Admins:__**\n'
             'exempt, exempt-list',
             'Slash Commands',
-            self.bot.db.embed_color[inter.guild.id],
+            self.bot.db.get_embed_color(inter.guild.id),
         )
 
 

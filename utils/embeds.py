@@ -1,12 +1,12 @@
 import discord
 
-import utils
+from utils import get_channel, RED_EMBED_COLOR
 
 
 async def dm_embed(
     db, guild_id: int, channel: discord.DMChannel, author: discord.User, title: str, description: str
 ):
-    embed_var = discord.Embed(color=db.embed_color[guild_id], title=title, description=description)
+    embed_var = discord.Embed(color=db.get_embed_color(guild_id), title=title, description=description)
     embed_var.set_footer(text=f'{author.name} | ID: {author.id}', icon_url=author.display_avatar.url)
     await channel.send(embed=embed_var)
 
@@ -14,8 +14,8 @@ async def dm_embed(
 async def mod_log_embed(
     bot, db, guild_id: int, author: discord.Member, offender: discord.Member, title: str, description: str
 ):
-    channel = await utils.misc.get_channel(bot, db.mod_logs_id[guild_id])
-    embed_var = discord.Embed(color=db.embed_color[guild_id], title=title, description=description)
+    channel = await get_channel(bot, db.get_mod_logs_channel_id(guild_id))
+    embed_var = discord.Embed(color=db.get_embed_color(guild_id), title=title, description=description)
     embed_var.set_author(name=offender, icon_url=offender.display_avatar.url)
     embed_var.set_footer(text=f'{author.name} | ID: {author.id}', icon_url=author.display_avatar.url)
     await channel.send(embed=embed_var)
@@ -26,7 +26,7 @@ async def slash_embed(
     author: discord.User,
     description: str = '',
     title: str = '',
-    color: int = utils.const.RED_EMBED_COLOR,
+    color: int = RED_EMBED_COLOR,
     ephemeral: bool = True,
     view: discord.ui.View = None,
     is_interaction: bool = False

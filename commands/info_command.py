@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from utils import misc
+from utils import info_embed
 
 
 class Info(commands.Cog):
@@ -11,12 +11,12 @@ class Info(commands.Cog):
     @discord.app_commands.command(name='user-info', description='shows information about a member/user')
     @discord.app_commands.describe(user='the user to get information on')
     async def user_info(self, inter: discord.Interaction, user: discord.User):
-        await inter.response.send_message(embed=misc.info_embed(self.bot.db, inter, user))
+        await inter.response.send_message(embed=info_embed(self.bot.db, inter, user))
 
     @discord.app_commands.command(name='server-info', description='shows information about the server')
     async def server_info(self, inter: discord.Interaction):
         embed_var = discord.Embed(
-            color=self.bot.db.embed_color[inter.guild.id], title=f'Server Information: {inter.guild.name}'
+            color=self.bot.db.get_embed_color(inter.guild.id), title=f'Server Information: {inter.guild.name}'
         )
         embed_var.add_field(name='Owner:', value=f'{inter.guild.owner} (ID: {inter.guild.owner_id})', inline=False)
         embed_var.add_field(name='Description:', value=inter.guild.description, inline=False)

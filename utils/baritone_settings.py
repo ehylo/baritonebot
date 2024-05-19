@@ -1,8 +1,9 @@
 import re
+import enum
 
 import requests
 
-from utils import const
+from utils import VERSION_DOCS_URL, VERSION_12_URL, VERSION_LATEST_URL, VERSION_MASTER_URL
 
 
 class Setting:
@@ -51,10 +52,10 @@ class VersionSettings:
     def __init__(self, url: str):
         self.settings = []
 
-        for setting_text in requests.get(url).content.decode('utf-8').split('/**')[2:-6]:
+        for setting_text in requests.get(url).content.decode().split('/**')[2:-6]:
             cleaned_setting_text = ' '.join(re.sub(r'(?<!:)//.*\n', '', setting_text).split())
             # removes multi blank spaces, line ends, and comments
-            link_website = False if url != const.VERSION_DOCS_URL else True
+            link_website = False if url != VERSION_DOCS_URL else True
             self.settings.append(Setting(
                 re.findall(r'^\* (?P<description>.*) \*/', cleaned_setting_text)[0],
                 re.findall(r'Setting<.*> (?P<title>.*) = ', cleaned_setting_text)[0],
@@ -78,3 +79,15 @@ class VersionSettings:
                     page_index += 1
                     pages.append(match.combined)
         return pages
+
+
+baritone_settings_master = VersionSettings(VERSION_MASTER_URL)
+baritone_settings_v2 = VersionSettings(VERSION_12_URL)
+baritone_settings_latest = VersionSettings(VERSION_LATEST_URL)
+
+baritone_settings_matcher = [
+    ('master', baritone_settings_master),
+    ('1.2', baritone_settings_v2),
+    ('1.10', baritone_settings_latest),
+]
+baritone_settings_versions = enum.Enum(value='version', names=baritone_settings_matcher)

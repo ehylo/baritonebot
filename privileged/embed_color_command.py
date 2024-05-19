@@ -3,8 +3,7 @@ import re
 import discord
 from discord.ext import commands
 
-from utils.embeds import slash_embed
-from utils.const import DEFAULT_EMBED_COLOR
+from utils import slash_embed, DEFAULT_EMBED_COLOR
 
 
 class EmbedColor(commands.Cog):
@@ -24,13 +23,13 @@ class EmbedColor(commands.Cog):
                 inter.user,
                 r'That is not a valid hex-code, it **must** match this regex: `^#[A-Fa-f\d]{6}|[A-Fa-f\d]{3}$`'
             )
-        await self.bot.db.update_embed_color(inter.guild, value)
+        await self.bot.db.edit_embed_color(inter.guild.id, value)
         return await slash_embed(
             inter,
             inter.user,
             f'Set the embed color of this server to {value}',
             'Embed-color set',
-            self.bot.db.embed_color[inter.guild.id]
+            self.bot.db.get_embed_color(inter.guild.id)
         )
 
 

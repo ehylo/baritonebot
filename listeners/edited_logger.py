@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from utils.misc import get_channel
+from utils import get_channel
 
 
 class EditedMessageJump(discord.ui.View):
@@ -29,10 +29,10 @@ class EditedLogger(commands.Cog):
             return
         if len(message_before.content) > 1024 or len(message_after.content) > 1024:
             return
-        if message_after.channel.id in self.bot.db.exempted_ids[message_after.guild.id]:
+        if message_after.channel.id in self.bot.db.get_exempt_channel_ids(message_after.guild.id):
             return
         embed_var = discord.Embed(
-            color=self.bot.db.embed_color[message_after.guild.id],
+            color=self.bot.db.get_embed_color(message_after.guild.id),
             description=f'**Message edited in {message_after.channel.mention}**'
         )
         embed_var.add_field(name='Before Edit:', value=message_before.content, inline=False)
@@ -41,7 +41,7 @@ class EditedLogger(commands.Cog):
             text=f'{message_after.author.name} | ID: {message_after.author.id}',
             icon_url=message_after.author.display_avatar.url
         )
-        channel = await get_channel(self.bot, self.bot.db.logs_id[message_after.guild.id])
+        channel = await get_channel(self.bot, self.bot.db.get_logs_channel_id(message_after.guild.id))
         await channel.send(embed=embed_var, view=EditedMessageJump(message_after.jump_url))
 
 

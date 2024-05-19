@@ -1,8 +1,7 @@
 import discord
 from discord.ext import commands
 
-from utils.embeds import slash_embed
-from utils.misc import get_channel
+from utils import slash_embed, get_channel
 
 
 class Clear(commands.Cog):
@@ -28,7 +27,7 @@ class Clear(commands.Cog):
             return m.author == member
 
         channel = inter.channel if channel is None else channel
-        log_channel = await get_channel(self.bot, self.bot.db.logs_id[inter.guild.id])
+        log_channel = await get_channel(self.bot, self.bot.db.get_logs_channel_id(inter.guild.id))
         if member is not None:
             og_num = number
             limit = 0
@@ -40,7 +39,7 @@ class Clear(commands.Cog):
                     break
             await channel.purge(limit=limit, check=member_check)
             embed_var = discord.Embed(
-                color=self.bot.db.embed_color[inter.guild.id],
+                color=self.bot.db.get_embed_color(inter.guild.id),
                 description=f'{inter.user.mention} cleared {og_num} messages in {channel.mention} from {member.mention}'
             )
             embed_var.set_footer(
@@ -53,12 +52,12 @@ class Clear(commands.Cog):
                 inter.user,
                 f'Successfully cleared {og_num} messages from {member.mention} in {channel.mention}',
                 'Bulk messages deleted',
-                self.bot.db.embed_color[inter.guild.id],
+                self.bot.db.get_embed_color(inter.guild.id),
             )
         else:
             await channel.purge(limit=number)
             embed_var = discord.Embed(
-                color=self.bot.db.embed_color[inter.guild.id],
+                color=self.bot.db.get_embed_color(inter.guild.id),
                 description=f'{inter.user.mention} cleared {number} messages in {channel.mention}'
             )
             embed_var.set_footer(
@@ -71,7 +70,7 @@ class Clear(commands.Cog):
                 inter.user,
                 f'Successfully cleared {number} messages in {channel.mention}',
                 'Bulk messages deleted',
-                self.bot.db.embed_color[inter.guild.id],
+                self.bot.db.get_embed_color(inter.guild.id),
             )
 
 

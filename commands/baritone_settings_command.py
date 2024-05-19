@@ -1,8 +1,7 @@
 import discord
 from discord.ext import commands
 
-from utils.embeds import slash_embed
-from utils import const
+from utils import slash_embed, baritone_settings_versions
 
 
 class BackwardButton(discord.ui.Button):
@@ -27,7 +26,7 @@ class BackwardButton(discord.ui.Button):
             inter,
             author=inter.user,
             description=pages[self.view.current_page],
-            color=self.bot.db.embed_color[inter.guild.id],
+            color=self.bot.db.get_embed_color(inter.guild.id),
             ephemeral=False,
             view=self.view,
             is_interaction=True
@@ -56,7 +55,7 @@ class ForwardButton(discord.ui.Button):
             inter,
             author=inter.user,
             description=pages[self.view.current_page],
-            color=self.bot.db.embed_color[inter.guild.id],
+            color=self.bot.db.get_embed_color(inter.guild.id),
             ephemeral=False,
             view=self.view,
             is_interaction=True
@@ -80,14 +79,14 @@ class BaritoneSettings(commands.Cog):
         version='the baritone version you want to find settings for',
         term='The term you want to search for'
     )
-    async def setting_searcher(self, inter: discord.Interaction, version: const.baritone_settings_versions, term: str):
+    async def setting_searcher(self, inter: discord.Interaction, version: baritone_settings_versions, term: str):
         content = version.value.search(term)
         if content == ['']:
             return await slash_embed(
                 inter,
                 inter.user,
                 'No settings were found with that search :(',
-                color=self.bot.db.embed_color[inter.guild.id],
+                color=self.bot.db.get_embed_color(inter.guild.id),
                 ephemeral=False,
             )
         if len(content) == 1:
@@ -95,7 +94,7 @@ class BaritoneSettings(commands.Cog):
                 inter,
                 inter.user,
                 content[0],
-                color=self.bot.db.embed_color[inter.guild.id],
+                color=self.bot.db.get_embed_color(inter.guild.id),
                 ephemeral=False
             )
         view = discord.ui.View(timeout=None)
@@ -109,7 +108,7 @@ class BaritoneSettings(commands.Cog):
             inter,
             inter.user,
             content[0],
-            color=self.bot.db.embed_color[inter.guild.id],
+            color=self.bot.db.get_embed_color(inter.guild.id),
             ephemeral=False,
             view=view
         )

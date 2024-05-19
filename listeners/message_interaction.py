@@ -4,9 +4,7 @@ import json
 import discord
 from discord.ext import commands
 
-from utils.const import PASTE_TOKEN
-from utils.misc import info_embed
-from utils.embeds import slash_embed
+from utils import PASTE_TOKEN, info_embed, slash_embed
 
 
 class MessageInteraction(commands.Cog):
@@ -43,12 +41,12 @@ class MessageInteraction(commands.Cog):
             inter.user,
             paste.json()['link'],
             'Contents uploaded to paste.ee',
-            self.bot.db.embed_color[inter.guild.id]
+            self.bot.db.get_embed_color(inter.guild.id)
         )
 
     async def raw_contents(self, inter: discord.Interaction, message: discord.Message):
         await slash_embed(
-            inter, inter.user, f'```{message.content}```', 'Raw contents', self.bot.db.embed_color[inter.guild.id]
+            inter, inter.user, f'```{message.content}```', 'Raw contents', self.bot.db.get_embed_color(inter.guild.id)
         )
 
     async def embed_json(self, inter: discord.Interaction, message: discord.Message):
@@ -56,7 +54,7 @@ class MessageInteraction(commands.Cog):
             return await slash_embed(inter, inter.user, 'There are no embeds on the message you selected', 'No embeds')
         embed_list = '\n'.join(list(json.dumps(embed.to_dict(), indent=4) for embed in message.embeds))
         await slash_embed(
-            inter, inter.user, f'```{embed_list}```', 'Embed Json', self.bot.db.embed_color[inter.guild.id]
+            inter, inter.user, f'```{embed_list}```', 'Embed Json', self.bot.db.get_embed_color(inter.guild.id)
         )
 
     async def member_info(self, inter: discord.Interaction, _message: discord.Message):

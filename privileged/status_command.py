@@ -3,8 +3,7 @@ from typing import Literal
 import discord
 from discord.ext import commands
 
-from utils import const
-from utils.embeds import slash_embed
+from utils import slash_embed, DEFAULT_PRESENCE_VALUE, PRESENCE_ACTION_KEY
 
 
 class Status(commands.Cog):
@@ -25,12 +24,12 @@ class Status(commands.Cog):
         value: str
     ):
         if value.lower() == 'default':
-            value = const.DEFAULT_PRESENCE_VALUE
-        await self.bot.db.update_presence_value(value)
-        await self.bot.db.update_presence_action(action)
+            value = DEFAULT_PRESENCE_VALUE
+        await self.bot.db.edit_presence_value(value)
+        await self.bot.db.edit_presence_action(action)
         await self.bot.change_presence(
             activity=discord.Activity(
-                type=const.PRESENCE_ACTION_KEY[self.bot.db.presence_action], name=self.bot.db.presence_value
+                type=PRESENCE_ACTION_KEY[self.bot.db.presence_action], name=self.bot.db.presence_value
             )
         )
         return await slash_embed(
@@ -38,7 +37,7 @@ class Status(commands.Cog):
             inter.user,
             f'Set the status of the baritone bot to `{action} {value}`',
             'Status Set',
-            self.bot.db.embed_color[inter.guild.id]
+            self.bot.db.get_embed_color(inter.guild.id)
         )
 
 

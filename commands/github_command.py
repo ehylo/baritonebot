@@ -5,8 +5,7 @@ from discord.ext import commands
 from github import Github
 from github.GithubException import UnknownObjectException
 
-from utils.embeds import slash_embed
-from utils.const import GITHUB_TOKEN
+from utils import slash_embed, GITHUB_TOKEN
 
 
 class GithubCommand(commands.Cog):
@@ -18,10 +17,10 @@ class GithubCommand(commands.Cog):
     @discord.app_commands.command(name='github-info', description='shows information about the baritone repo')
     async def github_info(self, inter: discord.Interaction):
         embed_var = discord.Embed(
-            color=self.bot.db.embed_color[inter.guild.id], title='this command is broken, nothing will probably happen'  # 'Please wait while I gather the info'
+            color=self.bot.db.get_embed_color(inter.guild.id), title='Please wait while I gather the info'
         )
-        interaction = await inter.response.send_message(embed=embed_var)
-        message = await interaction.original_message()
+        await inter.response.send_message(embed=embed_var)
+        message = await inter.original_response()
         embed_var.title = 'cabaletta/baritone'
         embed_var.description = self.baritone_repo.description
         embed_var.url = 'https://github.com/cabaletta/baritone/'
@@ -75,10 +74,10 @@ class GithubCommand(commands.Cog):
         search_type: Literal['Issue', 'Pull Request', 'Both'] = 'Both'
     ):
         embed_var = discord.Embed(
-            color=self.bot.db.embed_color[inter.guild.id], title='this command is broken, nothing will probably happen'  # 'Please wait while I gather the info'
+            color=self.bot.db.get_embed_color(inter.guild.id), title='Please wait while I gather the info'
         )
-        interaction = await inter.response.send_message(embed=embed_var)
-        message = await interaction.original_message()
+        await inter.response.send_message(embed=embed_var)
+        message = await inter.original_response()
         if state == 'Both':
             issues = self.github.search_issues(query=query, repo='cabaletta/baritone')
         else:
@@ -91,13 +90,13 @@ class GithubCommand(commands.Cog):
                 continue
             merge = False
             if 'pull' in issue.html_url and search_type != 'Issue':
-                description += '<:pr:1007151714815705108>'
+                description += '<:pr:1018604923849547979>'
                 data = self.baritone_repo.get_pull(number=issue.number)
                 if data.state == 'closed':
                     if data.merged:
                         merge = True
             elif 'pull' not in issue.html_url and search_type != 'Pull Request':
-                description += '<:issue:1007151394756755567>'
+                description += '<:issue:1018604945408278629>'
             description += f' [#{issue.number}]({issue.html_url}) '
             description += '🟣 ' if merge else '🔴 ' if issue.state == 'closed' else '🟢 '
             description += f'{issue.title}\n'

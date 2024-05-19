@@ -3,9 +3,7 @@ import requests
 import discord
 from discord.ext import commands
 
-from utils.const import PASTE_TOKEN
-from utils.embeds import slash_embed
-from utils.misc import get_random_cringe
+from utils import PASTE_TOKEN, slash_embed, get_random_cringe
 
 
 class ReCringe(discord.ui.View):
@@ -15,7 +13,7 @@ class ReCringe(discord.ui.View):
 
     @discord.ui.button(label='New Cringe', emoji='🔄', style=discord.ButtonStyle.blurple, custom_id='new_cringe')
     async def button_callback(self, inter: discord.Interaction, _button: discord.ui.Button):
-        embed_var = discord.Embed(color=self.bot.db.embed_color[inter.guild.id], title=':camera_with_flash:')
+        embed_var = discord.Embed(color=self.bot.db.get_embed_color(inter.guild.id), title=':camera_with_flash:')
         embed_var.set_image(url=get_random_cringe(self.bot.db, inter))
         embed_var.set_footer(text=f'{inter.user.name} | ID: {inter.user.id}', icon_url=inter.user.display_avatar.url)
         await inter.response.edit_message(embed=embed_var, view=self)
@@ -31,7 +29,7 @@ class Cringe(commands.Cog):
 
     @discord.app_commands.command(description='retrieve a cringe image from the DB')
     async def cringe(self, inter: discord.Interaction):
-        embed_var = discord.Embed(color=self.bot.db.embed_color[inter.guild.id], title=':camera_with_flash:')
+        embed_var = discord.Embed(color=self.bot.db.get_embed_color(inter.guild.id), title=':camera_with_flash:')
         embed_var.set_image(url=get_random_cringe(self.bot.db, inter))
         embed_var.set_footer(text=f'{inter.user.name} | ID: {inter.user.id}', icon_url=inter.user.display_avatar.url)
         await inter.response.send_message(embed=embed_var, view=ReCringe(bot=self.bot))
@@ -48,7 +46,7 @@ class Cringe(commands.Cog):
             json={
                 'sections': [{
                         'name': inter.guild.name + ' Cringe List',
-                        'contents': str('\n'.join(self.bot.db.cringe_list[inter.guild.id]))
+                        'contents': str('\n'.join(self.bot.db.get_cringe_links(inter.guild.id)))
                     }]
             },
             headers={'X-Auth-Token': PASTE_TOKEN}
@@ -58,7 +56,7 @@ class Cringe(commands.Cog):
             inter.user,
             'Cringe urls available here: ' + paste['link'],
             'Cringe Dump',
-            self.bot.db.embed_color[inter.guild.id],
+            self.bot.db.get_embed_color(inter.guild.id),
             False
         )
 
@@ -67,16 +65,15 @@ class Cringe(commands.Cog):
     @discord.app_commands.describe(url='link to remove from the DB')
     @discord.app_commands.rename(url='link')
     async def cringe_remove(self, inter: discord.Interaction, url: str):
-        cringe_list = self.bot.db.cringe_list[inter.guild.id]
+        cringe_list = self.bot.db.get_cringe_links(inter.guild.id)
         if url in cringe_list:
-            cringe_list.remove(url)
-            await self.bot.db.update_cringe_list(inter.guild, cringe_list)
+            await self.bot.db.delete_cringe_link(inter.guild.id, url)
             await slash_embed(
                 inter,
                 inter.user,
                 description='I guess that was not cringe enough',
                 title='Removed',
-                color=self.bot.db.embed_color[inter.guild.id],
+                color=self.bot.db.get_embed_color(inter.guild.id),
                 ephemeral=False
             )
         else:
@@ -88,10 +85,8 @@ class Cringe(commands.Cog):
     async def cringe_add(self, inter: discord.Interaction, image: discord.Attachment):
         if 'image/' not in image.content_type:
             return await slash_embed(inter, inter.user, 'That attachment is not an image', 'Not an Image')
-        c_list = self.bot.db.cringe_list[inter.guild.id]
-        c_list.append(image.url)
-        await self.bot.db.update_cringe_list(inter.guild, c_list)
-        await slash_embed(inter, inter.user, 'Very Cringe', 'Added', self.bot.db.embed_color[inter.guild.id], False)
+        await self.bot.db.new_cringe_link(inter.guild.id, image.url)
+        await slash_embed(inter, inter.user, 'Very Cringe', 'Added', self.bot.db.get_embed_color(inter.guild.id), False)
 
 
 async def setup(bot):

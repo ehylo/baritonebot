@@ -4,8 +4,7 @@ import time
 import discord
 from discord.ext import commands, tasks
 
-from utils import embeds
-from utils.misc import role_hierarchy, get_user
+from utils import role_hierarchy, get_user, slash_embed, mod_log_embed, dm_embed
 
 time_dict = enum.Enum(
     value='time_dict',
@@ -50,14 +49,13 @@ class Mute(commands.Cog):
 
     @tasks.loop(seconds=5)
     async def loops(self):
-        for guild_id in self.bot.db.mutes:
-            for user in self.bot.db.mutes[guild_id]:
-                if user[1] <= time.time() and user[1] != 0:
-                    guild = self.bot.get_guild(guild_id)
-                    await guild.get_member(user[0]).remove_roles(guild.get_role(self.bot.db.muted_id[guild_id]))
-                    new_mutes = self.bot.db.mutes[guild_id]
-                    new_mutes.remove(user)
-                    await self.bot.db.update_mutes(guild, new_mutes)
+        for guild in self.bot.guilds:
+            for user in self.bot.db.get_mutes(guild.id):
+                if user['expiry'] <= time.time() and user['expiry'] != 0:
+                    await guild.get_member(user['user_id']).remove_roles(
+                        guild.get_role(self.bot.db.get_muted_role_id(guild.id))
+                    )
+                    await self.bot.db.delete_mute(guild.id, user['user_id'])
 
     @loops.before_loop
     async def before_loops(self):
@@ -85,23 +83,22 @@ class Mute(commands.Cog):
             expiry = 0
         else:
             expiry = time_duration * time_unit.value + time.time()
-        if inter.guild.get_role(self.bot.db.muted_id[inter.guild.id]) in offender.roles:
-            return await embeds.slash_embed(inter, inter.user, f'{offender.mention} is already muted!')
+        muted_role = inter.guild.get_role(self.bot.db.get_muted_role_id(inter.guild.id))
+        if muted_role in offender.roles:
+            return await slash_embed(inter, inter.user, f'{offender.mention} is already muted!')
         if not role_hierarchy(self.bot.db, inter.guild.id, enforcer=inter.user, offender=offender):
-            return await embeds.slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
-        new_mutes = self.bot.db.mutes[inter.guild.id]
-        new_mutes.append([offender.id, expiry])
-        await self.bot.db.update_mutes(inter.guild, new_mutes)
-        await offender.add_roles(inter.guild.get_role(self.bot.db.muted_id[inter.guild.id]))
-        await embeds.slash_embed(
+            return await slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
+        await self.bot.db.new_mute(inter.guild.id, offender.id, expiry)
+        await offender.add_roles(muted_role)
+        await slash_embed(
             inter,
             inter.user,
             f'{offender.mention} has been muted for {time_text}, Reason: ```{reason}```',
             'Member Muted',
-            self.bot.db.embed_color[inter.guild.id],
+            self.bot.db.get_embed_color(inter.guild.id),
             False
         )
-        await embeds.mod_log_embed(
+        await mod_log_embed(
             self.bot,
             self.bot.db,
             inter.guild.id,
@@ -111,7 +108,7 @@ class Mute(commands.Cog):
             description=f'{offender.mention} has been muted for {time_text}, Reason: ```{reason}```'
         )
         dm_channel = await offender.create_dm()
-        await embeds.dm_embed(
+        await dm_embed(
             self.bot.db,
             inter.guild.id,
             channel=dm_channel,
@@ -126,22 +123,21 @@ class Mute(commands.Cog):
     @discord.app_commands.describe(offender='Member you wish to un-mute')
     async def unmute(self, inter: discord.Interaction, offender: discord.Member):
         if not role_hierarchy(self.bot.db, inter.guild.id, enforcer=inter.user, offender=offender):
-            return await embeds.slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
-        if not inter.guild.get_role(self.bot.db.muted_id[inter.guild.id]) in offender.roles:
-            return await embeds.slash_embed(inter, inter.user, f'{offender.mention} is not muted.')
-        for mutes_list in self.bot.db.mutes[inter.guild.id]:
-            if mutes_list[0] == offender.id:
-                new_mutes = self.bot.db.mutes[inter.guild.id]
-                new_mutes.remove(mutes_list)
-                await self.bot.db.update_mutes(inter.guild, new_mutes)
+            return await slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
+        muted_role = inter.guild.get_role(self.bot.db.get_muted_role_id(inter.guild.id))
+        if muted_role not in offender.roles:
+            return await slash_embed(inter, inter.user, f'{offender.mention} is not muted.')
+        for mutes_dict in self.bot.db.get_mutes(inter.guild.id):
+            if mutes_dict['user_id'] == offender.id:
+                await self.bot.db.delete_mute(inter.guild.id, offender.id)
                 break
-        await offender.remove_roles(inter.guild.get_role(self.bot.db.muted_id[inter.guild.id]))
-        await embeds.slash_embed(
+        await offender.remove_roles(muted_role)
+        await slash_embed(
             inter,
             inter.user,
             f'{offender.mention} has been un-muted',
             'Member Un-Muted',
-            self.bot.db.embed_color[inter.guild.id],
+            self.bot.db.get_embed_color(inter.guild.id),
             False
         )
 
@@ -149,16 +145,16 @@ class Mute(commands.Cog):
     @discord.app_commands.default_permissions(view_audit_log=True)
     async def mute_list(self, inter: discord.Interaction):
         description = ''
-        for muted_user in self.bot.db.mutes[inter.guild.id]:
-            user = await get_user(self.bot, muted_user[0])
-            remaining = 'indefinite' if muted_user[1] == 0 else f'<t:{int(muted_user[1])}:F>'
+        for muted_dict in self.bot.db.get_mutes(inter.guild.id):
+            user = await get_user(self.bot, muted_dict['user_id'])
+            remaining = 'indefinite' if muted_dict['expiry'] == 0 else f'<t:{int(muted_dict["expiry"])}:F>'
             description += f'**{user} ({user.id}) muted until:** \n{remaining}\n'
-        await embeds.slash_embed(
+        await slash_embed(
             inter,
             inter.user,
             description,
-            f'Muted Users ({len(self.bot.db.mutes[inter.guild.id])})',
-            self.bot.db.embed_color[inter.guild.id],
+            f'Muted Users ({len(self.bot.db.get_mutes(inter.guild.id))})',
+            self.bot.db.get_embed_color(inter.guild.id),
             False
         )
 

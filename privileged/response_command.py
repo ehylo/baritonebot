@@ -5,10 +5,7 @@ import discord
 import requests
 from discord.ext import commands
 
-from utils.misc import ignored_id_verifier, regex_verifier, role_check
-from utils.responses import Responses
-from utils.embeds import slash_embed, dm_embed
-from utils.const import PASTE_TOKEN
+from utils import ignored_id_verifier, regex_verifier, role_check, slash_embed, dm_embed, PASTE_TOKEN
 
 
 class Trash(discord.ui.Button):
@@ -17,9 +14,9 @@ class Trash(discord.ui.Button):
         self.bot = bot
 
     async def callback(self, inter: discord.Interaction):
-        staff_roles = self.bot.db.admin_ids[inter.guild.id]\
-                      + self.bot.db.mod_ids[inter.guild.id]\
-                      + self.bot.db.helper_ids[inter.guild.id]
+        staff_roles = self.bot.db.get_admin_role_ids(inter.guild.id)\
+                      + self.bot.db.get_mod_role_ids(inter.guild.id)\
+                      + self.bot.db.get_helper_role_ids(inter.guild.id)
         for role in inter.user.roles:
             if role.id in staff_roles or inter.user.id == int(inter.message.embeds[0].footer.text.split('ID: ')[1]):
                 return await inter.message.delete()
@@ -44,10 +41,10 @@ class Response(commands.Cog):
             return
         if message.guild is None:
             return
-        responses = Responses(self.bot.db, message.guild)
-        for index in range(len(responses.titles)):
-            if re.search(responses.regexes[index], message.content.lower()) is not None:
-                if responses.deletes[index] and not role_check(message.author, responses.ignored_ids[index]):
+        responses = self.bot.db.get_responses(message.guild.id)
+        for response in responses.values():
+            if re.search(response['regex'], message.content.lower()) is not None:
+                if response['delete_message'] and not role_check(message.author, response['ignored_response_ids']):
                     try:
                         await message.delete()
                         dm_channel = await message.author.create_dm()
@@ -56,12 +53,12 @@ class Response(commands.Cog):
                             message.guild.id,
                             channel=dm_channel,
                             author=message.author,
-                            title=responses.titles[index],
-                            description=responses.descriptions[index]
+                            title=response['title'],
+                            description=response['description']
                         )
                     except (discord.NotFound, discord.Forbidden, discord.errors.HTTPException):
                         pass
-                elif not role_check(message.author, responses.ignored_ids[index]) or \
+                elif not role_check(message.author, response['ignored_response_ids']) or \
                         self.bot in message.mentions or message.content.startswith('!'):
                     view = discord.ui.View(timeout=None)
                     view.add_item(Trash(bot=self.bot))
@@ -89,7 +86,7 @@ class Response(commands.Cog):
                                     headers={'X-Auth-Token': PASTE_TOKEN}
                                 )
                                 embed_var = discord.Embed(
-                                    color=self.bot.db.embed_color[message.guild.id],
+                                    color=self.bot.db.get_embed_color(message.guild.id),
                                     title='Contents uploaded to paste.ee',
                                     description=paste_response.json()['link']
                                 )
@@ -104,9 +101,9 @@ class Response(commands.Cog):
                         except discord.NotFound:
                             pass
                     embed_var = discord.Embed(
-                        color=self.bot.db.embed_color[message.guild.id],
-                        title=responses.titles[index],
-                        description=responses.descriptions[index]
+                        color=self.bot.db.get_embed_color(message.guild.id),
+                        title=response['title'],
+                        description=response['description']
                     )
                     embed_var.set_footer(
                         text=f'{message.author.name} | ID: {message.author.id}',
@@ -133,14 +130,15 @@ class Response(commands.Cog):
             return await slash_embed(inter, inter.user, 'Could not verify those role ids', 'Bad input')
         if not regex_verifier(regex):
             return await slash_embed(inter, inter.user, 'Could not verify that regex', 'Bad input')
-        responses = Responses(self.bot.db, inter.guild)
-        await responses.new_response(title, description.replace('\\n', '\n'), regex, delete, ignored_ids)
+        await self.bot.db.new_response(
+            inter.guild.id, title, description.replace('\\n', '\n'), regex, delete, ignored_ids
+        )
         await slash_embed(
             inter,
             inter.user,
             f'New response created:\n**{title}**',
             'Success!',
-            self.bot.db.embed_color[inter.guild.id],
+            self.bot.db.get_embed_color(inter.guild.id),
             False
         )
 
@@ -169,20 +167,22 @@ class Response(commands.Cog):
             return await slash_embed(inter, inter.user, 'Could not verify those role ids', 'Bad input')
         if not regex_verifier(regex):
             return await slash_embed(inter, inter.user, 'Could not verify that regex', 'Bad input')
-        responses = Responses(self.bot.db, inter.guild)
-        if len(responses.titles) < response_num:
+        responses = self.bot.db.get_responses(inter.guild.id)
+        if len(responses) < response_num:
             return await slash_embed(inter, inter.user, 'There are not that many responses', 'Too large')
         if title and description and regex and delete and ignored_ids is None:
             return await slash_embed(inter, inter.user, 'You need to specify an option to edit', 'No options chosen')
         if description is not None:
             description = description.replace('\\n', '\n')
-        await responses.edit_response(response_num - 1, title, description, regex, delete, ignored_ids)
+        self.bot.db.edit_response(
+            inter.guild.id, list(responses.keys())[response_num - 1], title, description, regex, delete, ignored_ids
+        )
         await slash_embed(
             inter,
             inter.user,
             f'Edited response #{response_num}',
             'Success!',
-            self.bot.db.embed_color[inter.guild.id],
+            self.bot.db.get_embed_color(inter.guild.id),
             False
         )
 
@@ -191,16 +191,16 @@ class Response(commands.Cog):
     @discord.app_commands.rename(response_num='response-number')
     @discord.app_commands.default_permissions(ban_members=True)
     async def response_delete(self, inter: discord.Interaction, response_num: discord.app_commands.Range[int, 1]):
-        responses = Responses(self.bot.db, inter.guild)
-        if len(responses.titles) < response_num:
+        responses = self.bot.db.get_responses(inter.guild.id)
+        if len(responses) < response_num:
             return await slash_embed(inter, inter.user, 'There are not that many responses', 'Too large')
-        await responses.delete_response(response_num - 1)
+        self.bot.db.delete_response(inter.guild.id, list(responses.keys())[response_num - 1])
         await slash_embed(
             inter,
             inter.user,
             f'Deleted response #{response_num}',
             'Success!',
-            self.bot.db.embed_color[inter.guild.id],
+            self.bot.db.get_embed_color(inter.guild.id),
             False
         )
 
@@ -208,16 +208,16 @@ class Response(commands.Cog):
     @discord.app_commands.default_permissions(view_audit_log=True)
     async def response_list(self, inter: discord.Interaction):
         description = ''
-        responses = Responses(self.bot.db, inter.guild)
-        for response_num in range(len(responses.titles)):
-            description += f'**{response_num + 1}.** Title: {responses.titles[response_num]} ' \
-                           f'\nRegex: `{responses.regexes[response_num]}`\n'
+        responses = self.bot.db.get_responses(inter.guild.id)
+        for i, response_num in enumerate(responses):
+            description += f'**{i + 1}.** Title: {responses[response_num]["title"]} ' \
+                           f'\nRegex: `{responses[response_num]["regex"]}`\n'
         await slash_embed(
             inter,
             inter.user,
             description,
-            f'Current Responses ({len(responses.titles)}):',
-            self.bot.db.embed_color[inter.guild.id]
+            f'Current Responses ({len(responses)}):',
+            self.bot.db.get_embed_color(inter.guild.id)
         )
 
     @discord.app_commands.command(name='response-details', description='shows details of a specific response')
@@ -225,21 +225,22 @@ class Response(commands.Cog):
     @discord.app_commands.rename(response_num='response-number')
     @discord.app_commands.default_permissions(view_audit_log=True)
     async def response_details(self, inter: discord.Interaction, response_num: discord.app_commands.Range[int, 1]):
-        responses = Responses(self.bot.db, inter.guild)
-        if len(responses.titles) < response_num:
+        responses = self.bot.db.get_responses(inter.guild.id)
+        if len(responses) < response_num:
             return await slash_embed(inter, inter.user, 'There are not that many responses', 'Too large')
+        resp_dict = list(responses.items())[response_num - 1][1]
         ignored_roles = ''
-        for i in responses.ignored_ids[response_num - 1].split(' '):
-            ignored_roles += f', <@&{int(i)}>'
-        embed_var = discord.Embed(color=self.bot.db.embed_color[inter.guild.id])
+        for i in resp_dict['ignored_response_ids']:
+            ignored_roles += f', <@&{i}>'
+        embed_var = discord.Embed(color=self.bot.db.get_embed_color(inter.guild.id))
         embed_var.title = f'Response #{response_num} details:'
-        embed_var.description = f'\u2022 Regex: `{responses.regexes[response_num - 1]}` ' \
-                                f'\n\u2022 Deletes message? {responses.deletes[response_num - 1]} ' \
+        embed_var.description = f'\u2022 Regex: `{resp_dict["regex"]}` ' \
+                                f'\n\u2022 Deletes message? {resp_dict["delete_message"]} ' \
                                 f'\n\u2022 Ignored roles: \n{ignored_roles[2:]}'
         if len(embed_var.description) > 4095:
             embed_var.description = embed_var.description[:4090] + '...'
-        title = 'none' if responses.titles[response_num - 1] == '' else responses.titles[response_num - 1]
-        description = 'none' if responses.descriptions[response_num-1] == '' else responses.descriptions[response_num-1]
+        title = 'none' if resp_dict['title'] == '' else resp_dict['title']
+        description = 'none' if resp_dict['description'] == '' else resp_dict['description']
         if len(title) > 255:
             title = title[:250] + '...'
         if len(description) > 1023:

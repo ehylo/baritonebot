@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from utils.const import HOISTED_CHARS
+from utils import HOISTED_CHARS
 
 
 async def remove_hoist(hoisted_chars: tuple[str], member: discord.Member):

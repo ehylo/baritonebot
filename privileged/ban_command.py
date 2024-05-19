@@ -3,8 +3,7 @@ from typing import Literal
 import discord
 from discord.ext import commands
 
-from utils import embeds
-from utils.misc import role_hierarchy
+from utils import slash_embed, role_hierarchy, mod_log_embed, dm_embed
 
 
 class Ban(commands.Cog):
@@ -23,17 +22,17 @@ class Ban(commands.Cog):
         self, inter: discord.Interaction, offender: discord.Member, purge: Literal[0, 1, 2, 3, 4, 5, 6, 7], reason: str
     ):
         if not role_hierarchy(self.bot.db, inter.guild.id, enforcer=inter.user, offender=offender):
-            return await embeds.slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
+            return await slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
         await offender.ban(reason=reason, delete_message_days=purge)
-        await embeds.slash_embed(
+        await slash_embed(
             inter,
             inter.user,
             f'{offender.mention} has been banned for reason: ```{reason}```',
             'Member Banned',
-            self.bot.db.embed_color[inter.guild.id],
+            self.bot.db.get_embed_color(inter.guild.id),
             ephemeral=False
         )
-        await embeds.mod_log_embed(
+        await mod_log_embed(
             self.bot,
             self.bot.db,
             inter.guild.id,
@@ -43,7 +42,7 @@ class Ban(commands.Cog):
             f'{offender.mention} has been banned for reason: ```{reason}```'
         )
         dm_channel = await offender.create_dm()
-        await embeds.dm_embed(
+        await dm_embed(
             self.bot.db,
             inter.guild.id,
             channel=dm_channel,
@@ -58,16 +57,16 @@ class Ban(commands.Cog):
     async def unban(self, inter: discord.Interaction, user: discord.User):
         try:
             await inter.guild.unban(user)
-            await embeds.slash_embed(
+            await slash_embed(
                 inter,
                 inter.user,
                 f'{user.mention} has been unbanned',
                 'User Unbanned',
-                self.bot.db.embed_color[inter.guild.id],
+                self.bot.db.get_embed_color(inter.guild.id),
                 ephemeral=False
             )
         except discord.NotFound:
-            return await embeds.slash_embed(inter, inter.user, 'That user is not banned', 'Not Found')
+            return await slash_embed(inter, inter.user, 'That user is not banned', 'Not Found')
 
 
 async def setup(bot):

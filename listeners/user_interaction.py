@@ -1,8 +1,7 @@
 import discord
 from discord.ext import commands
 
-from utils.embeds import slash_embed
-from utils.misc import info_embed
+from utils import slash_embed, info_embed
 
 
 class UserInteraction(commands.Cog):
@@ -24,14 +23,14 @@ class UserInteraction(commands.Cog):
         await inter.response.send_message(embed=info_embed(self.bot.db, inter, inter.user))
 
     async def user_avatar(self, inter: discord.Interaction, member: discord.Member):
-        embed_var = discord.Embed(color=self.bot.db.embed_color[inter.guild.id], title='User Avatar')
+        embed_var = discord.Embed(color=self.bot.db.get_embed_color(inter.guild.id), title='User Avatar')
         embed_var.set_image(url=member.display_avatar.url)
         await inter.response.send_message(embed=embed_var)
 
     async def user_banner(self, inter: discord.Interaction, member: discord.Member):
         if member.banner is None:
             return await slash_embed(inter, inter.user, 'This user does not have a banner', 'No banner')
-        embed_var = discord.Embed(color=self.bot.db.embed_color[inter.guild.id], title='User Banner')
+        embed_var = discord.Embed(color=self.bot.db.get_embed_color(inter.guild.id), title='User Banner')
         embed_var.set_image(url=member.banner.url)
         await inter.response.send_message(embed=embed_var)
 

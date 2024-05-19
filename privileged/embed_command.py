@@ -4,7 +4,7 @@ import re
 import discord
 from discord.ext import commands
 
-from utils.embeds import slash_embed
+from utils import slash_embed
 
 
 class Embed(commands.Cog):
@@ -57,7 +57,7 @@ class Embed(commands.Cog):
                 )
             color = int(str(color), 16)
         else:
-            color = self.bot.db.embed_color[inter.guild.id]
+            color = self.bot.db.get_embed_color(inter.guild.id)
         embed_var = discord.Embed(color=color, title=title, description=description)
         if image is not None:
             if 'image/' not in image.content_type:
@@ -68,7 +68,9 @@ class Embed(commands.Cog):
                 embed_var.add_field(name=field.split('||')[0], value=field.split('||')[1])
         await channel.send(embed=embed_var)
         await slash_embed(
-            inter, inter.user, 'Sent the embed to ' + channel.mention, 'Sent', self.bot.db.embed_color[inter.guild.id]
+            inter, inter.user, 'Sent the embed to ' + channel.mention, 'Sent', self.bot.db.get_embed_color(
+                inter.guild.id
+            )
         )
 
 

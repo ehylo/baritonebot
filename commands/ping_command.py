@@ -3,8 +3,7 @@ import time
 import discord
 from discord.ext import commands
 
-from utils.misc import get_unix
-from utils.embeds import slash_embed
+from utils import get_unix, slash_embed
 
 
 class RePing(discord.ui.View):
@@ -19,7 +18,7 @@ class RePing(discord.ui.View):
             inter,
             inter.user,
             title=f'Pong! 🏓 ({abs(ms)}ms)',
-            color=self.bot.db.embed_color[inter.guild.id],
+            color=self.bot.db.get_embed_color(inter.guild.id),
             view=self,
             is_interaction=True
         )
@@ -36,7 +35,7 @@ class Ping(commands.Cog):
             inter,
             inter.user,
             title=f'Pong! 🏓 ({abs(ms)}ms)',
-            color=self.bot.db.embed_color[inter.guild.id],
+            color=self.bot.db.get_embed_color(inter.guild.id),
             view=RePing(bot=self.bot)
         )
 

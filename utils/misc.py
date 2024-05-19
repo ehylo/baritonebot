@@ -19,23 +19,24 @@ def role_hierarchy(db, guild_id: int, enforcer: discord.Member, offender: discor
         offender_roles.append(role.id)
 
     for enforcer_role_id in enforcer_roles:
-        if enforcer_role_id in db.admin_ids[guild_id]:
+        if enforcer_role_id in db.get_admin_role_ids(guild_id):
             for offender_role_id in offender_roles:
-                if offender_role_id in db.admin_ids[guild_id]:
+                if offender_role_id in db.get_admin_role_ids(guild_id):
                     return False
             return True
 
     for enforcer_role_id in enforcer_roles:
-        if enforcer_role_id in db.mod_ids[guild_id]:
+        if enforcer_role_id in db.get_mod_role_ids(guild_id):
             for offender_role_id in offender_roles:
-                if offender_role_id in db.admin_ids[guild_id] + db.mod_ids[guild_id]:
+                if offender_role_id in db.get_admin_role_ids(guild_id) + db.get_mod_role_ids(guild_id):
                     return False
             return True
 
     for enforcer_role_id in enforcer_roles:
-        if enforcer_role_id in db.helper_ids[guild_id]:
+        if enforcer_role_id in db.get_helper_role_ids(guild_id):
             for offender_role_id in offender_roles:
-                staff_roles = db.admin_ids[guild_id] + db.mod_ids[guild_id] + db.helper_ids[guild_id]
+                staff_roles = db.get_admin_role_ids(guild_id)
+                staff_roles += db.get_mod_role_ids(guild_id) + db.get_helper_role_ids(guild_id)
                 if offender_role_id in staff_roles:
                     return False
             return True
@@ -56,7 +57,7 @@ async def get_channel(bot, ch_id: int):
 
 
 def info_embed(db, inter: discord.Interaction, user: discord.User):
-    embed_var = discord.Embed(color=db.embed_color[inter.guild.id])
+    embed_var = discord.Embed(color=db.get_embed_color(inter.guild.id))
     embed_var.add_field(name='Mention:', value=user.mention)
     embed_var.add_field(
         name='Created:',
@@ -88,7 +89,7 @@ def info_embed(db, inter: discord.Interaction, user: discord.User):
 
 
 def get_random_cringe(db, inter: discord.Interaction):
-    cringe_list = db.cringe_list[inter.guild.id]
+    cringe_list = db.get_cringe_links(inter.guild.id)
     return cringe_list[random.randint(0, len(cringe_list)) - 1]
 
 
@@ -112,7 +113,7 @@ def regex_verifier(regex: str):
         return True
 
 
-def role_check(member: discord.Member, ignored_ids: str):
-    for role_id in ignored_ids.split(' '):
-        if member.guild.get_role(int(role_id)) in member.roles:
+def role_check(member: discord.Member, ignored_ids: list[int]):
+    for role_id in ignored_ids:
+        if member.guild.get_role(role_id) in member.roles:
             return True

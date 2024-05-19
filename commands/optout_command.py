@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from utils import embeds
+from utils import slash_embed, dm_embed, mod_log_embed
 
 
 class OptOut(commands.Cog):
@@ -14,21 +14,21 @@ class OptOut(commands.Cog):
     )
     async def opt_out(self, inter: discord.Interaction, confirmation: str):
         if confirmation != 'I am sure':
-            return await embeds.slash_embed(
+            return await slash_embed(
                 inter,
                 inter.user,
                 'You will be **banned from this server** and **lose all your roles** by continuing. '
                 'If you are sure this is what you desire, confirm with "I am sure".'
             )
-        await embeds.slash_embed(
+        await slash_embed(
             inter,
             inter.user,
             f'{inter.user.mention} has been banned by themself',
             'Member Banned',
-            self.bot.db.embed_color[inter.guild.id],
+            self.bot.db.get_embed_color(inter.guild.id),
             ephemeral=False
         )
-        await embeds.mod_log_embed(
+        await mod_log_embed(
             self.bot,
             self.bot.db,
             inter.guild.id,
@@ -38,7 +38,7 @@ class OptOut(commands.Cog):
             f'{inter.user.mention} has been banned by themself'
         )
         dm_channel = await inter.user.create_dm()
-        await embeds.dm_embed(
+        await dm_embed(
             self.bot.db,
             inter.guild.id,
             channel=dm_channel,

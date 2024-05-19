@@ -14,8 +14,6 @@ Links:
 *   Be able to edit the rules with a rule edit command
 *   Have the bot control the rules embed and match the rules
 *   Ability to change the channel and role ids, currently just manually in the db
-*   Make the main db hold objects not ids, might be limited with what I can do but try to do roles/channels
-*   Make the db create tables and a default db if nothing is there, allows others besides me to test things
 *   Add comment stuff to the GitHub commands
 *   Edit-embed command to edit embeds the bot sent (besides the rules)
 *   Change all of the `Literal` code to choices, so it's less this equals that
