@@ -24,10 +24,13 @@ class Ban(commands.Cog):
     async def ban(
         self, inter: discord.Interaction, offender: discord.Member, purge: Literal[0, 1, 2, 3, 4, 5, 6, 7], reason: str
     ):
+
+        # make sure the person they are trying to ban isn't above them
         if not role_hierarchy(self.bot.db, inter.guild.id, enforcer=inter.user, offender=offender):
             return await slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
+
+        # ban and send the appropriate embeds
         await offender.ban(reason=reason, delete_message_days=purge)
-        log.info(f'{inter.user.id} has banned {offender.id}, purging {purge} with reason: {reason}')
         await slash_embed(
             inter,
             inter.user,
@@ -54,6 +57,7 @@ class Ban(commands.Cog):
             title='Banned',
             description=f'You have been banned in the baritone discord for reason: \n```{reason}```'
         )
+        log.info(f'{inter.user.id} has banned {offender.id}, purging {purge} with reason: {reason}')
 
     @discord.app_commands.default_permissions(ban_members=True)
     @discord.app_commands.command(name='unban', description='unbans the specified user')
@@ -61,7 +65,6 @@ class Ban(commands.Cog):
     async def unban(self, inter: discord.Interaction, user: discord.User):
         try:
             await inter.guild.unban(user)
-            log.info(f'{inter.user.id} has unbanned {user.id}')
             await slash_embed(
                 inter,
                 inter.user,
@@ -70,7 +73,8 @@ class Ban(commands.Cog):
                 self.bot.db.get_embed_color(inter.guild.id),
                 ephemeral=False
             )
-        except discord.NotFound:
+            log.info(f'{inter.user.id} has unbanned {user.id}')
+        except discord.NotFound:  # make sure they are actually banned
             return await slash_embed(inter, inter.user, 'That user is not banned', 'Not Found')
 
 

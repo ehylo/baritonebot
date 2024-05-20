@@ -10,12 +10,18 @@ class Help(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
+
+        # ignore webhooks
         if message.author.discriminator == '0000':
             return
+        # ignore bots
         if message.author.bot:
             return
+        # ignore dms
         if message.guild is None:
             return
+
+        # catch people using the old prefix as we switched to slash commands
         if message.content.startswith('b?'):
             embed_var = discord.Embed(
                 color=self.bot.db.get_embed_color(message.guild.id),

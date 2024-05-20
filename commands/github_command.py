@@ -19,11 +19,16 @@ class GithubCommand(commands.Cog):
 
     @discord.app_commands.command(name='github-info', description='shows information about the baritone repo')
     async def github_info(self, inter: discord.Interaction):
+
+        # we need to respond to the slash command as sometimes the GitHub api can take more than 10 seconds so this
+        # ensures we can actually respond
         embed_var = discord.Embed(
             color=self.bot.db.get_embed_color(inter.guild.id), title='Please wait while I gather the information'
         )
         await inter.response.send_message(embed=embed_var)
         message = await inter.original_response()
+
+        # start building the embed and add all the information
         embed_var.title = 'cabaletta/baritone'
         embed_var.description = self.baritone_repo.description
         embed_var.url = 'https://github.com/cabaletta/baritone/'
@@ -42,6 +47,8 @@ class GithubCommand(commands.Cog):
             value=f'{self.baritone_repo.get_pulls(state="open").totalCount} 🟢 | '
                   f'{self.baritone_repo.get_pulls(state="closed").totalCount} 🔴'
         )
+
+        # calculate the language percentages
         lang = self.baritone_repo.get_languages()
         total_bytes = 0
         lang_str = ''
@@ -51,6 +58,7 @@ class GithubCommand(commands.Cog):
             bts = lang[i]
             lang_str += f'{i}: {100 * round((bts / total_bytes), 4)}%, '
         embed_var.add_field(name='Languages', value=lang_str[:-2])
+
         embed_var.add_field(name='Releases', value=str(self.baritone_repo.get_releases().totalCount))
         embed_var.add_field(
             name='Latest Release',
@@ -60,6 +68,8 @@ class GithubCommand(commands.Cog):
         embed_var.add_field(name='Created', value=f'<t:{int(self.baritone_repo.created_at.timestamp())}:F>')
         embed_var.set_thumbnail(url=self.github.get_organization('cabaletta').avatar_url)
         embed_var.set_footer(text=f'{inter.user.name} | ID: {inter.user.id}', icon_url=inter.user.display_avatar.url)
+
+        # finally edit the original embed with all the gathered information
         await message.edit(embed=embed_var)
 
     @discord.app_commands.command(name='github-search', description='search for pull requests or issues')
@@ -77,21 +87,32 @@ class GithubCommand(commands.Cog):
         search_type: Literal['Issue', 'Pull Request', 'Both'] = 'Both'
     ):
         log.info(f'{inter.user.id} searched for {query} with state as {state} and type {search_type}')
+
+        # we need to respond to the slash command as sometimes the GitHub api can take more than 10 seconds so this
+        # ensures we can actually respond
         embed_var = discord.Embed(
             color=self.bot.db.get_embed_color(inter.guild.id), title='Please wait while I gather the information'
         )
         await inter.response.send_message(embed=embed_var)
         message = await inter.original_response()
+
+        # get the search results from GitHub based on the users options, may take some time
         if state == 'Both':
             issues = self.github.search_issues(query=query, repo='cabaletta/baritone')
         else:
             issues = self.github.search_issues(query=query, repo='cabaletta/baritone', state=state.lower())
+
+        # start building the embed I am going to send
         description = ''
         total = 0
         for issue in issues:
-            if 'pull' in issue.html_url and search_type == 'Issue' or \
-                    'pull' not in issue.html_url and search_type == 'Pull Request':
+            # filter out the items we don't want
+            if 'pull' in issue.html_url and search_type == 'Issue':
                 continue
+            if 'pull' not in issue.html_url and search_type == 'Pull Request':
+                continue
+
+            # add the pull request or issue emote to our description
             merge = False
             if 'pull' in issue.html_url and search_type != 'Issue':
                 description += '<:pr:1241674718151577620>'  # '<:pr:1018604923849547979>'
@@ -101,26 +122,38 @@ class GithubCommand(commands.Cog):
                         merge = True
             elif 'pull' not in issue.html_url and search_type != 'Pull Request':
                 description += '<:issue:1241674695347011594>'  # '<:issue:1018604945408278629>'
+
+            # add the rest of the information (number, state, link, title, etc.)
             description += f' [#{issue.number}]({issue.html_url}) '
             description += '🟣 ' if merge else '🔴 ' if issue.state == 'closed' else '🟢 '
             description += f'{issue.title}\n'
             total += 1
+
+        # build the rest of the embed
         title = str(total)
         title += ' open and closed ' if state == 'Both' else ' open ' if state == 'Open' else ' closed '
-        title += 'pull request(s)' if search_type == 'Pull Request' \
-            else 'issue(s)' if search_type == 'Issue' else 'issue(s) and pull request(s)'
+        if search_type == 'Pull Request':
+            title += 'pull request(s)'
+        elif search_type == 'Issue':
+            title += 'issue(s)'
+        else:
+            title += 'issue(s) and pull request(s)'
         title += f' for 🔍`{query}`'
+
         embed_var.title = title
         embed_var.description = description[:4096]
+
         url = 'https://github.com/cabaletta/baritone/issues?q='
         url += 'is%3A' + state.lower() if state != 'Both' else ''
         url += '+is%3Aissue' if search_type == 'Issue' else '+is%3Apr' if search_type == 'Pull Request' else ''
+
+        # finish it off and send it
         embed_var.url = f'{url}+{query.replace(" ", "+")}'
         embed_var.set_footer(text=f'{inter.user.name} | ID: {inter.user.id}', icon_url=inter.user.display_avatar.url)
         await message.edit(embed=embed_var)
 
     # TODO: fix the github-issue command and github-pull-request command
-    # for now they will be commented out because of the horrible state it is in
+    # for now they will be commented out because of the horrible state they are both in
     """
     @discord.slash_command(
         name='github-issue',

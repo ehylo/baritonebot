@@ -27,9 +27,10 @@ class Setting:
 
         log.info('checking for html hyperlinks and converting them to discord markdown hyperlinks')
         if '<a href="' in description:
+            # change the html hyperlink to discord Markdown hyperlink
             hyperlink = re.findall(r'<a href="(?P<link>.*)">(?P<text>.*)</a>', description)[0]
             description = re.sub(r'<a href=".*">.*</a>', f'[{hyperlink[1]}]({hyperlink[0]})', description)
-            # change the html hyperlink to Markdown hyperlink
+
         description = description.replace(' @see', '\n**See Also:**')
         # change the html `@see` to actual text
 
@@ -66,10 +67,13 @@ class Setting:
         self.title = title
         self.data_type = data_type
         self.default = default if default != '' else 'None'
+
+        # apply the hyperlink if the version we are using is based on the docs
         if link_website:
             self.combined = f'**[{title}](https://baritone.leijurv.com/baritone/api/Settings.html#{title})**'
         else:
             self.combined = f'**{title}**'
+
         self.combined += f' | __{self.data_type}__ | *Default:* `{self.default}`\n{self.description}\n\n'
 
 
@@ -89,6 +93,7 @@ class VersionSettings:
 
             link_website = False if url != VERSION_DOCS_URL else True
 
+            # use regular expressions to find each part of the setting and construct the Setting objects
             self.settings.append(Setting(
                 re.findall(r'^\* (?P<description>.*) \*/', cleaned_setting_text)[0],
                 re.findall(r'Setting<.*> (?P<title>.*) = ', cleaned_setting_text)[0],
@@ -98,13 +103,26 @@ class VersionSettings:
             ))
 
     def search(self, search_term: str):
+        """
+        Search through all the settings and return a list of pages for the
+        results that match.
+
+        :param search_term: the term to search for
+        :return: list of pages that has the matched settings
+        """
         pages = ['']
         matched_settings = []
+
+        # generate a list of matched settings to display
         for setting in self.settings:
             if re.search(search_term.lower(), setting.title.lower()) is not None:
                 matched_settings.append(setting)
+
+        # make sure we got results
         if len(matched_settings) > 0:
             page_index = 0
+
+            # make the pages fit into an embed as we have pages to deal with it
             for match in matched_settings:
                 if len(match.combined) + len(pages[page_index]) <= 2048:
                     pages[page_index] += match.combined

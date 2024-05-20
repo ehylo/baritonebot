@@ -17,12 +17,18 @@ class UndoAddExempt(discord.ui.View):
     @discord.ui.button(label='Undo', emoji='↪', style=discord.ButtonStyle.grey, custom_id='add_exempt')
     async def button_callback(self, inter: discord.Interaction, button: discord.ui.Button):
         button.disabled = True
+
+        # get the channel from the previous embed
         channel = await get_channel(
             self.bot,
             int(inter.message.embeds[0].description.split(' will')[0].split('in ')[1][2:-1])
         )
+
+        # check if it changed between the old message and button press
         if channel.id not in self.bot.db.get_exempt_channel_ids(inter.guild.id):
             return await slash_embed(inter, inter.user, 'That channel isn\'t exempted', view=self, is_interaction=True)
+
+        # remove it from the db and send embeds
         await self.bot.db.delete_exempted_id(inter.guild, channel.id)
         await slash_embed(
             inter,
@@ -44,14 +50,20 @@ class UndoRemoveExempt(discord.ui.View):
     @discord.ui.button(label='Undo', emoji='↪', style=discord.ButtonStyle.grey, custom_id='remove_exempt')
     async def button_callback(self, inter: discord.Interaction, button: discord.ui.Button):
         button.disabled = True
+
+        # get the channel from the previous embed
         channel = await get_channel(
             self.bot,
             int(inter.message.embeds[0].description.split(' will')[0].split('in ')[1][2:-1])
         )
+
+        # check if it changed between the old message and button press
         if channel.id in self.bot.db.get_exempt_channel_ids(inter.guild.id):
             return await slash_embed(
                 inter, inter.user, 'That channel is exempted already', view=self, is_interaction=True
             )
+
+        # add it to the db and send embeds
         await self.bot.db.new_exempted_id(inter.guild.id, channel.id)
         await slash_embed(
             inter,
@@ -77,8 +89,11 @@ class Exempt(commands.Cog):
     async def exempt(self, inter: discord.Interaction, action: Literal['Add', 'Remove'], channel: discord.TextChannel):
         exempted_channel_ids = self.bot.db.get_exempt_channel_ids(inter.guild.id)
         if action == 'Add':
+
+            # check if the given channel is already exempted
             if channel.id in exempted_channel_ids:
                 return await slash_embed(inter, inter.user, 'That channel is exempted already')
+
             await self.bot.db.new_exempted_id(inter.guild.id, channel.id)
             await slash_embed(
                 inter,
@@ -89,9 +104,13 @@ class Exempt(commands.Cog):
                 view=UndoAddExempt(bot=self.bot)
             )
             log.info(f'{inter.user.id} has added the channel {channel.id} to the exempt list')
+
         if action == 'Remove':
+
+            # check if the channel isn't in the list
             if channel.id not in exempted_channel_ids:
                 return await slash_embed(inter, inter.user, 'That channel isn\'t exempted')
+
             await self.bot.db.delete_exempted_id(inter.guild.id, channel.id)
             await slash_embed(
                 inter,
@@ -109,6 +128,8 @@ class Exempt(commands.Cog):
     @discord.app_commands.rename(action='option')
     async def exempt_list(self, inter: discord.Interaction, action: Literal['Exempted', 'Un-Exempted']):
         exempted_channel_ids = self.bot.db.get_exempt_channel_ids(inter.guild.id)
+
+        # we can just send the list we already have
         if action == 'Exempted':
             await slash_embed(
                 inter,
@@ -117,12 +138,16 @@ class Exempt(commands.Cog):
                 f'Exempted Channels ({len(exempted_channel_ids)})',
                 self.bot.db.get_embed_color(inter.guild.id)
             )
+
+        # we are going to have to build the list
         if action == 'Un-Exempted':
             exempted_chls = exempted_channel_ids
             channel_list = []
+
             for channel in inter.guild.text_channels:
                 if channel.id not in exempted_chls:
                     channel_list.append(str(channel.id))
+
             await slash_embed(
                 inter,
                 inter.user,

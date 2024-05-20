@@ -18,23 +18,29 @@ class EmbedColor(commands.Cog):
     @discord.app_commands.describe(value='the color you want (Hex), or type "default" for the default color (81C3FF)')
     @discord.app_commands.rename(value='color')
     async def embed_color(self, inter: discord.Interaction, value: str):
+
+        # catch the default keyword
         if value.lower() == 'default':
             value = DEFAULT_EMBED_COLOR
+
+        # make sure the provided value is a valid hex code
         if not re.search(r'^#[A-Fa-f\d]{6}|[A-Fa-f\d]{3}$', '#' + value):
             return await slash_embed(
                 inter,
                 inter.user,
                 r'That is not a valid hex-code, it **must** match this regex: `^#[A-Fa-f\d]{6}|[A-Fa-f\d]{3}$`'
             )
+
+        # edit the color in the db and send the embed
         await self.bot.db.edit_embed_color(inter.guild.id, value)
-        log.info(f'{inter.user.id} changed the embed color in {inter.guild.id} to {value}')
-        return await slash_embed(
+        await slash_embed(
             inter,
             inter.user,
             f'Set the embed color of this server to {value}',
             'Embed-color set',
             self.bot.db.get_embed_color(inter.guild.id)
         )
+        log.info(f'{inter.user.id} changed the embed color in {inter.guild.id} to {value}')
 
 
 async def setup(bot):

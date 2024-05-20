@@ -17,8 +17,12 @@ class Kick(commands.Cog):
     @discord.app_commands.describe(offender='Member you wish to kick', reason='The reason you are kicking this member')
     @discord.app_commands.rename(offender='member')
     async def kick(self, inter: discord.Interaction, offender: discord.Member, reason: str):
+
+        # make sure that the person using the command is above the person they are taking action against
         if not role_hierarchy(self.bot.db, inter.guild.id, enforcer=inter.user, offender=offender):
             return await slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
+
+        # kick and send the embeds
         await offender.kick(reason=reason)
         await slash_embed(
             inter,

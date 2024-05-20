@@ -7,14 +7,20 @@ from utils import slash_embed, info_embed
 class UserInteraction(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+        # add the interactions to the menu
         self.ctx_menu_1 = discord.app_commands.ContextMenu(name='member info', callback=self.member_info)
         self.ctx_menu_2 = discord.app_commands.ContextMenu(name='user avatar', callback=self.user_avatar)
         self.ctx_menu_3 = discord.app_commands.ContextMenu(name='user banner', callback=self.user_banner)
+
+        # add the commands to the bot
         self.bot.tree.add_command(self.ctx_menu_1)
         self.bot.tree.add_command(self.ctx_menu_2)
         self.bot.tree.add_command(self.ctx_menu_3)
 
     async def cog_unload(self):
+
+        # make sure to remove them when the bot goes offline
         self.bot.tree.remove_command(self.ctx_menu_1.name, type=self.ctx_menu_1.type)
         self.bot.tree.remove_command(self.ctx_menu_2.name, type=self.ctx_menu_2.type)
         self.bot.tree.remove_command(self.ctx_menu_3.name, type=self.ctx_menu_3.type)
@@ -28,8 +34,11 @@ class UserInteraction(commands.Cog):
         await inter.response.send_message(embed=embed_var)
 
     async def user_banner(self, inter: discord.Interaction, member: discord.Member):
+
+        # check if the member has a banner
         if member.banner is None:
             return await slash_embed(inter, inter.user, 'This user does not have a banner', 'No banner')
+
         embed_var = discord.Embed(color=self.bot.db.get_embed_color(inter.guild.id), title='User Banner')
         embed_var.set_image(url=member.banner.url)
         await inter.response.send_message(embed=embed_var)

@@ -17,7 +17,7 @@ class RePing(discord.ui.View):
     @discord.ui.button(label='Ping again!', emoji='🏓', style=discord.ButtonStyle.blurple, custom_id='ping')
     async def button_callback(self, inter: discord.Interaction, _button: discord.ui.Button):
         ms = get_unix(inter.id) - round(time.time() * 1000)
-        log.info(f'{inter.user.id} used the ping command with {ms}ms')
+
         await slash_embed(
             inter,
             inter.user,
@@ -26,6 +26,7 @@ class RePing(discord.ui.View):
             view=self,
             is_interaction=True
         )
+        log.info(f'{inter.user.id} used the ping command with {ms}ms')
 
 
 class Ping(commands.Cog):
@@ -35,7 +36,7 @@ class Ping(commands.Cog):
     @discord.app_commands.command(name='ping', description='da ping command')
     async def ping(self, inter: discord.Interaction):
         ms = (get_unix(inter.id)) - round(time.time() * 1000)
-        log.info(f'{inter.user.id} used the ping command with {ms}ms')
+
         await slash_embed(
             inter,
             inter.user,
@@ -43,6 +44,7 @@ class Ping(commands.Cog):
             color=self.bot.db.get_embed_color(inter.guild.id),
             view=RePing(bot=self.bot)
         )
+        log.info(f'{inter.user.id} used the ping command with {ms}ms')
 
     @commands.Cog.listener()
     async def on_ready(self):

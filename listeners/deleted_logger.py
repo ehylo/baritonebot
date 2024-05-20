@@ -15,8 +15,12 @@ class DeletedLogger(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_message_delete(self, payload: discord.RawMessageDeleteEvent):
         log_channel = await get_channel(self.bot, self.bot.db.get_logs_channel_id(payload.guild_id))
+
+        # don't log deletes in the log channel
         if log_channel.id == payload.channel_id:
             return
+
+        # check if we have the message cached, if not then we don't know the contents
         if payload.cached_message is None:
             unix_time = get_unix(payload.message_id) // 1000
             embed_var = discord.Embed(
@@ -25,11 +29,16 @@ class DeletedLogger(commands.Cog):
             )
             log.info(f'uncached message deleted from {payload.channel_id} which was sent on {unix_time}')
             return await log_channel.send(embed=embed_var)
+
         message = payload.cached_message
+
+        # ignore webhooks
         if message.author.discriminator == '0000':
             return
+        # ignore dms
         if message.guild is None:
             return
+        # ignored exempted channels
         if message.channel.id in self.bot.db.get_exempt_channel_ids(message.guild.id):
             return
 
@@ -44,8 +53,8 @@ class DeletedLogger(commands.Cog):
             text=f'{message.author.name} | ID: {message.author.id}',
             icon_url=message.author.display_avatar.url
         )
-        log.info(f'message deleted in {message.channel.id}, content: {message.content}')
         await log_channel.send(embed=embed_var)
+        log.info(f'message deleted in {message.channel.id}, content: {message.content}')
 
 
 async def setup(bot):

@@ -39,11 +39,15 @@ class Cringe(commands.Cog):
 
     @discord.app_commands.command(name='cringe-dump', description='dumps all cringe images into a paste.ee link')
     async def cringe_dump(self, inter: discord.Interaction):
+
+        # check if the bot has a paste.ee token
         if not PASTE_TOKEN:
             log.warning('the bot does not have a paste.ee token, so I can\'t upload the message to paste.ee')
             return await slash_embed(
                 inter, inter.user, 'The bot does not have a paste token, unable to access paste.ee api.'
             )
+
+        # send a post request with all the cringe links and send the embed
         paste = requests.post(
             url='https://api.paste.ee/v1/pastes',
             json={
@@ -54,7 +58,6 @@ class Cringe(commands.Cog):
             },
             headers={'X-Auth-Token': PASTE_TOKEN}
         ).json()
-        log.info(f'{inter.user.id} dumped cringe urls to {paste["link"]}')
         await slash_embed(
             inter,
             inter.user,
@@ -63,6 +66,7 @@ class Cringe(commands.Cog):
             self.bot.db.get_embed_color(inter.guild.id),
             False
         )
+        log.info(f'{inter.user.id} dumped cringe urls to {paste["link"]}')
 
     @discord.app_commands.command(name='cringe-remove', description='remove a specific cringe image from the DB')
     @discord.app_commands.default_permissions(ban_members=True)
@@ -70,7 +74,10 @@ class Cringe(commands.Cog):
     @discord.app_commands.rename(url='link')
     async def cringe_remove(self, inter: discord.Interaction, url: str):
         cringe_list = self.bot.db.get_cringe_links(inter.guild.id)
+
+        # make sure the provided url is actually something in the db
         if url in cringe_list:
+
             await self.bot.db.delete_cringe_link(inter.guild.id, url)
             await slash_embed(
                 inter,
@@ -81,6 +88,7 @@ class Cringe(commands.Cog):
                 ephemeral=False
             )
             log.info(f'{inter.user.id} has removed cringe url: {url}')
+
         else:
             await slash_embed(inter, inter.user, 'That link does not exist in the cringe db', 'Invalid link')
 
@@ -88,8 +96,11 @@ class Cringe(commands.Cog):
     @discord.app_commands.default_permissions(view_audit_log=True)
     @discord.app_commands.describe(image='image to add to the DB')
     async def cringe_add(self, inter: discord.Interaction, image: discord.Attachment):
+
+        # make sure the attachment is an image
         if 'image/' not in image.content_type:
             return await slash_embed(inter, inter.user, 'That attachment is not an image', 'Not an Image')
+
         await self.bot.db.new_cringe_link(inter.guild.id, image.url)
         await slash_embed(inter, inter.user, 'Very Cringe', 'Added', self.bot.db.get_embed_color(inter.guild.id), False)
         log.info(f'{inter.user.id} has added a new cringe with url: {image.url}')

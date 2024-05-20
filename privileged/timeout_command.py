@@ -34,10 +34,16 @@ class TimeOut(commands.Cog):
         reason: str
     ):
         time_text = f'{time_duration} {time_unit.lower()}'
+
+        # timeouts have a max of four weeks, so we have to make sure it's in that range
         if TIME_KEYS[time_unit] * time_duration > FOUR_WEEKS:
             return await slash_embed(inter, inter.user, 'Discord only allows 4 weeks, please chose less.')
+
+        # make sure that the person using the command is above the person they are taking action against
         if not role_hierarchy(self.bot.db, inter.guild.id, enforcer=inter.user, offender=offender):
             return await slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
+
+        # apply the timeout and send the embeds
         await offender.timeout(timedelta(seconds=TIME_KEYS[time_unit] * time_duration), reason=reason)
         await slash_embed(
             inter,
@@ -71,10 +77,15 @@ class TimeOut(commands.Cog):
     @discord.app_commands.rename(offender='member')
     @discord.app_commands.default_permissions(view_audit_log=True)
     async def un_time_out(self, inter: discord.Interaction, offender: discord.Member):
+
+        # make sure that the person using the command is above the person they are taking action against
         if not role_hierarchy(self.bot.db, inter.guild.id, enforcer=inter.user, offender=offender):
             return await slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
+
+        # make sure they actually have a timeout applied
         if not offender.timed_out_until:
             return await slash_embed(inter, inter.user, f'{offender.mention} is not timed out.')
+
         await offender.timeout(None)
         await slash_embed(
             inter,

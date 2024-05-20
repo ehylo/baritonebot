@@ -15,6 +15,8 @@ class Info(commands.Cog):
 
     @discord.app_commands.command(name='server-info', description='shows information about the server')
     async def server_info(self, inter: discord.Interaction):
+
+        # build the embed with information about the server
         embed_var = discord.Embed(
             color=self.bot.db.get_embed_color(inter.guild.id), title=f'Server Information: {inter.guild.name}'
         )
@@ -34,6 +36,7 @@ class Info(commands.Cog):
         embed_var.add_field(name='Text Channels:', value=str(len(inter.guild.text_channels)))
         embed_var.add_field(name='Voice Channels:', value=str(len(inter.guild.voice_channels)))
         embed_var.add_field(name='Members:', value=inter.guild.member_count)
+
         embed_var.set_thumbnail(url=inter.guild.icon.url)
         embed_var.set_footer(text=f'{inter.user.name} | ID: {inter.user.id}', icon_url=inter.user.display_avatar.url)
         await inter.response.send_message(embed=embed_var)

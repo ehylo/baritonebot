@@ -9,6 +9,7 @@ from utils import role_hierarchy, get_user, slash_embed, mod_log_embed, dm_embed
 
 log = logging.getLogger('privileged.mute_command')
 
+# we are only allowed 25 options, so I thought I would have some fun :)
 time_dict = enum.Enum(
     value='time_dict',
     names=[
@@ -52,8 +53,12 @@ class Mute(commands.Cog):
 
     @tasks.loop(seconds=5)
     async def loops(self):
+
+        # get the mutes in each guild
         for guild in self.bot.guilds:
             for user in self.bot.db.get_mutes(guild.id):
+
+                # check if they mute has expired and that it isn't an infinite mute
                 if user['expiry'] <= time.time() and user['expiry'] != 0:
                     await guild.get_member(user['user_id']).remove_roles(
                         guild.get_role(self.bot.db.get_muted_role_id(guild.id))
@@ -83,15 +88,24 @@ class Mute(commands.Cog):
         reason: str
     ):
         time_text = f'{time_duration} {time_unit.lower()}'
+
+        # if the time is greater than the 64-bit limit then its infinite
         if time_duration * time_unit.value + time.time() > 9223372036854775800:
             expiry = 0
         else:
             expiry = time_duration * time_unit.value + time.time()
+
         muted_role = inter.guild.get_role(self.bot.db.get_muted_role_id(inter.guild.id))
+
+        # check to see if they are already muted
         if muted_role in offender.roles:
             return await slash_embed(inter, inter.user, f'{offender.mention} is already muted!')
+
+        # make sure that the person using the command is above the person they are taking action against
         if not role_hierarchy(self.bot.db, inter.guild.id, enforcer=inter.user, offender=offender):
             return await slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
+
+        # send mute to db and send embeds
         await self.bot.db.new_mute(inter.guild.id, offender.id, expiry)
         await offender.add_roles(muted_role)
         await slash_embed(
@@ -127,15 +141,18 @@ class Mute(commands.Cog):
     @discord.app_commands.rename(offender='member')
     @discord.app_commands.describe(offender='Member you wish to un-mute')
     async def unmute(self, inter: discord.Interaction, offender: discord.Member):
+
+        # make sure that the person using the command is above the person they are taking action against
         if not role_hierarchy(self.bot.db, inter.guild.id, enforcer=inter.user, offender=offender):
             return await slash_embed(inter, inter.user, f'You don\'t outrank {offender.mention}')
+
         muted_role = inter.guild.get_role(self.bot.db.get_muted_role_id(inter.guild.id))
+
+        # check to make sure they are actually muted
         if muted_role not in offender.roles:
             return await slash_embed(inter, inter.user, f'{offender.mention} is not muted.')
-        for mutes_dict in self.bot.db.get_mutes(inter.guild.id):
-            if mutes_dict['user_id'] == offender.id:
-                await self.bot.db.delete_mute(inter.guild.id, offender.id)
-                break
+
+        await self.bot.db.delete_mute(inter.guild.id, offender.id)
         await offender.remove_roles(muted_role)
         await slash_embed(
             inter,
@@ -150,11 +167,14 @@ class Mute(commands.Cog):
     @discord.app_commands.command(name='mute-list', description='lists the current muted members')
     @discord.app_commands.default_permissions(view_audit_log=True)
     async def mute_list(self, inter: discord.Interaction):
+
+        # get all the people currently muted in the guild
         description = ''
         for muted_dict in self.bot.db.get_mutes(inter.guild.id):
             user = await get_user(self.bot, muted_dict['user_id'])
             remaining = 'indefinite' if muted_dict['expiry'] == 0 else f'<t:{int(muted_dict["expiry"])}:F>'
             description += f'**{user} ({user.id}) muted until:** \n{remaining}\n'
+
         await slash_embed(
             inter,
             inter.user,

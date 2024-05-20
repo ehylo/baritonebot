@@ -16,12 +16,14 @@ class UndoAddReleases(discord.ui.View):
 
     @discord.ui.button(label='Undo', emoji='↪', style=discord.ButtonStyle.grey, custom_id='add_release')
     async def button_callback(self, inter: discord.Interaction, button: discord.ui.Button):
-        log.info(f'{inter.user.id} removed the releases role after adding it')
         button.disabled = True
+
+        # check if they somehow removed it from when they added it to the button press
         if inter.guild.get_role(self.bot.db.get_release_role_id(inter.guild.id)) not in inter.user.roles:
             return await slash_embed(
                 inter, inter.user, 'You don\'t have the release role', view=self, is_interaction=True
             )
+
         await inter.user.remove_roles(inter.guild.get_role(self.bot.db.get_release_role_id(inter.guild.id)))
         await slash_embed(
             inter,
@@ -32,6 +34,7 @@ class UndoAddReleases(discord.ui.View):
             view=self,
             is_interaction=True
         )
+        log.info(f'{inter.user.id} removed the releases role after adding it')
 
 
 class UndoRemoveReleases(discord.ui.View):
@@ -41,10 +44,12 @@ class UndoRemoveReleases(discord.ui.View):
 
     @discord.ui.button(label='Undo', emoji='↪', style=discord.ButtonStyle.grey, custom_id='remove_release')
     async def button_callback(self, inter: discord.Interaction, button: discord.ui.Button):
-        log.info(f'{inter.user.id} gave themselves the releases role back')
         button.disabled = True
+
+        # check if they somehow added the role from when they removed it to the button press
         if inter.guild.get_role(self.bot.db.get_release_role_id(inter.guild.id)) in inter.user.roles:
             return await slash_embed(inter, inter.user, 'You have the release role', view=self, is_interaction=True)
+
         await inter.user.add_roles(inter.guild.get_role(self.bot.db.get_release_role_id(inter.guild.id)))
         await slash_embed(
             inter,
@@ -55,6 +60,7 @@ class UndoRemoveReleases(discord.ui.View):
             view=self,
             is_interaction=True
         )
+        log.info(f'{inter.user.id} gave themselves the releases role back')
 
 
 class Releases(commands.Cog):
@@ -68,9 +74,11 @@ class Releases(commands.Cog):
     @discord.app_commands.describe(action='Add or remove the releases role')
     async def releases(self, inter: discord.Interaction, action: Literal['Add', 'Remove']):
         if action == 'Add':
-            log.info(f'{inter.user.id} gave themselves the releases role')
+
+            # check if they already have the role
             if inter.guild.get_role(self.bot.db.get_release_role_id(inter.guild.id)) in inter.user.roles:
                 return await slash_embed(inter, inter.user, 'You already have the releases role.')
+
             await inter.user.add_roles(inter.guild.get_role(self.bot.db.get_release_role_id(inter.guild.id)))
             await slash_embed(
                 inter,
@@ -80,10 +88,14 @@ class Releases(commands.Cog):
                 self.bot.db.get_embed_color(inter.guild.id),
                 view=UndoAddReleases(bot=self.bot)
             )
+            log.info(f'{inter.user.id} gave themselves the releases role')
+
         if action == 'Remove':
-            log.info(f'{inter.user.id} removed the releases role')
+
+            # check if they don't have the role to begin with
             if inter.guild.get_role(self.bot.db.get_release_role_id(inter.guild.id)) not in inter.user.roles:
                 return await slash_embed(inter, inter.user, 'You don\'t have the releases role.')
+
             await inter.user.remove_roles(inter.guild.get_role(self.bot.db.get_release_role_id(inter.guild.id)))
             await slash_embed(
                 inter,
@@ -93,6 +105,7 @@ class Releases(commands.Cog):
                 color=self.bot.db.get_embed_color(inter.guild.id),
                 view=UndoRemoveReleases(bot=self.bot)
             )
+            log.info(f'{inter.user.id} removed the releases role')
 
     @commands.Cog.listener()
     async def on_ready(self):

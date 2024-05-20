@@ -19,8 +19,8 @@ class Errors(commands.Cog):
     @commands.Cog.listener()
     async def on_application_command_error(self, inter: discord.Interaction, error):
         exception = '\n'.join(traceback.format_exception(type(error), error, error.__traceback__))
-        log.error(exception)
         await inter.response.send_message('An unhandled exception has occurred.')
+        log.error(exception)
 
 
 async def setup(bot):

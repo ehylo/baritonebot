@@ -17,7 +17,8 @@ class OptOut(commands.Cog):
         confirmation='Type \"I am sure\" to confirm you want to ban yourself, this cannot be undone'
     )
     async def opt_out(self, inter: discord.Interaction, confirmation: str):
-        log.info(f'{inter.user.id} has opted out of the server')
+
+        # check to make sure they actually did it correctly
         if confirmation != 'I am sure':
             return await slash_embed(
                 inter,
@@ -52,6 +53,7 @@ class OptOut(commands.Cog):
             description='You have been banned in the baritone discord because you chose to be'
         )
         await inter.user.ban(reason='Opted-out', delete_message_days=0)
+        log.info(f'{inter.user.id} has opted out of the server')
 
 
 async def setup(bot):

@@ -17,10 +17,18 @@ class LogClear(commands.Cog):
     @tasks.loop(seconds=60)
     async def loops(self):
         for guild in self.bot.guilds:
+
+            # get the log channel for the specific guild
             log_channel = await get_channel(self.bot, self.bot.db.get_logs_channel_id(guild.id))
+
+            # go through the messages in the log channel
             async for message in log_channel.history(limit=1000):
+
+                # make sure the message is > 24 hours old
                 if (message.created_at.replace(tzinfo=None) + timedelta(hours=24)) < datetime.utcnow():
                     await message.delete()
+
+                    # sleep to avoid rate limits
                     await asyncio.sleep(1)
 
     @loops.before_loop

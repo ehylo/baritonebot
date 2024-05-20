@@ -14,6 +14,8 @@ class BackwardButton(discord.ui.Button):
         self.bot = bot
 
     async def callback(self, inter: discord.Interaction):
+
+        # check if we can detect the pages
         if self.view.old_message:
             return await slash_embed(
                 inter,
@@ -21,9 +23,12 @@ class BackwardButton(discord.ui.Button):
                 'This message was sent before my current session so I cannot cycle between the pages',
                 'Search again'
             )
+
+        # update the page we are on, get the contents, and edit the message
         self.view.current_page -= 1
         self.view.children[1].disabled = False
         pages = self.view.version.search(self.view.term)
+        # disable the left arrow button if we are on the first page
         if self.view.current_page == 0:
             self.disabled = True
         await slash_embed(
@@ -43,6 +48,8 @@ class ForwardButton(discord.ui.Button):
         self.bot = bot
 
     async def callback(self, inter: discord.Interaction):
+
+        # check if we can detect the pages
         if self.view.old_message:
             return await slash_embed(
                 inter,
@@ -50,9 +57,12 @@ class ForwardButton(discord.ui.Button):
                 'This message was sent before my current session so I cannot cycle between the pages',
                 'Search again',
             )
+
+        # update the page we are on, get the contents, and edit the message
         self.view.current_page += 1
         self.view.children[0].disabled = False
         pages = self.view.version.search(self.view.term)
+        # disable the right arrow button if we are on the last page
         if self.view.current_page == len(pages) - 1:
             self.disabled = True
         return await slash_embed(
@@ -72,6 +82,8 @@ class BaritoneSettings(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
+
+        # this is so if people press old buttons I can respond and not have it say the bot didn't respond
         view = discord.ui.View(timeout=None)
         view.old_message = True
         view.add_item(BackwardButton(bot=self.bot))
@@ -86,6 +98,8 @@ class BaritoneSettings(commands.Cog):
     async def setting_searcher(self, inter: discord.Interaction, version: baritone_settings_versions, term: str):
         log.info(f'{inter.user.id} searched in {version.name} for {term}')
         content = version.value.search(term)
+
+        # check if the search actually returned anything
         if content == ['']:
             return await slash_embed(
                 inter,
@@ -94,6 +108,8 @@ class BaritoneSettings(commands.Cog):
                 color=self.bot.db.get_embed_color(inter.guild.id),
                 ephemeral=False,
             )
+
+        # if there is only 1 page then we don't care about the buttons
         if len(content) == 1:
             return await slash_embed(
                 inter,
@@ -102,6 +118,8 @@ class BaritoneSettings(commands.Cog):
                 color=self.bot.db.get_embed_color(inter.guild.id),
                 ephemeral=False
             )
+
+        # add all the appropriate buttons/views and send the message
         view = discord.ui.View(timeout=None)
         view.term = term
         view.version = version.value

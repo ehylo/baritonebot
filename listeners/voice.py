@@ -15,12 +15,16 @@ class Voice(commands.Cog):
         self, member: discord.Member, before: discord.VoiceState, after: discord.VoiceState
     ):
         voice_role = member.guild.get_role(self.bot.db.get_voice_role_id(member.guild.id))
+
+        # check if they just joined a voice channel
         if before.channel is None and voice_role not in member.roles:
+            await member.add_roles(voice_role)
             log.info(f'{member.id} joined the voice channel {after.channel.id}')
-            return await member.add_roles(voice_role)
+
+        # check if they just left a voice channel
         if after.channel is None and voice_role in member.roles:
+            await member.remove_roles(voice_role)
             log.info(f'{member.id} left the voice channel {before.channel.id}')
-            return await member.remove_roles(voice_role)
 
 
 async def setup(bot):

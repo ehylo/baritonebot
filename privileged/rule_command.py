@@ -13,8 +13,11 @@ class Rule(commands.Cog):
     @discord.app_commands.rename(rule_num='rule-number')
     async def rule(self, inter: discord.Interaction, rule_num: discord.app_commands.Range[int, 1],):
         rules = list(self.bot.db.get_rules(inter.guild.id).values())
+
+        # make sure the given rule number is in the correct bounds
         if len(rules) < rule_num:
             return await slash_embed(inter, inter.user, f'There are only {len(rules)} rules not {rule_num}!')
+
         await slash_embed(
             inter,
             inter.user,

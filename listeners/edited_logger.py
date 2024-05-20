@@ -21,20 +21,30 @@ class EditedLogger(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, message_before: discord.Message, message_after: discord.Message):
+
+        # ignore webhooks
         if message_after.author.discriminator == '0000':
             return
+        # ignore blank before/afters (embeds)
         if message_after.content == '' or message_before.content == '':
             return
+        # ignore messages from the bot
         if message_after.author.id == self.bot.db.bot_id:
             return
+        # ignore messages that didn't change (buttons, interactions, etc.)
         if message_after.content == message_before.content:
             return
+        # ignore dms
         if message_after.guild is None:
             return
+        # ignore large messages that can't be embedded
         if len(message_before.content) > 1024 or len(message_after.content) > 1024:
             return
+        # ignore exempted channels
         if message_after.channel.id in self.bot.db.get_exempt_channel_ids(message_after.guild.id):
             return
+
+        # build the embed
         embed_var = discord.Embed(
             color=self.bot.db.get_embed_color(message_after.guild.id),
             description=f'**Message edited in {message_after.channel.mention}**'
@@ -45,10 +55,10 @@ class EditedLogger(commands.Cog):
             text=f'{message_after.author.name} | ID: {message_after.author.id}',
             icon_url=message_after.author.display_avatar.url
         )
-        log.info(f'message edited in {message_after.channel.id}, '
-                 f'before: {message_before.content}\n\nafter: {message_after.content}')
         channel = await get_channel(self.bot, self.bot.db.get_logs_channel_id(message_after.guild.id))
         await channel.send(embed=embed_var, view=EditedMessageJump(message_after.jump_url))
+        log.info(f'message edited in {message_after.channel.id}, '
+                 f'before: {message_before.content}\n\nafter: {message_after.content}')
 
 
 async def setup(bot):
