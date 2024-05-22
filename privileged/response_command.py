@@ -227,8 +227,8 @@ class Response(commands.Cog):
         if description is not None:
             description = description.replace('\\n', '\n')
 
-        self.bot.db.edit_response(
-            inter.guild.id, list(responses.keys())[response_num - 1], title, description, regex, delete, ignored_ids
+        await self.bot.db.edit_response(
+            inter.guild.id, list(responses.keys())[response_num - 1], title, description, regex, delete
         )
         await slash_embed(
             inter,
@@ -251,7 +251,7 @@ class Response(commands.Cog):
         if len(responses) < response_num:
             return await slash_embed(inter, inter.user, 'There are not that many responses', 'Too large')
 
-        self.bot.db.delete_response(inter.guild.id, list(responses.keys())[response_num - 1])
+        await self.bot.db.delete_response(inter.guild.id, list(responses.keys())[response_num - 1])
         await slash_embed(
             inter,
             inter.user,

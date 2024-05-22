@@ -26,7 +26,7 @@ class DB:
         await self._db.execute(f'SET search_path TO {SCHEMA}')
         log.info(f'set schema to {SCHEMA}, checking for tables in db')
 
-        existing_tables = await self._db.fetch(f'SELECT table_name FROM information_schema.tables')
+        existing_tables = await self._db.fetch('SELECT table_name FROM information_schema.tables')
         existing_tables = [a['table_name'] for a in existing_tables]
 
         # Check for existing tables and add the missing ones
