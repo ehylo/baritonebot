@@ -48,3 +48,7 @@ Finally, start the bot:
 ```bash
 python main.py
 ```
+
+Broken Commands I need to fix:
+- clear
+- github search fix pull requests
