@@ -52,3 +52,12 @@ python main.py
 Broken Commands I need to fix:
 - clear
 - github search fix pull requests
+
+How to Identify staff:
+- helpers	view audit log	@discord.default_permissions(view_audit_log=True)
+- mods	ban	@discord.default_permissions(ban_members=True)
+- admins	admin	@discord.default_permissions(administrator=True)
+
+Other Rules:
+- functions	always have type, and a default
+- calls	always have something= even if just going through
