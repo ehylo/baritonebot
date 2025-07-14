@@ -13,13 +13,13 @@ class BackwardButton(discord.ui.Button):
         super().__init__(emoji='◀️', style=discord.ButtonStyle.blurple, custom_id='settings_back', disabled=True)
         self.bot = bot
 
-    async def callback(self, inter: discord.Interaction):
+    async def callback(self, interaction: discord.Interaction):
 
         # check if we can detect the pages
         if self.view.old_message:
             return await slash_embed(
-                inter,
-                inter.user,
+                interaction,
+                interaction.user,
                 'This message was sent before my current session so I cannot cycle between the pages',
                 'Search again'
             )
@@ -32,10 +32,10 @@ class BackwardButton(discord.ui.Button):
         if self.view.current_page == 0:
             self.disabled = True
         await slash_embed(
-            inter,
-            author=inter.user,
+            interaction,
+            author=interaction.user,
             description=pages[self.view.current_page],
-            color=self.bot.db.get_embed_color(inter.guild.id),
+            color=self.bot.db.get_embed_color(interaction.guild.id),
             ephemeral=False,
             view=self.view,
             is_interaction=True
@@ -47,13 +47,13 @@ class ForwardButton(discord.ui.Button):
         super().__init__(emoji='▶️', style=discord.ButtonStyle.blurple, custom_id='settings_forward')
         self.bot = bot
 
-    async def callback(self, inter: discord.Interaction):
+    async def callback(self, interaction: discord.Interaction):
 
         # check if we can detect the pages
         if self.view.old_message:
             return await slash_embed(
-                inter,
-                inter.user,
+                interaction,
+                interaction.user,
                 'This message was sent before my current session so I cannot cycle between the pages',
                 'Search again',
             )
@@ -66,10 +66,10 @@ class ForwardButton(discord.ui.Button):
         if self.view.current_page == len(pages) - 1:
             self.disabled = True
         return await slash_embed(
-            inter,
-            author=inter.user,
+            interaction,
+            author=interaction.user,
             description=pages[self.view.current_page],
-            color=self.bot.db.get_embed_color(inter.guild.id),
+            color=self.bot.db.get_embed_color(interaction.guild.id),
             ephemeral=False,
             view=self.view,
             is_interaction=True

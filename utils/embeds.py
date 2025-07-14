@@ -23,12 +23,12 @@ async def mod_log_embed(
 
 async def slash_embed(
     interaction: discord.Interaction,
-    author: discord.User,
+    author: discord.User | discord.Member,
     description: str = '',
     title: str = '',
     color: int = RED_EMBED_COLOR,
     ephemeral: bool = True,
-    view: discord.ui.View = None,
+    view: discord.ui.View | None = None,
     is_interaction: bool = False
 ):
 
